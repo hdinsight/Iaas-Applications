@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "clusterApiVersion": "2015-03-01-preview"
+    },
+    "resources": [{
+        "name": "[concat(parameters('clusterName'),'/hue')]",
+        "type": "Microsoft.HDInsight/clusters/applications",
+        "apiVersion": "[variables('clusterApiVersion')]",
+        "properties": {
+            "computeProfile": {
+                "roles": [{
+                    "name": "edgenode",
+                    "targetInstanceCount": 1,
+                    "hardwareProfile": {
+                        "vmSize": "Standard_D3"
+                    }
+                }]
+            },
+            "installScriptActions": [{
+                "name": "hue-install_v0",
+                "uri": "https://anthonmpersistedstore.blob.core.windows.net/iaasapplicationartifacts/Hue/scripts/Hue-install_v0.sh",
+                "roles": ["edgenode"]
+            }],
+            "uninstallScriptActions": [],
+            "httpsEndpoints": [{
+                "subDomainSuffix": "hue",
+                "destinationPort": 8888,
+                "accessModes": ["webpage"]
+            },
+            {
+                "subDomainSuffix": "was",
+                "destinationPort": 50073
+            }],
+            "applicationType": "CustomApplication"
+        }
+    }]
+}
