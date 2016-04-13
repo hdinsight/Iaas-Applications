@@ -15,3 +15,5 @@ WebWasb allows you to access and execute commands against the default WASB conta
 From the new edge node, WebWasb can be accessed using localhost as the hostname and 50073 as the port name.
 As an example, if you wanted to list all files and directories at the root of the cluster's storage account, you could execute <pre>curl http://localhost:50073/WebWasb/webhdfs/v1/?op=LISTSTATUS</pre>
 
+The external wasb endpoint can be viewed from the Apps pane in the portal, by clicking on the hue app. When executing wasb commands against the external endpoint, use the basic authentication with the cluster username and password.<br /> Example command from outside the cluster: 
+<pre>curl -u clusteruser:clusterPassword https://clustername-was.apps.azurehdinsight.net:443/WebWasb/webhdfs/v1/?op=LISTSTATUS</pre>
