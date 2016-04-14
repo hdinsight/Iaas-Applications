@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the HDInsight cluster."
+      }
+    },
+    "galleryPackageIdentity": {
+      "type": "string",
+      "metadata": {
+        "description": "Identity of the gallery package."
+      }
+    }
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('clusterName'),'/DataTorrentV2')]",
+      "type": "Microsoft.HDInsight/clusters/applications",
+      "location": "West Us",
+      "apiVersion": "2015-03-01-preview",
+      "properties": {
+        "marketPlaceIdentifier": "[parameters('galleryPackageIdentity')]",
+        "computeProfile": {
+          "roles": [
+            {
+              "name": "edgenode",
+              "targetInstanceCount": 1,
+              "hardwareProfile": {
+                "vmSize": "Large"
+              }
+            }
+          ]
+        },
+        "installScriptActions": [
+          {
+            "name": "Install DataTorrent app",
+            "uri": "https://www.datatorrent.com/downloads/azure/azure.sh",
+            "roles": [
+              "edgenode"
+            ]
+          }
+        ],
+        "uninstallScriptActions": [],
+        "httpsEndpoints": [
+          {
+            "subDomainSuffix": "dtt",
+            "destinationRole": "edgenode",
+            "destinationPort": 9090,
+            "description": "view data torrent app",
+            "hasWebpage": true
+          }
+        ],
+        "applicationType": "CustomApplication"
+      }
+    }
+  ]
+}

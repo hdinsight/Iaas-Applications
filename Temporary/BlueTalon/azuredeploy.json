@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the HDInsight cluster."
+      }
+    },
+    "galleryPackageIdentity": {
+      "type": "string",
+      "metadata": {
+        "description": "Identity of the gallery package."
+      }
+    }
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('clusterName'),'/BlueTalonV2')]",
+      "type": "Microsoft.HDInsight/clusters/applications",
+      "location": "West Us",
+      "apiVersion": "2015-03-01-preview",
+      "properties": {
+        "marketPlaceIdentifier": "[parameters('galleryPackageIdentity')]",
+        "computeProfile": {
+          "roles": [
+            {
+              "name": "edgenode",
+              "targetInstanceCount": 1,
+              "hardwareProfile": {
+                "vmSize": "Standard_D3"
+              }
+            }
+          ]
+        },
+        "installScriptActions": [
+          {
+            "name": "BlueTalon App Install",
+            "uri": "http://download.cloud.bluetalon.com/patch-build/Auriga2.4/TAR/091815/installbtonhdi_ubuntu.sh",
+            "roles": [
+              "edgenode"
+            ]
+          }
+        ],
+        "uninstallScriptActions": [],
+        "httpsEndpoints": [
+          {
+            "subDomainSuffix": "btn",
+            "destinationPort": 8111,
+            "hasWebpage": true,
+            "accessModes": [
+              "WebPage"
+            ]
+          },
+          {
+            "subDomainSuffix": "btl",
+            "destinationPort": 8112,
+            "hasWebpage": true,
+            "accessModes": [
+              "WebPage"
+            ]
+          }
+        ],
+        "applicationType": "CustomApplication"
+      }
+    }
+  ]
+}
