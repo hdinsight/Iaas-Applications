@@ -7,14 +7,11 @@
       "metadata": {
         "description": "The name of the HDInsight cluster."
       }
-    },
-    "galleryPackageIdentity": {
-      "type": "string",
-      "metadata": {
-        "description": "Identity of the package."
-      }
     }
   },
+  "variables": {
+        "galleryPackageIdentity": "DataguiseV2",
+    },
   "resources": [
     {
       "name": "[concat(parameters('clusterName'),'/dgsecurev2')]",
@@ -22,7 +19,7 @@
       "location": "West Us",
       "apiVersion": "2015-03-01-preview",
       "properties": {
-        "marketPlaceIdentifier": "[parameters('galleryPackageIdentity')]",
+        "marketPlaceIdentifier": "[variables('galleryPackageIdentity')]",
         "computeProfile": {
           "roles": [
             {
