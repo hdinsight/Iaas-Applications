@@ -176,9 +176,6 @@
 		"parameters": {
 			"clusterName": {
 				"value": "[parameters('clusterName')]"
-			},
-			"galleryPackageIdentity": {
-				"value": "HueV2"
 			}
 		}
 	}
