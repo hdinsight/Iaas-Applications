@@ -40,5 +40,11 @@
             }],
             "applicationType": "CustomApplication"
         }
-    }]
+    }],
+    "outputs": {
+        "application": {
+            "type": "object",
+             "value" :  "[reference(resourceId('Microsoft.HDInsight/clusters/applications/',parameters('clusterName'), 'hue'))]"
+        }
+    }
 }
