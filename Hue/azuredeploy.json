@@ -11,7 +11,7 @@
         "galleryPackageIdentity": {
             "type": "string",
             "metadata": {
-                "description" : "Identity of the gallery package for the application"
+                "description" : "Any non-empty value is accepted. After the package is published, this parameter will be used to link the application install to the details about the application in the marketplace."
             },
             "defaultValue": "Hue"
         },
