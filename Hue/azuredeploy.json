@@ -3,7 +3,24 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "clusterName": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "The name of the existing HDInsight cluster"
+            }
+        },
+        "galleryPackageIdentity": {
+            "type": "string",
+            "metadata": {
+                "description" : "Identity of the gallery package for the application"
+            },
+            "defaultValue": "Hue"
+        },
+        "edgeNodeSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of the edge node that hosts the application"
+            },
+            "defaultValue": "Standard_D3"
         }
     },
     "variables": {
@@ -14,12 +31,13 @@
         "type": "Microsoft.HDInsight/clusters/applications",
         "apiVersion": "[variables('clusterApiVersion')]",
         "properties": {
+            "marketPlaceIdentifier": "[parameters('galleryPackageIdentity')]",
             "computeProfile": {
                 "roles": [{
                     "name": "edgenode",
                     "targetInstanceCount": 1,
                     "hardwareProfile": {
-                        "vmSize": "Standard_D3"
+                        "vmSize": "[parameters('edgeNodeSize')]"
                     }
                 }]
             },
