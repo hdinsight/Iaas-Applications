@@ -52,7 +52,7 @@
                 }]
             },
             "installScriptActions": [{
-                "name": "hue-install_v0",
+                "name": "hue-install-v0",
                 "uri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/Hue/scripts/Hue-install-v0.sh",
                 "roles": ["edgenode"]
             }],
