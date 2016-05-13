@@ -247,4 +247,3 @@ startServiceViaRest HDFS
 
 setupWebWasbService
 setupHueService
-
