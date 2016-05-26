@@ -35,9 +35,10 @@
     },
     "variables": {
         "clusterApiVersion": "2015-03-01-preview"
+        "applicationName": "hue"
     },
     "resources": [{
-        "name": "[concat(parameters('clusterName'),'/hue')]",
+        "name": "[concat(parameters('clusterName'),variables('applicationName'))]",
         "type": "Microsoft.HDInsight/clusters/applications",
         "apiVersion": "[variables('clusterApiVersion')]",
         "properties": {
@@ -72,7 +73,7 @@
     "outputs": {
         "application": {
             "type": "object",
-             "value" :  "[reference(resourceId('Microsoft.HDInsight/clusters/applications/',parameters('clusterName'), 'hue'))]"
+             "value" :  "[reference(resourceId('Microsoft.HDInsight/clusters/applications/',parameters('clusterName'), variables('applicationName')))]"
         }
     }
 }
