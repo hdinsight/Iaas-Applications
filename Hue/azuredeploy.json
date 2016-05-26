@@ -73,7 +73,7 @@
     "outputs": {
         "application": {
             "type": "object",
-             "value" :  "[reference(resourceId('Microsoft.HDInsight/clusters/applications/',parameters('clusterName'), variables('applicationName')))]"
+            "value": "[reference(resourceId('Microsoft.HDInsight/clusters/applications/',parameters('clusterName'), variables('applicationName')))]"
         }
     }
 }
