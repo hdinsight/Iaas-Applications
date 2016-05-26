@@ -52,7 +52,7 @@
                 }]
             },
             "installScriptActions": [{
-                "name": "hue-install-v0",
+                "name": "[concat('hue-install-v0','-' ,uniquestring(resourceId('Microsoft.HDInsight/clusters/',parameters('clusterName')), variables('applicationName')))]",
                 "uri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/Hue/scripts/Hue-install_v0.sh",
                 "roles": ["edgenode"]
             }],
