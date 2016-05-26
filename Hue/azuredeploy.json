@@ -38,7 +38,7 @@
         "applicationName": "hue"
     },
     "resources": [{
-        "name": "[concat(parameters('clusterName'),variables('applicationName'))]",
+        "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
         "type": "Microsoft.HDInsight/clusters/applications",
         "apiVersion": "[variables('clusterApiVersion')]",
         "properties": {
