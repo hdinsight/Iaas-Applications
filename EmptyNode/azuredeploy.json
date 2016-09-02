@@ -40,7 +40,7 @@
             "defaultValue": "new"
         },
         "instanceCount": {
-            "type": "integer",
+            "type": "int",
             "metadata": {
                 "description": "Number of instances"
             },
@@ -67,7 +67,7 @@
             "computeProfile": {
                 "roles": [{
                     "name": "edgenode",
-                    "targetInstanceCount": "[int(parameters('instanceCount'))]",
+                    "targetInstanceCount": "parameters('instanceCount')",
                     "hardwareProfile": {
                         "vmSize": "[parameters('edgeNodeSize')]"
                     }
