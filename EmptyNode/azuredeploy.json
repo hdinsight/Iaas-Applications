@@ -8,13 +8,6 @@
                 "description": "The name of the existing HDInsight cluster"
             }
         },
-        "galleryPackageIdentity": {
-            "type": "string",
-            "metadata": {
-                "description" : "Any non-empty value is accepted. After the package is published, this parameter will be used to link the application install to the details about the application in the marketplace."
-            },
-            "defaultValue": "EmptyNode"
-        },
         "edgeNodeSize": {
             "type": "string",
             "metadata": {
@@ -38,20 +31,6 @@
                 "description": "Edgenode prefix"
             },
             "defaultValue": "new"
-        },
-        "instanceCount": {
-            "type": "int",
-            "metadata": {
-                "description": "Number of instances"
-            },
-            "defaultValue": 1
-        },
-        "edgeNodeSetupScriptUri": {
-            "type": "string",
-            "metadata": {
-                "description": "Edgenode setup script"
-            },
-            "defaultValue": "https://raw.githubusercontent.com/ezubatov/Iaas-Applications/master/EmptyNode/scripts/EmptyNodeSetup.sh"
         }
     },
     "variables": {
@@ -63,11 +42,11 @@
         "type": "Microsoft.HDInsight/clusters/applications",
         "apiVersion": "[variables('clusterApiVersion')]",
         "properties": {
-            "marketPlaceIdentifier": "[parameters('galleryPackageIdentity')]",
+            "marketPlaceIdentifier": "EmptyNode",
             "computeProfile": {
                 "roles": [{
                     "name": "edgenode",
-                    "targetInstanceCount": "[parameters('instanceCount')]",
+                    "targetInstanceCount": 1,
                     "hardwareProfile": {
                         "vmSize": "[parameters('edgeNodeSize')]"
                     }
@@ -75,7 +54,7 @@
             },
             "installScriptActions": [{
                 "name": "[concat('emptynode','-' ,uniquestring(variables('applicationName')))]",
-                "uri": "[parameters('edgeNodeSetupScriptUri')]",
+                "uri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/EmptyNode/scripts/EmptyNodeSetup.sh",
                 "roles": ["edgenode"]
             }],
             "uninstallScriptActions": [],
