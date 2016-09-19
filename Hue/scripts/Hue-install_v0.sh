@@ -23,6 +23,9 @@ HUE_INSTALLFOLDER=/usr/share/hue
 HUE_INIPATH=$HUE_INSTALLFOLDER/desktop/conf/hue.ini
 ACTIVEAMBARIHOST=headnodehost
 
+#import helper module.
+wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
+
 usage() {
     echo ""
     echo "Usage: sudo -E bash install-hue-uber-v02.sh";
@@ -179,22 +182,30 @@ setupHueService() {
 
     sed -i "s|DEFAULTFSPLACEHOLDER|$defaultfs|g" $HUE_INIPATH
     
-    rm1node=$(sed -n '/<name>yarn.resourcemanager.hostname.rm1/,/<\/value>/p' $YARNSITEPATH)
-    rm2node=$(sed -n '/<name>yarn.resourcemanager.hostname.rm2/,/<\/value>/p' $YARNSITEPATH)
+    PRIMARYHEADNODE=`get_primary_headnode`
+	SECONDARYHEADNODE=`get_secondary_headnode`
     
-    rm1Host=$(sed -n -e 's/.*<value>\(.*\)<\/value>.*/\1/p' <<< $rm1node)
-    rm2Host=$(sed -n -e 's/.*<value>\(.*\)<\/value>.*/\1/p' <<< $rm2node)
-    
-    echo "headnode 0 = $rm1Host"
-    echo "headnode 1 = $rm2Host"
-    sed -i "s|http://headnode0:8088|http://$rm1Host:8088|g" $HUE_INIPATH
-    sed -i "s|http://headnode1:8088|http://$rm2Host:8088|g" $HUE_INIPATH
+	#Check if values retrieved are empty, if yes, exit with error
+	if [[ -z $PRIMARYHEADNODE ]]; then
+	echo "Could not determine primary headnode."
+	exit 139
+	fi
 
-    sed -i "s|## hive_server_host=localhost|hive_server_host=$rm1Host|g" $HUE_INIPATH
-    sed -i "s|## oozie_url=http://localhost:11000/oozie|oozie_url=http://$rm1Host:11000/oozie|g" $HUE_INIPATH
-    sed -i "s|## proxy_api_url=http://localhost:8088|proxy_api_url=http://$rm1Host:8088|g" $HUE_INIPATH
-    sed -i "s|## history_server_api_url=http://localhost:19888|history_server_api_url=http://$rm1Host:19888|g" $HUE_INIPATH
-    sed -i "s|## jobtracker_host=localhost|jobtracker_host=$rm1Host|g" $HUE_INIPATH
+	if [[ -z $SECONDARYHEADNODE ]]; then
+	echo "Could not determine secondary headnode."
+	exit 140
+	fi
+    
+    echo "primary headnode = $PRIMARYHEADNODE"
+    echo "secondary headnode = $SECONDARYHEADNODE"
+    sed -i "s|http://headnode0:8088|http://$PRIMARYHEADNODE:8088|g" $HUE_INIPATH
+    sed -i "s|http://headnode1:8088|http://$SECONDARYHEADNODE:8088|g" $HUE_INIPATH
+
+    sed -i "s|## hive_server_host=localhost|hive_server_host=$PRIMARYHEADNODE|g" $HUE_INIPATH
+    sed -i "s|## oozie_url=http://localhost:11000/oozie|oozie_url=http://$PRIMARYHEADNODE:11000/oozie|g" $HUE_INIPATH
+    sed -i "s|## proxy_api_url=http://localhost:8088|proxy_api_url=http://$PRIMARYHEADNODE:8088|g" $HUE_INIPATH
+    sed -i "s|## history_server_api_url=http://localhost:19888|history_server_api_url=http://$PRIMARYHEADNODE:19888|g" $HUE_INIPATH
+    sed -i "s|## jobtracker_host=localhost|jobtracker_host=$PRIMARYHEADNODE|g" $HUE_INIPATH
 
     echo "Adding hue user"
     useradd -r hue
