@@ -41,6 +41,7 @@
         "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
         "type": "Microsoft.HDInsight/clusters/applications",
         "apiVersion": "[variables('clusterApiVersion')]",
+        "comments" : "The script below is a copy of the script in the Iaas-Applications github repository",
         "properties": {
             "marketPlaceIdentifier": "EmptyNode",
             "computeProfile": {
@@ -54,7 +55,7 @@
             },
             "installScriptActions": [{
                 "name": "[concat('emptynode','-' ,uniquestring(variables('applicationName')))]",
-                "uri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/EmptyNode/scripts/EmptyNodeSetup.sh",
+                "uri": "http://hdiconfigactions.blob.core.windows.net/emptyedgenodev01/EmptyNodeSetup.sh",
                 "roles": ["edgenode"]
             }],
             "uninstallScriptActions": [],
