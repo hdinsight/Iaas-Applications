@@ -99,7 +99,8 @@
     "clusterApiVersion": "2015-03-01-preview",
     "clusterStorageAccountName": "[concat(parameters('clusterName'),'store')]",
     "applicationName": "opentsdb",
-    "galleryPackageIdentity": "opentsdb"
+    "galleryPackageIdentity": "opentsdb",
+    "scriptBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/deployment/"
   },
   "resources": [
     {
@@ -162,7 +163,7 @@
               "scriptActions": [
                 {
                   "name": "install-opentsdb",
-                  "uri": "https://raw.githubusercontent.com/jamesbak/opentsdb-hdi/v0.3/deployment/install-opentsdb.sh",
+                  "uri": "[concat(variables('scriptBaseUri'), 'install-opentsdb.sh')]",
                   "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('tsdPortNumber'), ' tsd', ' 1')]",
                   "isHeadNode": true
                 }
@@ -208,7 +209,7 @@
         "installScriptActions": [
           {
             "name": "install-opentsdb-proxy",
-            "uri": "https://raw.githubusercontent.com/jamesbak/opentsdb-hdi/v0.3/deployment/deploy-external-proxy.sh",
+            "uri": "[concat(variables('scriptBaseUri'), 'deploy-external-proxy.sh')]",
             "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'))]",
             "roles": [
               "edgenode"

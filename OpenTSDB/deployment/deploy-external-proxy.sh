@@ -1,5 +1,9 @@
 #!/bin/bash          
 
+# This script originally took care of the installation of the external proxy host components OPENTSDB_PROXY, but since
+# we have to defer restarting Ambari until AFTER the edge node(s) are fully provisioned, this script is now just a 
+# placeholder that the detached script running on the active headnode is monitoring to detect completion.
+
 user=$1
 password=$2
 

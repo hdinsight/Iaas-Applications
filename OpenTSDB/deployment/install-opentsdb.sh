@@ -6,6 +6,10 @@ tsd_listen_port=${3:-4242}
 proxy_domain_suffix=$4
 num_edge_nodes=${5:-1}
 
+opentsdb_tar_file=OPENTSDB.tar.gz
+opentsdb_tar_file_uri=https://hdiconfigactions.blob.core.windows.net/linuxhueconfigactionv01/$opentsdb_tar_file
+detached_script_uri=https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/deployment/create-ambari-services.sh
+
 echo "$(date +%T) Starting custom action script for provisioning OpenTSDB as an Ambari service"
 apt-get install jq
 wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/bin/jq
@@ -16,9 +20,11 @@ stack_version=$(curl -u $user:$password http://headnodehost:8080/api/v1/clusters
 echo "$(date +%T) Cluster: $cluster, Stack: $stack_name-$stack_version" 
 
 cd /var/lib/ambari-server/resources/stacks/$stack_name/$stack_version/services
-wget "https://github.com/jamesbak/opentsdb-hdi/files/523287/OPENTSDB.tar.gz" -O /tmp/OPENTSDB.tar.gz
+wget "$opentsdb_tar_file_uri" -O /tmp/OPENTSDB.tar.gz
 tar -xvf /tmp/OPENTSDB.tar.gz
 chmod -R 644 OPENTSDB
+
+# We have to enable the Ambari agents to pickup the new service artifacts
 sed -i "s/\(agent.auto.cache.update=\).*/\1true/" /etc/ambari-server/conf/ambari.properties
 
 # metrics - add our metrics to the whitelist & recycle the metrics collector
@@ -73,7 +79,7 @@ is_active_headnode=$(expr "$(hostname -i)" == "$head_ip")
 echo "$(date +%T) This node is active headnode: $is_active_headnode"
 
 echo "$(date +%T) Processing service registration on active head node via background script"
-wget "https://raw.githubusercontent.com/jamesbak/opentsdb-hdi/v0.3/deployment/create-ambari-services.sh" -O /tmp/create-opentsdb-ambari-services.sh
+wget "$detached_script_uri" -O /tmp/create-opentsdb-ambari-services.sh
 chmod 744 /tmp/create-opentsdb-ambari-services.sh
 mkdir /var/log/opentsdb
 echo "$(date +%T) Logging background activity to /var/log/opentsdb/create-ambari-services.out & /var/log/opentsdb/create-ambari-services.err"
