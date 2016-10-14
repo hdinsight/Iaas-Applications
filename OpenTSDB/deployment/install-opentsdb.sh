@@ -11,7 +11,7 @@ opentsdb_tar_file_uri=https://hdiconfigactions.blob.core.windows.net/linuxhuecon
 detached_script_uri=https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/deployment/create-ambari-services.sh
 
 echo "$(date +%T) Starting custom action script for provisioning OpenTSDB as an Ambari service"
-apt-get install jq
+apt-get -y install jq
 wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/bin/jq
 
 cluster=$(curl -u $user:$password http://headnodehost:8080/api/v1/clusters | jq -r .items[0].Clusters.cluster_name)
