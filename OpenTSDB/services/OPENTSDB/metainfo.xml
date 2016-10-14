@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>OPENTSDB</name>
+            <displayName>OpenTSDB</displayName>
+            <comment>The Scalable Time Series Database. Store and serve massive amounts of time series data without losing granularity</comment>
+            <version>0.1.0</version>
+            <components>
+                <component>
+                  <name>OPENTSDB_TSD</name>
+                  <displayName>OpenTSDB TSD</displayName>
+                  <category>MASTER</category>
+                  <cardinality>1+</cardinality>
+                  <timelineAppid>OPENTSDB</timelineAppid>
+                  <commandScript>
+                    <script>scripts/opentsdb.py</script>
+                    <scriptType>PYTHON</scriptType>
+                    <timeout>5000</timeout>
+                  </commandScript>
+                </component>
+                <component>
+                  <name>OPENTSDB_PROXY</name>
+                  <displayName>OpenTSDB External Proxy</displayName>
+                  <category>SLAVE</category>
+                  <cardinality>1+</cardinality>
+                  <timelineAppid>OPENTSDB</timelineAppid>
+                  <commandScript>
+                    <script>scripts/tsd_proxy.py</script>
+                    <scriptType>PYTHON</scriptType>
+                    <timeout>5000</timeout>
+                  </commandScript>
+                </component>
+            </components>
+            <osSpecifics>
+              <osSpecific>
+                <osFamily>any</osFamily>
+              </osSpecific>
+            </osSpecifics>
+            <requiredServices>
+                <service>HBASE</service>
+            </requiredServices>
+            <configuration-dependencies>
+                <config-type>opentsdb-config</config-type>
+                <config-type>opentsdb-site</config-type>
+                <config-type>hbase-site</config-type>
+            </configuration-dependencies>
+            <themes>
+                <theme>
+                    <fileName>theme.json</fileName>
+                    <default>true</default>
+                </theme>
+            </themes>
+        </service>
+    </services>
+</metainfo>

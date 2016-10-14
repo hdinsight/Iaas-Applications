@@ -1,0 +1,392 @@
+{
+    "OPENTSDB_TSD": {
+        "Component": [
+            {
+                "type": "ganglia",
+                "metrics": {
+                    "default": {
+                        "metrics/tsd/connections_open": {
+                            "metric": "tsd.connectionmgr.connections.open",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/connections_total": {
+                            "metric": "tsd.connectionmgr.connections.total",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/exceptions_closed": {
+                            "metric": "tsd.connectionmgr.exceptions.closed",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/exceptions_reset": {
+                            "metric": "tsd.connectionmgr.exceptions.reset",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/exceptions_timeout": {
+                            "metric": "tsd.connectionmgr.exceptions.timeout",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/exceptions": {
+                            "metric": "tsd.connectionmgr.exceptions.unknown",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/received/telnet": {
+                            "metric": "tsd.rpc.received.telnet",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/received/http": {
+                            "metric": "tsd.rpc.received.http",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/received/http_plugin": {
+                            "metric": "tsd.rpc.received.http_plugin",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/latency_http_50th_percentile": {
+                            "metric": "tsd.http.latency_50pct.all",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/latency_http_75th_percentile": {
+                            "metric": "tsd.http.latency_75pct.all",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/latency_http_90th_percentile": {
+                            "metric": "tsd.http.latency_90pct.all",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/bytes_received_put": {
+                            "metric": "tsd.rpc.received.put",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/hbase_errors": {
+                            "metric": "tsd.rpc.errors.hbase_errors",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/invalid_values": {
+                            "metric": "tsd.rpc.errors.invalid_values",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/illegal_arguments": {
+                            "metric": "tsd.rpc.errors.illegal_arguments",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/unknown_metrics": {
+                            "metric": "tsd.rpc.errors.unknown_metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/socket_writes_blocked": {
+                            "metric": "tsd.rpc.errors.socket_writes_blocked",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/http/query_invalid_requests": {
+                            "metric": "tsd.http.query.invalid_requests",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/http/query_exceptions": {
+                            "metric": "tsd.http.query.exceptions",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/http/query_success": {
+                            "metric": "tsd.http.query.success",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/cache_hit": {
+                            "metric": "tsd.uid.cache-hit.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/cache_miss": {
+                            "metric": "tsd.uid.cache-miss.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/cache_size": {
+                            "metric": "tsd.uid.cache-size.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/random_collisions": {
+                            "metric": "tsd.uid.random-collisions.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/ids_used": {
+                            "metric": "tsd.uid.ids-used.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/ids_available": {
+                            "metric": "tsd.uid.ids-available.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/hbase/region_clients.open": {
+                            "metric": "tsd.hbase.region_clients.open",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/hbase/region_clients.idle_closed": {
+                            "metric": "tsd.hbase.region_clients.idle_closed",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/duplicates_identical": {
+                            "metric": "tsd.compaction.duplicates.identical",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/duplicates_variant": {
+                            "metric": "tsd.compaction.duplicates.variant",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/queue_size": {
+                            "metric": "tsd.compaction.queue.size",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/errors_read": {
+                            "metric": "tsd.compaction.errors.read",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/errors_delete": {
+                            "metric": "tsd.compaction.errors.delete",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/errors_put": {
+                            "metric": "tsd.compaction.errors.put",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/writes": {
+                            "metric": "tsd.compaction.writes",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/deletes": {
+                            "metric": "tsd.compaction.deletes",
+                            "pointInTime": true,
+                            "temporal": true
+                        }
+                    }
+                }
+            }
+        ],
+        "HostComponent": [
+            {
+                "type": "ganglia",
+                "metrics": {
+                    "default": {
+                        "metrics/tsd/connections_open": {
+                            "metric": "tsd.connectionmgr.connections.open",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/connections_total": {
+                            "metric": "tsd.connectionmgr.connections.total",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/exceptions_closed": {
+                            "metric": "tsd.connectionmgr.exceptions.closed",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/exceptions_reset": {
+                            "metric": "tsd.connectionmgr.exceptions.reset",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/exceptions_timeout": {
+                            "metric": "tsd.connectionmgr.exceptions.timeout",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/exceptions": {
+                            "metric": "tsd.connectionmgr.exceptions.unknown",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/received/telnet": {
+                            "metric": "tsd.rpc.received.telnet",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/received/http": {
+                            "metric": "tsd.rpc.received.http",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/received/http_plugin": {
+                            "metric": "tsd.rpc.received.http_plugin",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/latency_http_50th_percentile": {
+                            "metric": "tsd.http.latency_50pct.all",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/latency_http_75th_percentile": {
+                            "metric": "tsd.http.latency_75pct.all",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/latency_http_90th_percentile": {
+                            "metric": "tsd.http.latency_90pct.all",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/bytes_received_put": {
+                            "metric": "tsd.rpc.received.put",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/hbase_errors": {
+                            "metric": "tsd.rpc.errors.hbase_errors",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/invalid_values": {
+                            "metric": "tsd.rpc.errors.invalid_values",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/illegal_arguments": {
+                            "metric": "tsd.rpc.errors.illegal_arguments",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/unknown_metrics": {
+                            "metric": "tsd.rpc.errors.unknown_metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/rpc/errors/socket_writes_blocked": {
+                            "metric": "tsd.rpc.errors.socket_writes_blocked",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/http/query_invalid_requests": {
+                            "metric": "tsd.http.query.invalid_requests",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/http/query_exceptions": {
+                            "metric": "tsd.http.query.exceptions",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/http/query_success": {
+                            "metric": "tsd.http.query.success",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/cache_hit": {
+                            "metric": "tsd.uid.cache-hit.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/cache_miss": {
+                            "metric": "tsd.uid.cache-miss.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/cache_size": {
+                            "metric": "tsd.uid.cache-size.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/random_collisions": {
+                            "metric": "tsd.uid.random-collisions.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/ids_used": {
+                            "metric": "tsd.uid.ids-used.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/uid/ids_available": {
+                            "metric": "tsd.uid.ids-available.metrics",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/hbase/region_clients.open": {
+                            "metric": "tsd.hbase.region_clients.open",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/hbase/region_clients.idle_closed": {
+                            "metric": "tsd.hbase.region_clients.idle_closed",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/duplicates_identical": {
+                            "metric": "tsd.compaction.duplicates.identical",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/duplicates_variant": {
+                            "metric": "tsd.compaction.duplicates.variant",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/queue_size": {
+                            "metric": "tsd.compaction.queue.size",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/errors_read": {
+                            "metric": "tsd.compaction.errors.read",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/errors_delete": {
+                            "metric": "tsd.compaction.errors.delete",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/errors_put": {
+                            "metric": "tsd.compaction.errors.put",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/writes": {
+                            "metric": "tsd.compaction.writes",
+                            "pointInTime": true,
+                            "temporal": true
+                        },
+                        "metrics/tsd/compaction/deletes": {
+                            "metric": "tsd.compaction.deletes",
+                            "pointInTime": true,
+                            "temporal": true
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
