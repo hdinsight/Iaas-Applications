@@ -12,6 +12,12 @@ class OpenTSDB(Script):
     Logger.info("OpenTSDB - Starting installation.")
     Execute('wget https://github.com/OpenTSDB/opentsdb/releases/download/v{0}/opentsdb-{0}_all.deb -O /tmp/opentsdb_all.deb'.format(params.opentsdb_version))
     Execute('dpkg -i /tmp/opentsdb_all.deb')
+    # Extend the OpenTSDB start script to include JAVA 8
+    with open('/etc/init.d/opentsdb', 'r+') as f:
+      new_contents =  re.sub(r'JDK_DIRS="(.*?)"', r'JDK_DIRS="\1 /usr/lib/jvm/java-8-openjdk-amd64"', f.read(), 0, re.DOTALL)
+      f.seek(0)
+      f.write(new_contents)
+      f.truncate()
     # We also need jq for metrics transformation
     Package('jq')
     # Force to 1.5 (some of the package managers are a bit behind)

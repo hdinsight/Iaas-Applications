@@ -7,7 +7,7 @@ proxy_domain_suffix=$4
 num_edge_nodes=${5:-1}
 
 opentsdb_tar_file=OPENTSDB.tar.gz
-opentsdb_tar_file_uri=https://hdiconfigactions.blob.core.windows.net/linuxhueconfigactionv01/$opentsdb_tar_file
+opentsdb_tar_file_uri=https://github.com/hdinsight/Iaas-Applications/files/530759/$opentsdb_tar_file
 detached_script_uri=https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/deployment/create-ambari-services.sh
 
 echo "$(date +%T) Starting custom action script for provisioning OpenTSDB as an Ambari service"
@@ -20,8 +20,8 @@ stack_version=$(curl -u $user:$password http://headnodehost:8080/api/v1/clusters
 echo "$(date +%T) Cluster: $cluster, Stack: $stack_name-$stack_version" 
 
 cd /var/lib/ambari-server/resources/stacks/$stack_name/$stack_version/services
-wget "$opentsdb_tar_file_uri" -O /tmp/OPENTSDB.tar.gz
-tar -xvf /tmp/OPENTSDB.tar.gz
+wget "$opentsdb_tar_file_uri" -O /tmp/$opentsdb_tar_file
+tar -xvf /tmp/$opentsdb_tar_file
 chmod -R 644 OPENTSDB
 
 # We have to enable the Ambari agents to pickup the new service artifacts
