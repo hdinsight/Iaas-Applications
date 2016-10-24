@@ -8,7 +8,7 @@ num_edge_nodes=${5:-1}
 
 opentsdb_tar_file=OPENTSDB.tar.gz
 opentsdb_tar_file_uri=https://github.com/hdinsight/Iaas-Applications/files/530759/$opentsdb_tar_file
-detached_script_uri=https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/deployment/create-ambari-services.sh
+detached_script_uri=https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/scripts/create-ambari-services.sh
 
 echo "$(date +%T) Starting custom action script for provisioning OpenTSDB as an Ambari service"
 apt-get -y install jq

@@ -100,7 +100,7 @@
     "clusterStorageAccountName": "[concat(parameters('clusterName'),'store')]",
     "applicationName": "opentsdb",
     "galleryPackageIdentity": "opentsdb",
-    "scriptBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/deployment/"
+    "scriptBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/scripts/"
   },
   "resources": [
     {
