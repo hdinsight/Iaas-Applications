@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+  <property>
+    <name>tsd.network.port</name>
+    <value>4242</value>
+    <display-name>TSD Listen Port</display-name>
+    <description>The TCP port TSD should use for communications, default 4242.</description>
+    <value-attributes>
+      <overridable>false</overridable>
+      <type>int</type>
+      <minimum>1</minimum>
+      <maximum>65535</maximum>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.core.auto_create_metrics</name>
+    <value>true</value>
+    <display-name>Automatically Create Metrics</display-name>
+    <description>Whether or not to automatically create UIDs for new metric types.</description>
+    <value-attributes>
+      <type>value-list</type>
+      <entries>
+        <entry>
+          <value>true</value>
+          <label>Yes</label>
+        </entry>
+        <entry>
+          <value>false</value>
+          <label>No</label>
+        </entry>
+      </entries>
+      <selection-cardinality>1</selection-cardinality>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.http.staticroot</name>
+    <value>/usr/share/opentsdb/static/</value>
+    <display-name>Static Content Directory</display-name>
+    <description>The location of static files for the HTTP GUI interface.</description>
+    <final>true</final>
+    <value-attributes>
+      <type>directory</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.http.cachedir</name>
+    <value>/tmp/opentsdb</value>
+    <display-name>Cache Directory</display-name>
+    <description>Where TSD should write it's cache files to.</description>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>tsd.network.tcp_no_delay</name>
+    <value>true</value>
+    <description>Disable Nagel's algorithm.  Default is True</description>
+    <final>true</final>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.network.keep_alive</name>
+    <value>true</value>
+    <description>Determines whether or not to send keepalive packets to peers, default is True</description>
+    <final>true</final>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.network.reuse_address</name>
+    <value>true</value>
+    <description>Determines if the same socket should be used for new connections, default is True</description>
+    <final>true</final>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.network.async_io</name>
+    <value>true</value>
+    <description>Whether or not to use NIO or tradditional blocking IO, defaults to True</description>
+    <final>true</final>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.storage.enable_compaction</name>
+    <value>true</value>
+    <description>Whether or not to enable data compaction in HBase, default is True</description>
+    <final>true</final>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.storage.flush_interval</name>
+    <value>1000</value>
+    <description>How often, in milliseconds, to flush the data point queue to storage, default is 1,000</description>
+    <final>true</final>
+    <value-attributes>
+      <type>int</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.storage.hbase.data_table</name>
+    <value>tsdb</value>
+    <description>Name of the HBase table where data points are stored, default is "tsdb". NOTE: Changing this value will require the table to be manually created.</description>
+    <value-attributes>
+      <editable-only-at-install>true</editable-only-at-install>
+      <overridable>false</overridable>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>tsd.storage.hbase.uid_table</name>
+    <value>tsdb-uid</value>
+    <description>Name of the HBase table where UID information is stored, default is "tsdb-uid". NOTE: Changing this value will require the table to be manually created.</description>
+    <value-attributes>
+      <editable-only-at-install>true</editable-only-at-install>
+      <overridable>false</overridable>
+    </value-attributes>
+  </property>
+
+</configuration>
