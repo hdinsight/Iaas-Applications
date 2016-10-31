@@ -1,0 +1,15 @@
+[Unit]
+Description=titandb
+
+[Service]
+Type=simple
+Restart=on-failure
+Environment=PIDFILE=/var/run/titandb/titandb.pid
+Environment=JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+Environment=TITAN_HOME=/usr/share/titan-1.0.0-hadoop1
+SuccessExitStatus=143 SIGTERM
+
+ExecStart=/sbin/start-stop-daemon --start --make-pidfile --pidfile $PIDFILE --exec ${TITAN_HOME}/bin/gremlin-server.sh
+
+[Install]
+WantedBy=multi-user.target

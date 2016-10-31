@@ -1,15 +1,13 @@
 # Create a HDInsight HBase cluster with TitanDB installed and deployed on 1 edge node
 
-This template creates a new HDInsight HBase cluster with TitanDB Graph Database [https://titan.thinkaurelius.com/](https://titan.thinkaurelius.com/)installed and deployed on a cluster edge node. TitanDB is configured to use the cluster's HBase deployment as its storage backend. The Titan endpoint is opened on port 8182 (by default) using the `HTTPChannelizer` (ie. REST) interface. 
+This template creates a new HDInsight HBase cluster with TitanDB Graph Database [https://titan.thinkaurelius.com/](https://titan.thinkaurelius.com/) installed and deployed on a cluster edge node. TitanDB is configured to use the cluster's HBase deployment as its storage backend. The Titan endpoint is opened on port 8182 (by default) using the `HTTPChannelizer` (ie. REST) interface. 
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamesbak%2FIaas-Applications%2Ftitandb%2FTitanDB%2Fazuredeploy.json">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-OpenTSDB ([http://opentsdb.net/](http://opentsdb.net/)) is a high performance, open source storage engine that allows users to 'Store and serve massive amounts of time series data without losing granularity.'.
+TitanDB ([https://titan.thinkaurelius.com/](https://titan.thinkaurelius.com/)) is a high performance, highly scalable open source graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster. Titan is a transactional database that can support thousands of concurrent users executing complex graph traversals in real time.
 
-OpenTSDB uses Apache HBase to store its data. HBase is available in HDInsight as a pre-configured cluster type. This template provisions a new HDInsight HBase cluster with OpenTSDB installed and deployed to every HBase Region Server in the cluster. 
+TitanDB features a plugable storage layer. Apache HBase is available in HDInsight as a pre-configured cluster type. This template provisions a new HDInsight HBase cluster with TitanDB installed and deployed on a single edge node, using the cluster's HBase as the configured storage engine. 
 
-The OpenTSDB service is installed as a service of Ambari, which effectively makes OpenTSDB a full Platform As A Service (PaaS) offering. No manual configuration, management or monitoring is required to keep the service running as the integration with Ambari ensures that these functions are performed without manual intervention. Additionally, if desired, the OpenTSDB daemons (TSDs) may be configured and monitored via the Ambari web interface.
-
-This template also installs a HTTP proxy on an 'Edge Node' which allows time-series collectors outside of the cluster (eg. IoT sensors) to be able to send metrics to the system. The OpenTSDB web UX is accessible via this proxy as well as through an Ambari View installed on the Ambari web interface.
+The TitanDB service is installed as a service of Ambari, which effectively makes TitanDB a full Platform As A Service (PaaS) offering. No manual configuration, management or monitoring is required to keep the service running as the integration with Ambari ensures that these functions are performed without manual intervention. Additionally, if desired, the OpenTSDB daemons (TSDs) may be configured and monitored via the Ambari web interface.

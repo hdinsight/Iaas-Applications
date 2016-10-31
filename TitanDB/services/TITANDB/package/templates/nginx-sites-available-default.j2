@@ -1,26 +1,24 @@
-# NGINX configuration for load-balancing across TSDs in the cluster & doing SSL termination
+# NGINX configuration for load-balancing across TitanDB servers in the cluster & doing SSL termination
 
-upstream tsd {
+upstream titandb {
     ip_hash;
     keepalive 32;
 
-{% for host in tsd_hosts %}
-    server {{ host }}:{{ tsd_port }};
+{% for host in tdb_hosts %}
+    server {{ host }}:{{ tdb_port }};
 {% endfor %}
 }
 
 server {
-    listen {{ tsd_port }};
-    listen 4243 ssl;
+    listen {{ tdb_port }};
     ssl_certificate /var/lib/waagent/{{ cert_name }}.crt;
     ssl_certificate_key /var/lib/waagent/{{ cert_name }}.prv;
 
     location / {
-        proxy_pass http://tsd;
+        proxy_pass http:/titandb;
         proxy_set_header X-Real-IP  $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Port 4243;
         proxy_set_header Host $host;
     }
     

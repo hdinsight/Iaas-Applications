@@ -1,9 +1,9 @@
 {
   "layouts": [
     {
-      "layout_name": "default_opentsdb_dashboard",
-      "display_name": "Standard OpenTSDB Dashboard",
-      "section_name": "OPENTSDB_SUMMARY",
+      "layout_name": "default_titandb_dashboard",
+      "display_name": "Standard TitanDB Dashboard",
+      "section_name": "TITANDB_SUMMARY",
       "widgetLayoutInfo": [
         {
           "widget_name": "Writes",
@@ -14,14 +14,14 @@
             {
               "name": "tsd.rpc.received.telnet._sum",
               "metric_path": "metrics/tsd/rpc/received/telnet._sum",
-              "service_name": "OPENTSDB",
-              "component_name": "OPENTSDB_TSD"
+              "service_name": "TITANDB",
+              "component_name": "TITANDB_SERVER"
             },
             {
               "name": "tsd.rpc.received.http._sum",
               "metric_path": "metrics/tsd/rpc/received/http._sum",
-              "service_name": "OPENTSDB",
-              "component_name": "OPENTSDB_TSD"
+              "service_name": "TITANDB",
+              "component_name": "TITANDB_SERVER"
             }
           ],
           "values": [

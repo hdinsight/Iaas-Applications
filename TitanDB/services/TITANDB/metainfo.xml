@@ -3,31 +3,31 @@
     <schemaVersion>2.0</schemaVersion>
     <services>
         <service>
-            <name>OPENTSDB</name>
-            <displayName>OpenTSDB</displayName>
-            <comment>The Scalable Time Series Database. Store and serve massive amounts of time series data without losing granularity</comment>
+            <name>TITANDB</name>
+            <displayName>TitanDB</displayName>
+            <comment>TitanDB is a highly scalable open source graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster.</comment>
             <version>0.1.0</version>
             <components>
                 <component>
-                  <name>OPENTSDB_TSD</name>
-                  <displayName>OpenTSDB TSD</displayName>
+                  <name>TITANDB_SERVER</name>
+                  <displayName>TitanDB Server</displayName>
                   <category>MASTER</category>
                   <cardinality>1+</cardinality>
-                  <timelineAppid>OPENTSDB</timelineAppid>
+                  <timelineAppid>TITANDB</timelineAppid>
                   <commandScript>
-                    <script>scripts/opentsdb.py</script>
+                    <script>scripts/titandb.py</script>
                     <scriptType>PYTHON</scriptType>
                     <timeout>5000</timeout>
                   </commandScript>
                 </component>
                 <component>
-                  <name>OPENTSDB_PROXY</name>
-                  <displayName>OpenTSDB External Proxy</displayName>
+                  <name>TITANDB_PROXY</name>
+                  <displayName>TitanDB Load Balancer</displayName>
                   <category>SLAVE</category>
                   <cardinality>1+</cardinality>
-                  <timelineAppid>OPENTSDB</timelineAppid>
+                  <timelineAppid>TITANDB</timelineAppid>
                   <commandScript>
-                    <script>scripts/tsd_proxy.py</script>
+                    <script>scripts/titandb_proxy.py</script>
                     <scriptType>PYTHON</scriptType>
                     <timeout>5000</timeout>
                   </commandScript>
@@ -42,8 +42,7 @@
                 <service>HBASE</service>
             </requiredServices>
             <configuration-dependencies>
-                <config-type>opentsdb-config</config-type>
-                <config-type>opentsdb-site</config-type>
+                <config-type>titandb-site</config-type>
                 <config-type>hbase-site</config-type>
             </configuration-dependencies>
             <themes>
