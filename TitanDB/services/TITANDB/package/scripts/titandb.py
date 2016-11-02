@@ -11,7 +11,7 @@ class TitanDB(Script):
 
     Logger.info("TitanDB - Starting installation.")
     Execute('wget http://s3.thinkaurelius.com/downloads/titan/titan-1.0.0-hadoop1.zip -O /tmp/titan-1.0.0-hadoop1.zip')
-    Execute('unzip /tmp/titan-1.0.0-hadoop1.zip -d /usr/share/')
+    Execute('unzip -o /tmp/titan-1.0.0-hadoop1.zip -d /usr/share/')
     Directory('/var/run/titandb')
     File("/etc/systemd/system/titandb.service",
         content=StaticFile("titandb.service")
@@ -21,8 +21,9 @@ class TitanDB(Script):
     # We also need jq for metrics transformation
     Package('jq')
     # Download ElasticSearch
-    Execute('wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.5.1.deb -O /tmp/elasticsearch-1.5.1.deb')
-    Execute('dpkg -i /tmp/elasticsearch-1.5.1.deb')
+    es_package = 'elasticsearch-1.7.1.deb'
+    Execute('wget https://download.elastic.co/elasticsearch/elasticsearch/{0} -O /tmp/{0}'.format(es_package))
+    Execute('dpkg -i /tmp/{0}'.format(es_package))
     # Enable ES as a systemd service
     Execute('systemctl daemon-reload')
     Execute('systemctl enable elasticsearch.service')

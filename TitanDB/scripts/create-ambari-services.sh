@@ -72,7 +72,7 @@ if [[ $is_active_headnode ]]; then
             "index.search.hostname" : "localhost",
             "index.search.elasticsearch.client-only" : "true",
             "storage.hbase.tablename" : "titan",
-            "": 
+            "server.port" : '$titan_listen_port' 
         }}' "http://headnodehost:8080/api/v1/clusters/$cluster/configurations"
     curl -u $user:$password -H "X-Requested-By:ambari" -X PUT -d '{"Clusters":{"desired_config" : {"type": "titandb-site", "tag": "'$config_tag'"}}}' "http://headnodehost:8080/api/v1/clusters/$cluster"
 
