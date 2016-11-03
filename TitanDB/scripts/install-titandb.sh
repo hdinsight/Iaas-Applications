@@ -2,13 +2,13 @@
 
 user=$1
 password=$2
-titan_listen_port=${3:-4242}
+titan_listen_port=${3:-8182}
 edgenode_dns_suffix=$4
 num_edge_nodes=${5:-1}
 selected_topology=${6:-1}
 
 titandb_ambari_svc_tar_file=TITANDB.tar.gz
-titandb_ambari_svc_tar_file_uri=https://github.com/jamesbak/Iaas-Applications/files/530759/$titandb_ambari_svc_tar_file
+titandb_ambari_svc_tar_file_uri=https://github.com/jamesbak/Iaas-Applications/files/569827/$titandb_ambari_svc_tar_file
 detached_script_uri=https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/TitanDB/scripts/create-ambari-services.sh
 
 echo "$(date +%T) Starting custom action script for provisioning TitanDB as an Ambari service"
