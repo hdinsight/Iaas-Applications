@@ -8,7 +8,7 @@ num_edge_nodes=${5:-1}
 selected_topology=${6:-1}
 
 titandb_ambari_svc_tar_file=TITANDB.tar.gz
-titandb_ambari_svc_tar_file_uri=https://github.com/jamesbak/Iaas-Applications/files/569827/$titandb_ambari_svc_tar_file
+titandb_ambari_svc_tar_file_uri=https://github.com/jamesbak/Iaas-Applications/files/570224/$titandb_ambari_svc_tar_file
 detached_script_uri=https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/TitanDB/scripts/create-ambari-services.sh
 
 echo "$(date +%T) Starting custom action script for provisioning TitanDB as an Ambari service"
