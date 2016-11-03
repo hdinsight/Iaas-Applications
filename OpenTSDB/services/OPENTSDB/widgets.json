@@ -1,0 +1,41 @@
+{
+  "layouts": [
+    {
+      "layout_name": "default_opentsdb_dashboard",
+      "display_name": "Standard OpenTSDB Dashboard",
+      "section_name": "OPENTSDB_SUMMARY",
+      "widgetLayoutInfo": [
+        {
+          "widget_name": "Writes",
+          "description": "Count of write requests on all TSDs in the cluster.",
+          "widget_type": "GRAPH",
+          "is_visible": true,
+          "metrics": [
+            {
+              "name": "tsd.rpc.received.telnet._sum",
+              "metric_path": "metrics/tsd/rpc/received/telnet._sum",
+              "service_name": "OPENTSDB",
+              "component_name": "OPENTSDB_TSD"
+            },
+            {
+              "name": "tsd.rpc.received.http._sum",
+              "metric_path": "metrics/tsd/rpc/received/http._sum",
+              "service_name": "OPENTSDB",
+              "component_name": "OPENTSDB_TSD"
+            }
+          ],
+          "values": [
+            {
+              "name": "Write Requests",
+              "value": "${tsd.rpc.received.telnet._sum + tsd.rpc.received.http._sum}"
+            }
+          ],
+          "properties": {
+            "graph_type": "LINE",
+            "time_range": "1"
+          }
+        }
+      ]
+    }
+  ]
+}

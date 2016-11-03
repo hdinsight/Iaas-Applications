@@ -1,0 +1,109 @@
+{
+  "name": "default",
+  "description": "Default theme for OpenTSDB service",
+  "configuration": {
+    "layouts": [
+      {
+        "name": "default",
+        "tabs": [
+          {
+            "name": "settings",
+            "display-name": "Settings",
+            "layout": {
+              "tab-columns": "2",
+              "tab-rows": "2",
+              "sections": [
+                {
+                  "name": "section-core",
+                  "display-name": "Core",
+                  "row-index": "0",
+                  "column-index": "0",
+                  "row-span": "2",
+                  "column-span": "1",
+                  "section-columns": "1",
+                  "section-rows": "2",
+                  "subsections": [
+                    {
+                      "name": "subsection-core-col1",
+                      "row-index": "0",
+                      "column-index": "0",
+                      "row-span": "2",
+                      "column-span": "1"
+                    }
+                  ]
+                },
+                {
+                  "name": "section-http",
+                  "display-name": "HTTP",
+                  "row-index": "0",
+                  "column-index": "1",
+                  "row-span": "2",
+                  "column-span": "1",
+                  "section-columns": "1",
+                  "section-rows": "2",
+                  "subsections": [
+                    {
+                      "name": "subsection-http-col1",
+                      "row-index": "0",
+                      "column-index": "0",
+                      "row-span": "2",
+                      "column-span": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "placement": {
+      "configuration-layout": "default",
+      "configs": [
+        {
+          "config": "opentsdb-site/tsd.network.port",
+          "subsection-name": "subsection-core-col1"
+        },
+        {
+          "config": "opentsdb-site/tsd.core.auto_create_metrics",
+          "subsection-name": "subsection-core-col1"
+        },
+        {
+          "config": "opentsdb-site/tsd.http.staticroot",
+          "subsection-name": "subsection-http-col1"
+        },
+        {
+          "config": "opentsdb-site/tsd.http.cachedir",
+          "subsection-name": "subsection-http-col1"
+        }
+      ]
+    },
+    "widgets": [
+        {
+            "config": "opentsdb-site/tsd.network.port",
+            "widget": {
+                "type": "text-field"
+            }
+        },
+        {
+            "config": "opentsdb-site/tsd.core.auto_create_metrics",
+            "widget": {
+                "type": "toggle"
+            }
+        },
+        {
+            "config": "opentsdb-site/tsd.http.staticroot",
+            "widget": {
+                "type": "directory"
+            }
+        },
+        {
+            "config": "opentsdb-site/tsd.http.cachedir",
+            "widget": {
+                "type": "directory"
+            }
+        }
+    ]
+  }
+}
+

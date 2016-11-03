@@ -1,0 +1,27 @@
+# NGINX configuration for load-balancing across TSDs in the cluster & doing SSL termination
+
+upstream tsd {
+    ip_hash;
+    keepalive 32;
+
+{% for host in tsd_hosts %}
+    server {{ host }}:{{ tsd_port }};
+{% endfor %}
+}
+
+server {
+    listen {{ tsd_port }};
+    listen 4243 ssl;
+    ssl_certificate /var/lib/waagent/{{ cert_name }}.crt;
+    ssl_certificate_key /var/lib/waagent/{{ cert_name }}.prv;
+
+    location / {
+        proxy_pass http://tsd;
+        proxy_set_header X-Real-IP  $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port 4243;
+        proxy_set_header Host $host;
+    }
+    
+}
