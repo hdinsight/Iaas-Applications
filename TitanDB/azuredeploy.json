@@ -61,7 +61,7 @@
         "Load Balanced"
       ],
       "metadata": {
-        "description": "Select the HDInsight version that you wish to deploy."
+        "description": "Select the deployment topology for TitanDB on the cluster. 'Edge Node' installs 1 TitanDB instance on the edge node. 'Load Balanced' installs a TitanDB instance of every region server in the cluster and a load balancer on the edge node distributes traffic."
       }
     },
     "edgeNodeSize": {
@@ -101,7 +101,7 @@
       "Edge Node": 1,
       "Load Balanced": 2
     },
-    "selectedToplogy": "[variables('toplogies')[parameters('titanTopology')]]"
+    "selectedTopology": "[variables('topologies')[parameters('titanTopology')]]"
   },
   "resources": [
     {
@@ -165,7 +165,7 @@
                 {
                   "name": "install-titandb",
                   "uri": "[concat(variables('scriptBaseUri'), 'install-titandb.sh')]",
-                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('titanPortNumber'), ' ', variables('edgeNodeSuffix'), ' 1 ', variables('selectedToplogy')]",
+                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('titanPortNumber'), ' ', variables('edgeNodeSuffix'), ' 1 ', variables('selectedTopology')]",
                   "isHeadNode": true
                 }
               ]
