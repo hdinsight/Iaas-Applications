@@ -8,7 +8,7 @@ cluster=$3
 is_active_headnode=$4
 titan_listen_port=${5:-8182}
 num_edge_nodes=${6:-0}
-selected_topology=${6:-1}
+selected_topology=${7:-1}
 
 # Determine if AMS collector is running on this node (not necessarily the active headnode)
 ams_collector_host=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/services/AMBARI_METRICS/components/METRICS_COLLECTOR?fields=host_components" | jq -r '.host_components[0].HostRoles.host_name')
@@ -62,7 +62,8 @@ if [[ $is_active_headnode ]]; then
     curl -u $user:$password -H "X-Requested-By:ambari" -X POST "http://headnodehost:8080/api/v1/clusters/$cluster/services/TITANDB/components/TITANDB_SERVER"
     curl -u $user:$password -H "X-Requested-By:ambari" -X POST "http://headnodehost:8080/api/v1/clusters/$cluster/services/TITANDB/components/TITANDB_PROXY"
     config_tag=INITIAL
-    curl -u $user:$password -H "X-Requested-By:ambari" -X POST -d '{"type": "titandb-site", "tag": "'$config_tag'", "properties" : {
+    curl -u $user:$password -H "X-Requested-By:ambari" -X POST -d '{"type": "titandb-site", "tag": "'$config_tag'", 
+        "properties" : {
             "storage.backend" : "hbase",
             "cache.db-cache" : "true",
             "cache.db-cache-clean-wait" : 20,
@@ -73,32 +74,46 @@ if [[ $is_active_headnode ]]; then
             "index.search.elasticsearch.client-only" : "true",
             "storage.hbase.tablename" : "titan",
             "server.port" : '$titan_listen_port' 
-        }}' "http://headnodehost:8080/api/v1/clusters/$cluster/configurations"
+        },
+        "properties_attributes" : {
+            "final" : {
+                "index.search.hostname" : "true",
+                "index.search.elasticsearch.client-only" : "true",
+                "server.port" : "true",
+                "cache.db-cache-size" : "true",
+                "cache.db-cache-clean-wait" : "true",
+                "cache.db-cache-time" : "true",
+                "index.search.backend" : "true",
+                "storage.hbase.tablename" : "true"
+                }
+            }
+        }' "http://headnodehost:8080/api/v1/clusters/$cluster/configurations"
     curl -u $user:$password -H "X-Requested-By:ambari" -X PUT -d '{"Clusters":{"desired_config" : {"type": "titandb-site", "tag": "'$config_tag'"}}}' "http://headnodehost:8080/api/v1/clusters/$cluster"
 
     # We have 2 supported topologies:
     #   1. TitanDB deployed to edge node(s) only
     #   2. TitanDB deployed to every region server & load balanced from edge node
-    if [[ $selected_topology == 2 ]]; then
+    if [[ $selected_topology -eq 2 ]]; then
         region_hosts=$(curl -u $user:$password -H "X-Requested-By:ambari" "http://headnodehost:8080/api/v1/clusters/$cluster/services/HBASE/components/HBASE_REGIONSERVER?fields=host_components" | jq -r '.host_components[].HostRoles.host_name')
         IFS=' ' read -r -a server_hosts <<< $region_hosts
     else
         server_hosts=(${registered_hosts[@]})
     fi
-    echo "$(date +%T) Installing TitanDB Server component"
+    echo "$(date +%T) Installing TitanDB Server component using topology: $selected_topology"
     for host in ${server_hosts[@]}; do
         echo "$(date +%T) Installing TitanDB Server component on host: $host"
         curl -u $user:$password -H "X-Requested-By:ambari" -X POST "http://headnodehost:8080/api/v1/clusters/$cluster/hosts/$host/host_components/TITANDB_SERVER"
     done
 
     # deploy proxy component to all edge nodes if selected topology
-    if [[ $selected_topology == 2 ]]; then
+    if [[ $selected_topology -eq 2 ]]; then
         echo "$(date +%T) Installing TitanDB proxy component on all edge nodes"
         for host in ${registered_hosts[@]}; do
             echo "$(date +%T) Installing TitanDB proxy component on host: $host"
             curl -u $user:$password -H "X-Requested-By:ambari" -X POST "http://headnodehost:8080/api/v1/clusters/$cluster/hosts/$host/host_components/TITANDB_PROXY"
         done
     fi
+    sleep 5s
 
     # install now & wait for the installation to complete
     response=$(curl -u $user:$password -H "X-Requested-By:ambari" -X PUT -d '{"RequestInfo": {"context":"Install TITANDB daemon services"}, "Body": {"ServiceInfo": {"state": "INSTALLED"}}}' "http://headnodehost:8080/api/v1/clusters/$cluster/services/TITANDB")
@@ -119,7 +134,7 @@ if [[ $is_active_headnode ]]; then
         done
 
         # finally, start the service
-        echo "$(date +%T) Starting the TitanDB TSD service on all hosts"
+        echo "$(date +%T) Starting the TitanDB service on all hosts"
         curl -u $user:$password -H "X-Requested-By:ambari" -X PUT -d '{"RequestInfo": {"context":"Start TITANDB services"}, "Body": {"ServiceInfo": {"state": "STARTED"}}}' "http://headnodehost:8080/api/v1/clusters/$cluster/services/TITANDB"
     else
 

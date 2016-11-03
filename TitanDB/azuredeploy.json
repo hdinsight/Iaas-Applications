@@ -165,7 +165,7 @@
                 {
                   "name": "install-titandb",
                   "uri": "[concat(variables('scriptBaseUri'), 'install-titandb.sh')]",
-                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('titanPortNumber'), ' ', variables('edgeNodeSuffix'), ' 1 ', variables('selectedTopology')]",
+                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('titanPortNumber'), ' ', variables('edgeNodeSuffix'), ' 1 ', variables('selectedTopology'))]",
                   "isHeadNode": true
                 }
               ]

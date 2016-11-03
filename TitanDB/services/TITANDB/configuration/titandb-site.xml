@@ -58,6 +58,7 @@
   <property>
     <name>cache.db-cache-size</name>
     <value>0.5</value>
+    <display-name>Cache Size</display-name>
     <description>Size of Titan's database level cache.  Values between 0 and 1 are interpreted as a percentage of VM heap, while larger values are interpreted as an absolute size in bytes.</description>
     <final>true</final>
     <value-attributes>
@@ -67,6 +68,7 @@
 
   <property>
     <name>index.search.backend</name>
+    <display-name>Index Backend</display-name>
     <value>elasticsearch</value>
     <description>The indexing backend used to extend and optimize Titan's query functionality. This setting is optional.  Titan can use multiple heterogeneous index backends.  Hence, this option can appear more than once, so long as the user-defined name between "index" and "backend" is unique among appearances. Similar to the storage backend, this should be set to one of Titan's built-in shorthand names for its standard index backends (shorthands: lucene, elasticsearch, es, solr) or to the full package and classname of a custom/third-party IndexProvider implementation.</description>
     <final>true</final>
@@ -75,6 +77,7 @@
   <property>
     <name>index.search.hostname</name>
     <value>localhost</value>
+    <display-name>Index Hostname</display-name>
     <description>The hostname or comma-separated list of hostnames of index backend servers.  This is only applicable to some index backends, such as elasticsearch and solr.</description>
     <final>true</final>
   </property>
@@ -91,6 +94,7 @@
   <property>
     <name>storage.hbase.tablename</name>
     <value>titan</value>
+    <display-name>Storage Table Name</display-name>
     <description>The name of the table Titan will use. Titan will automatically create this table if it does not already exist.</description>
     <final>true</final>
     <value-attributes>
