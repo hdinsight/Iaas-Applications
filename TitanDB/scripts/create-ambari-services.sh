@@ -28,22 +28,22 @@ if [[ $is_active_headnode ]]; then
     start_time=$(($(date +%s) * 1000))
     # Wait around for 30 mins
     timeout_time=$(($(date +%s) + 30 * 60))
-    registered_hosts=()
-    while [[ ${#registered_hosts[@]} -lt $num_edge_nodes ]]; do
-        registered_hosts=()
+    edge_node_hosts=()
+    while [[ ${#edge_node_hosts[@]} -lt $num_edge_nodes ]]; do
+        edge_node_hosts=()
         custom_action_request_ids=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/requests?Requests/request_context=run_customscriptaction&Requests/create_time>$start_time" | jq -r '.items[].Requests.id')
         for id in $custom_action_request_ids; do
             request_hosts=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/requests/$id" | jq -r 'select(.Requests.request_status == "COMPLETED") | .Requests.resource_filters[].hosts[]')
             for host in $request_hosts; do
-                registered_hosts+=($host)
+                edge_node_hosts+=($host)
             done
         done
         if [[ $(date +%s) -ge $timeout_time ]]; then
-            echo "$(date +%T) FATAL: Timed out waiting for $num_edge_nodes edge nodes to be registered. Current registered hosts: ${registered_hosts[*]}"
+            echo "$(date +%T) FATAL: Timed out waiting for $num_edge_nodes edge nodes to be registered. Current registered hosts: ${edge_node_hosts[*]}"
             exit
         fi
-        if [[ ${#registered_hosts[@]} -gt 0 ]]; then
-            echo "$(date +%T) Completed edge node hosts: ${registered_hosts[*]}"
+        if [[ ${#edge_node_hosts[@]} -gt 0 ]]; then
+            echo "$(date +%T) Completed edge node hosts: ${edge_node_hosts[*]}"
         fi
         sleep 3s
     done
@@ -97,18 +97,22 @@ if [[ $is_active_headnode ]]; then
         region_hosts=$(curl -u $user:$password -H "X-Requested-By:ambari" "http://headnodehost:8080/api/v1/clusters/$cluster/services/HBASE/components/HBASE_REGIONSERVER?fields=host_components" | jq -r '.host_components[].HostRoles.host_name')
         IFS=' ' read -r -a server_hosts <<< $region_hosts
     else
-        server_hosts=(${registered_hosts[@]})
+        server_hosts=(${edge_node_hosts[@]})
     fi
     echo "$(date +%T) Installing TitanDB Server component using topology: $selected_topology"
+    primary_server_host=""
     for host in ${server_hosts[@]}; do
         echo "$(date +%T) Installing TitanDB Server component on host: $host"
         curl -u $user:$password -H "X-Requested-By:ambari" -X POST "http://headnodehost:8080/api/v1/clusters/$cluster/hosts/$host/host_components/TITANDB_SERVER"
+        if [[ ! $primary_server_host ]]; then
+            primary_server_host=$host
+        fi
     done
 
     # deploy proxy component to all edge nodes if selected topology
     if [[ $selected_topology -eq 2 ]]; then
         echo "$(date +%T) Installing TitanDB proxy component on all edge nodes"
-        for host in ${registered_hosts[@]}; do
+        for host in ${edge_node_hosts[@]}; do
             echo "$(date +%T) Installing TitanDB proxy component on host: $host"
             curl -u $user:$password -H "X-Requested-By:ambari" -X POST "http://headnodehost:8080/api/v1/clusters/$cluster/hosts/$host/host_components/TITANDB_PROXY"
         done
@@ -132,6 +136,11 @@ if [[ $is_active_headnode ]]; then
             fi
             sleep 3s
         done
+
+        # Start 1 instance of the TitanDB server initially to avoid potential race condition as mutliple server instances attempt to create the HBase tables concurrently
+        echo "$(date +%T) Starting primary TitanDB server to create HBase tables..."
+        curl -u $user:$password -H "X-Requested-By:ambari" -X PUT -d '{"RequestInfo": {"context":"Start TitanDB Server"}, "Body": {"HostRoles": {"state": "STARTED"}}}' "http://headnodehost:8080/api/v1/clusters/$cluster/hosts/$primary_server_host/host_components/TITANDB_SERVER"
+        sleep 10s
 
         # finally, start the service
         echo "$(date +%T) Starting the TitanDB service on all hosts"
