@@ -96,7 +96,8 @@
     "applicationName": "titandb",
     "galleryPackageIdentity": "titandb",
     "edgeNodeSuffix": "tdb",
-    "scriptBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/TitanDB/scripts/",
+    "scriptBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/",
+    "edgeNodeSignatureTag": "titandb-edgenode-signature-tag",
     "topologies": {
       "Edge Node": 1,
       "Load Balanced": 2
@@ -164,8 +165,8 @@
               "scriptActions": [
                 {
                   "name": "install-titandb",
-                  "uri": "[concat(variables('scriptBaseUri'), 'install-titandb.sh')]",
-                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('titanPortNumber'), ' ', variables('edgeNodeSuffix'), ' 1 titandb-edgenode-signature-tag ', variables('selectedTopology'))]",
+                  "uri": "[concat(variables('scriptBaseUri'), 'TitanDB/scripts/install-titandb.sh')]",
+                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('titanPortNumber'), ' ', variables('edgeNodeSuffix'), ' 1 ', variables('edgeNodeSignatureTag'), ' ', variables('selectedTopology'))]",
                   "isHeadNode": true
                 }
               ]
@@ -210,8 +211,8 @@
         "installScriptActions": [
           {
             "name": "install-titandb-edgenode",
-            "uri": "[concat(variables('scriptBaseUri'), 'install-titandb-edgenode.sh')]",
-            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' titandb-edgenode-signature-tag')]",
+            "uri": "[concat(variables('scriptBaseUri'), 'scripts/install-edgenode-placeholder.sh')]",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', variables('edgeNodeSignatureTag'))]",
             "roles": [
               "edgenode"
             ]
