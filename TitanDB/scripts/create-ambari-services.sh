@@ -8,7 +8,8 @@ cluster=$3
 is_active_headnode=$4
 titan_listen_port=${5:-8182}
 num_edge_nodes=${6:-0}
-selected_topology=${7:-1}
+edgenode_script_tag=${7:-titandb-edgenode-signature-tag}
+selected_topology=${8:-1}
 
 # Determine if AMS collector is running on this node (not necessarily the active headnode)
 ams_collector_host=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/services/AMBARI_METRICS/components/METRICS_COLLECTOR?fields=host_components" | jq -r '.host_components[0].HostRoles.host_name')
@@ -31,12 +32,15 @@ if [[ $is_active_headnode ]]; then
     edge_node_hosts=()
     while [[ ${#edge_node_hosts[@]} -lt $num_edge_nodes ]]; do
         edge_node_hosts=()
-        custom_action_request_ids=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/requests?Requests/request_context=run_customscriptaction&Requests/create_time>$start_time" | jq -r '.items[].Requests.id')
+        custom_action_request_ids=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/requests?fields=Requests/request_status&Requests/request_context=run_customscriptaction&Requests/create_time>$start_time" | jq -r '.items[] | select(.Requests.request_status == "COMPLETED") | .Requests.id')
         for id in $custom_action_request_ids; do
-            request_hosts=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/requests/$id" | jq -r 'select(.Requests.request_status == "COMPLETED") | .Requests.resource_filters[].hosts[]')
-            for host in $request_hosts; do
-                edge_node_hosts+=($host)
-            done
+            is_edge_node_request=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/requests/$id/tasks?fields=Tasks/stdout" | jq '[.items[].Tasks.stdout | contains("'$edgenode_script_tag'") ] | all')
+            if [[ $is_edge_node_request == true ]]; then
+                request_hosts=$(curl -u $user:$password "http://headnodehost:8080/api/v1/clusters/$cluster/requests/$id" | jq -r '.Requests.resource_filters[].hosts[]')
+                for host in $request_hosts; do
+                    edge_node_hosts+=($host)
+                done
+            fi
         done
         if [[ $(date +%s) -ge $timeout_time ]]; then
             echo "$(date +%T) FATAL: Timed out waiting for $num_edge_nodes edge nodes to be registered. Current registered hosts: ${edge_node_hosts[*]}"

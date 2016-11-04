@@ -5,7 +5,8 @@ password=$2
 titan_listen_port=${3:-8182}
 edgenode_dns_suffix=$4
 num_edge_nodes=${5:-1}
-selected_topology=${6:-1}
+edgenode_script_tag=${6:-edgenode-signature-tag}
+selected_topology=${7:-1}
 
 titandb_ambari_svc_tar_file=TITANDB.tar.gz
 titandb_ambari_svc_tar_file_uri=https://github.com/jamesbak/Iaas-Applications/files/570224/$titandb_ambari_svc_tar_file
@@ -79,7 +80,7 @@ wget "$detached_script_uri" -O /tmp/create-titandb-ambari-services.sh
 chmod 744 /tmp/create-titandb-ambari-services.sh
 mkdir /var/log/titandb
 echo "$(date +%T) Logging background activity to /var/log/titandb/create-ambari-services.out & /var/log/titandb/create-ambari-services.err"
-nohup /tmp/create-titandb-ambari-services.sh $user $password $cluster $is_active_headnode $titan_listen_port $num_edge_nodes $selected_topology>/var/log/titandb/create-ambari-services.out 2>/var/log/titandb/create-ambari-services.err &
+nohup /tmp/create-titandb-ambari-services.sh $user $password $cluster $is_active_headnode $titan_listen_port $num_edge_nodes $edgenode_script_tag $selected_topology>/var/log/titandb/create-ambari-services.out 2>/var/log/titandb/create-ambari-services.err &
 echo "$(date +%T) TitanDB has been installed as Ambari service. Pending edge node provisioning prior to deployment."
 
 
