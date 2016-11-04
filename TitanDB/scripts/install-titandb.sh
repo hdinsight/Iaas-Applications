@@ -11,7 +11,7 @@ selected_topology=${7:-1}
 titandb_ambari_svc_tar_file=TITANDB.tar.gz
 titandb_ambari_svc_tar_file_uri=https://github.com/jamesbak/Iaas-Applications/files/570224/$titandb_ambari_svc_tar_file
 detached_script_uri=https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/TitanDB/scripts/create-ambari-services.sh
-shared_lib_script_uri=https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/scripts/shared-ambari-installation.sh
+shared_lib_script_uri=https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/Scripts/shared-ambari-installation.sh
 shared_lib_script_loc=/tmp/shared-ambari-installation.sh
 
 wget $shared_lib_script_uri -O $shared_lib_script_loc

@@ -211,7 +211,7 @@
         "installScriptActions": [
           {
             "name": "install-titandb-edgenode",
-            "uri": "[concat(variables('scriptBaseUri'), 'scripts/install-edgenode-placeholder.sh')]",
+            "uri": "[concat(variables('scriptBaseUri'), 'Scripts/install-edgenode-placeholder.sh')]",
             "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', variables('edgeNodeSignatureTag'))]",
             "roles": [
               "edgenode"
