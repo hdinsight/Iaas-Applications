@@ -268,7 +268,7 @@ function launch_detached_install_script {
     shift 9
 
     log "Processing service registration on head node via background script"
-    local script_file="/tmp/$detached_script_filename"
+    local script_file="/tmp/$detached_script_filename.sh"
     local logdir="/var/log/$script_log_dir"
     wget "$detached_script_uri" -O $script_file
     chmod +x $script_file
