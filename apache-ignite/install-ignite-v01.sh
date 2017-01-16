@@ -181,7 +181,7 @@ updateApacheSparkConfig(){
 	sparkenv_original=$(echo $sparkenv_original | sed -r 's/\\n+/\\\\n/g')
 	
 	# Ignite updates into spark-env.sj
-	sparkenv_ignite="IGNITE_HOME=/hadoop/ignite/apache-ignite-hadoop-1.7.0-bin\\\\n IGNITE_LIBS=\${IGNITE_HOME}/libs/*\\\\n for file in \${IGNITE_LIBS}\\\\n do\\\\n IGNITE_LIBS=\${IGNITE_LIBS}:\${file}/*\\\\n done\\\\n export SPARK_CLASSPATH=\$SPARK_CLASSPATH:\$IGNITE_LIBS"
+	sparkenv_ignite="IGNITE_HOME=/hadoop/ignite/apache-ignite-hadoop-1.8.0-bin\\\\n IGNITE_LIBS=\${IGNITE_HOME}/libs/*\\\\n for file in \${IGNITE_LIBS}\\\\n do\\\\n IGNITE_LIBS=\${IGNITE_LIBS}:\${file}/*\\\\n done\\\\n export SPARK_CLASSPATH=\$SPARK_CLASSPATH:\$IGNITE_LIBS"
 	
 	# original spark + Ignite updates
 	sparkenv_updated="$sparkenv_original\\\\n$sparkenv_ignite"
@@ -268,9 +268,9 @@ setupApacheIgniteService(){
 	
 	echo "Creating Ignite Symlinks into Hadoop Libs"
 	cd $HADOOP_HOME/lib;
-	ln -sf $IGNITE_HOME/libs/ignite-core-1.7.0.jar;
+	ln -sf $IGNITE_HOME/libs/ignite-core-1.8.0.jar;
 	ln -sf $IGNITE_HOME/libs/ignite-shmem-1.0.0.jar;
-	ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-1.7.0.jar;
+	ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-1.8.0.jar;
 	
 	echo "Creating Hadoop Azure Symlinks into Ignite Libs"
 	cd $IGNITE_HOME/libs;
