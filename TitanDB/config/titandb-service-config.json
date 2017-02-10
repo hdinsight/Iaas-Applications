@@ -1,0 +1,17 @@
+{
+    "serviceName": "TITANDB",
+    "displayName": "TitanDB",
+    "package": "https://aurora7store.blob.core.windows.net/scripts/TITANDB.tar.gz",
+    "components": {
+        "component1": {
+            "attrib1": "value",
+            "attrib2": "value2"
+        },
+        "component2": {
+            "attrib3": "value3",
+            "attrib4": ["Array", "of", "strings"]
+        }
+    },
+    "metrics": false,
+    "startPrimary": false
+}
