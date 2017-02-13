@@ -174,12 +174,6 @@ setupHueService() {
 
     defaultfs=$(sed -n -e 's/.*<value>\(.*\)<\/value>.*/\1/p' <<< $defaultfsnode)
 
-    if [[ $defaultfs != wasb* ]]
-      then
-        echo "[ERROR] fs.defaultFS is not WASB. Exiting."
-        exit 138
-    fi
-
     sed -i "s|DEFAULTFSPLACEHOLDER|$defaultfs|g" $HUE_INIPATH
     
     PRIMARYHEADNODE=`get_primary_headnode`
