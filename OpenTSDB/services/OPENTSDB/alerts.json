@@ -1,0 +1,86 @@
+{
+  "OPENTSDB": {
+    "service": [
+      {
+        "name": "opentsdb_tsd_process_percent",
+        "label": "Percent TSD Servers Available",
+        "description": "This service-level alert is triggered if the configured percentage of TSD processes cannot be determined to be up and listening on the network for the configured warning and critical thresholds. It aggregates the results of TSD process down checks.",
+        "interval": 1,
+        "scope": "SERVICE",
+        "enabled": true,
+        "source": {
+          "type": "AGGREGATE",
+          "alert_name": "opentsdb_tsd_process",
+          "reporting": {
+            "ok": {
+              "text": "affected: [{1}], total: [{0}]"
+            },
+            "warning": {
+              "text": "affected: [{1}], total: [{0}]",
+              "value": 0.1
+            },
+            "critical": {
+              "text": "affected: [{1}], total: [{0}]",
+              "value": 0.3
+            }
+          }
+        }
+      }
+    ],
+    "OPENTSDB_TSD": [
+      {
+        "name": "opentsdb_tsd_process",
+        "label": "OpenTSDB TSD Process",
+        "description": "This alert is triggered if the TSD processes cannot be confirmed to be up and listening on the network for the configured critical threshold, given in seconds.",
+        "interval": 1,
+        "scope": "ANY",
+        "source": {
+          "type": "PORT",
+          "uri": "{{opentsdb-site/tsd.network.port}}",
+          "default_port": 4242,
+          "reporting": {
+            "ok": {
+              "text": "TCP OK - {0:.3f}s response on port {1}"
+            },
+            "warning": {
+              "text": "TCP OK - {0:.3f}s response on port {1}",
+              "value": 1.5
+            },
+            "critical": {
+              "text": "Connection failed: {0} to {1}:{2}",
+              "value": 5.0
+            }
+          }
+        }
+      }
+    ],
+    "OPENTSDB_PROXY": [
+      {
+        "name": "opentsdb_proxy_process",
+        "label": "OpenTSDB Proxy Process",
+        "description": "This alert is triggered if the proxy processes cannot be confirmed to be up and listening on the network for the configured critical threshold, given in seconds.",
+        "interval": 1,
+        "scope": "ANY",
+        "source": {
+          "type": "PORT",
+          "uri": "{{opentsdb-site/tsd.network.port}}",
+          "default_port": 4242,
+          "reporting": {
+            "ok": {
+              "text": "TCP OK - {0:.3f}s response on port {1}"
+            },
+            "warning": {
+              "text": "TCP OK - {0:.3f}s response on port {1}",
+              "value": 1.5
+            },
+            "critical": {
+              "text": "Connection failed: {0} to {1}:{2}",
+              "value": 5.0
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+

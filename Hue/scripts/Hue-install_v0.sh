@@ -15,6 +15,9 @@ OS_VERSION=$(lsb_release -sr)
 if [[ $OS_VERSION == 14* ]]; then
     echo "OS verion is $OS_VERSION. Using hue-binaries-14-04."
     HUE_TARFILE=hue-binaries-14-04.tgz
+elif [[ $OS_VERSION == 16* ]]; then
+    echo "OS verion is $OS_VERSION. Using hue-binaries-16-04."
+    HUE_TARFILE=hue-binaries-16-04.tgz
 fi
 
 HUE_TARFILEURI=https://hdiconfigactions.blob.core.windows.net/linuxhueconfigactionv01/$HUE_TARFILE
@@ -139,9 +142,35 @@ setupWebWasbService() {
     chown -R webwasb:webwasb $WEBWASB_INSTALLFOLDER
 
     cp -f $WEBWASB_INSTALLFOLDER/upstart/webwasb.conf /etc/init/
-    initctl reload-configuration
-    stop webwasb
-    start webwasb
+	cat >/etc/systemd/system/multi-user.target.wants/webwasb.service <<EOL
+[[Unit]
+Description=webwasb service
+
+[Service]
+Type=simple
+User=webwasb
+Group=webwasb
+Restart=always
+RestartSec=5
+Environment="JAVA_HOME=$JAVA_HOME"
+Environment="CATALINA_HOME=/usr/share/webwasb-tomcat"
+ExecStart=/usr/share/webwasb-tomcat/bin/catalina.sh run
+ExecStopPost=rm -rf $CATALINA_HOME/temp/*
+
+[Install]
+WantedBy=multi-user.target
+EOL
+	if [[ $OS_VERSION == 16* ]]; then
+	    echo "Using systemd configuration"
+		systemctl daemon-reload
+		systemctl stop webwasb.service    
+		systemctl start webwasb.service
+	else
+	    echo "Using upstart configuration"
+        initctl reload-configuration
+		stop webwasb
+		start webwasb
+    fi    
 }
 
 downloadAndUnzipHue() {
@@ -184,7 +213,7 @@ setupHueService() {
 	echo "Could not determine primary headnode."
 	exit 139
 	fi
-
+    
 	if [[ -z $SECONDARYHEADNODE ]]; then
 	echo "Could not determine secondary headnode."
 	exit 140
@@ -207,9 +236,30 @@ setupHueService() {
 
     echo "Making Hue a service and start it"
     cp $HUE_INSTALLFOLDER/upstart/hue.conf /etc/init/
-    initctl reload-configuration
-    stop hue
-    start hue
+    cat >/etc/systemd/system/multi-user.target.wants/hue.service <<EOL
+[[Unit]
+Description=hue service
+
+[Service]
+Type=simple
+User=hue
+Restart=always
+ExecStart=/usr/share/hue/build/env/bin/supervisor
+
+[Install]
+WantedBy=multi-user.target
+EOL
+	if [[ $OS_VERSION == 16* ]]; then
+	    echo "Using systemd configuration"
+		systemctl daemon-reload
+		systemctl stop hue.service    
+		systemctl start hue.service
+	else
+	    echo "Using upstart configuration"
+        initctl reload-configuration
+        stop hue
+        start hue
+    fi
 }
 
 ##############################
@@ -231,7 +281,11 @@ if [ -e $HUE_INSTALLFOLDER ]; then
     exit 0
 fi
 
-echo JAVA_HOME=$JAVA_HOME
+if [[ $OS_VERSION == 14* ]]; then
+    export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+elif [[ $OS_VERSION == 16* ]]; then
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+fi
 
 checkHostNameAndSetClusterName
 validateUsernameAndPassword
