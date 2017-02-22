@@ -34,7 +34,7 @@ startKAP() {
     su - kylin
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
     $KYLIN_HOME/bin/kylin.sh start
-    sleep 10000
+    sleep 10
 
 }
 
