@@ -61,7 +61,7 @@
             "httpsEndpoints": [{
                 "subDomainSuffix": "kap",
                 "destinationPort": 7070,
-                "accessModes": []
+                "accessModes": ["webpage"]
             }],
             "applicationType": "CustomApplication"
         }

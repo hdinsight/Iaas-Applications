@@ -15,7 +15,7 @@ downloadAndUnzipKAP() {
     rm -rf $KAP_TMPFOLDER
     mkdir $KAP_TMPFOLDER
     
-    echo "Downloading Hue tar file"
+    echo "Downloading KAP tar file"
     wget $KAP_DOWNLOAD_URI -P $KAP_TMPFOLDER
     
     echo "Unzipping KAP"
@@ -33,6 +33,11 @@ startKAP() {
     echo "Starting KAP with kylin user"
     su kylin
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+
+    ## Test index page
+    mkdir -p $KYLIN_HOME/tomcat/webapps/ROOT
+    echo "Hello" > $KYLIN_HOME/tomcat/webapps/ROOT/index.html
+    
     $KYLIN_HOME/bin/kylin.sh start
     sleep 10
 
