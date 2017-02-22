@@ -19,10 +19,9 @@ downloadAndUnzipKAP() {
     wget $KAP_DOWNLOAD_URI -P $KAP_TMPFOLDER
     
     echo "Unzipping KAP"
-    cd $HUE_TMPFOLDER
-    tar -zxvf $KAP_TARFILE -C $KAP_INSTALL_BASE_FOLDER
+    mkdir -p $KAP_INSTALL_BASE_FOLDER
+    tar -zxvf $KAP_TMPFOLDER/$KAP_TARFILE -C $KAP_INSTALL_BASE_FOLDER
 
-    
     rm -rf $KAP_TMPFOLDER
 }
 

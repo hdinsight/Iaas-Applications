@@ -13,7 +13,7 @@
             "metadata": {
                 "description" : "Any non-empty value is accepted. After the package is published, this parameter will be used to link the application install to the details about the application in the marketplace."
             },
-            "defaultValue": "Hue"
+            "defaultValue": "KAP"
         },
         "edgeNodeSize": {
             "type": "string",
@@ -35,7 +35,7 @@
     },
     "variables": {
         "clusterApiVersion": "2015-03-01-preview",
-        "applicationName": "hue"
+        "applicationName": "KAP"
     },
     "resources": [{
         "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
@@ -53,19 +53,15 @@
                 }]
             },
             "installScriptActions": [{
-                "name": "[concat('hue-install-v0','-' ,uniquestring(variables('applicationName')))]",
-                "uri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/Hue/scripts/Hue-install_v0.sh",
+                "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
+                "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
                 "roles": ["edgenode"]
             }],
             "uninstallScriptActions": [],
             "httpsEndpoints": [{
-                "subDomainSuffix": "hue",
-                "destinationPort": 8888,
+                "subDomainSuffix": "kap",
+                "destinationPort": 7070,
                 "accessModes": ["webpage"]
-            },
-            {
-                "subDomainSuffix": "was",
-                "destinationPort": 50073
             }],
             "applicationType": "CustomApplication"
         }
