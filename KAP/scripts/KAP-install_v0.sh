@@ -31,7 +31,7 @@ startKAP() {
     chown -R kylin:kylin $KAP_INSTALL_BASE_FOLDER
 
     echo "Starting KAP with kylin user"
-    su - kylin
+    su kylin
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
     $KYLIN_HOME/bin/kylin.sh start
     sleep 10
