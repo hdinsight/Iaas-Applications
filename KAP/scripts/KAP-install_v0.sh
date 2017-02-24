@@ -34,7 +34,7 @@ downloadAndUnzipKAP() {
     echo "Updating KAP admin account"
     cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/tomcat/webapps/
     unzip kylin.war -d kylin
-    wget $KAP_SECURITY_TEMPLETE_URI kylin/WEB-INF/classes/
+    wget $KAP_SECURITY_TEMPLETE_URI -P kylin/WEB-INF/classes/
     sed -i "s/KAP-ADMIN/$adminuser/g" kylin/WEB-INF/classes/kylinSecurity.xml
     sed -i "s/KAP-PASSWD/$adminpassword/g" kylin/WEB-INF/classes/kylinSecurity.xml
 
@@ -52,7 +52,7 @@ startKAP() {
     chown -R kylin:kylin $KAP_INSTALL_BASE_FOLDER
 
     echo "Starting KAP with kylin user"
-    su kylin
+    ## su kylin
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
 
     ## Add index page to auto redirect to KAP 
@@ -60,7 +60,7 @@ startKAP() {
     cat > $KYLIN_HOME/tomcat/webapps/ROOT/index.html <<EOL
 <html>
   <head>
-    <meta http-equiv="refresh" content="1;url=kylin/index.html"> 
+    <meta http-equiv="refresh" content="1;url=kylin"> 
   </head>
 </html>
 EOL
