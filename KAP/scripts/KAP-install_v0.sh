@@ -6,6 +6,11 @@ KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_T
 KAP_INSTALL_BASE_FOLDER=/usr/local/kap
 KAP_TMPFOLDER=/tmp/kap
 
+
+KANALYZER_TARFILE=KyAnalyzer-2.1.3.tar.gz
+KANALYZER_FOLDER_NAME=kyanalyzer-server
+KANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KANALYZER_TARFILE
+
 #import helper module.
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
 
@@ -43,6 +48,29 @@ startKAP() {
 
 }
 
+downloadAndUnzipKyAnalyzer() {
+    rm -rf $KAP_TMPFOLDER
+    mkdir $KAP_TMPFOLDER
+    
+    echo "Downloading KyAnalyzer tar file"
+    wget $KANALYZER_DOWNLOAD_URI -P $KAP_TMPFOLDER
+    
+    echo "Unzipping KyAnalyzer"
+    mkdir -p $KAP_INSTALL_BASE_FOLDER
+    tar -zxvf $KAP_TMPFOLDER/$KANALYZER_TARFILE -C $KAP_INSTALL_BASE_FOLDER
+
+    rm -rf $KAP_TMPFOLDER
+}
+
+startKyAnalyzer() {
+
+    echo "Starting KyAnalyzer with kylin user"
+    export KYANALYZER_HOME=$KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
+    $KYANALYZER_HOME/start-analyzer.sh
+    sleep 10
+
+}
+
 ##############################
 if [ "$(id -u)" != "0" ]; then
     echo "[ERROR] The script has to be run as root."
@@ -56,9 +84,11 @@ if [ -e $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME ]; then
     exit 0
 fi
 
-echo "Download and unzip KAP"
+echo "Download and unzip KAP & KyAnalyzer"
 downloadAndUnzipKAP
-echo "Start KAP"
+downloadAndUnzipKyAnalyzer
+echo "Start KAP & KyAnalyzer"
 startKAP
-echo "Start KAP Done!"
+startKyAnalyzer
+echo "Start KAP & KyAnalyzer Done!"
 

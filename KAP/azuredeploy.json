@@ -62,6 +62,11 @@
                 "subDomainSuffix": "kap",
                 "destinationPort": 7070,
                 "accessModes": ["webpage"]
+            },
+            {
+                "subDomainSuffix": "kya",
+                "destinationPort": 8080,
+                "accessModes": ["webpage"]
             }],
             "applicationType": "CustomApplication"
         }
