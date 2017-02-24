@@ -5,11 +5,15 @@ KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
 KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
 KAP_INSTALL_BASE_FOLDER=/usr/local/kap
 KAP_TMPFOLDER=/tmp/kap
+KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kylinSecurity.xml
 
+KYANALYZER_TARFILE=KyAnalyzer-2.1.3.tar.gz
+KYANALYZER_FOLDER_NAME=kyanalyzer-server
+KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
 
-KANALYZER_TARFILE=KyAnalyzer-2.1.3.tar.gz
-KANALYZER_FOLDER_NAME=kyanalyzer-server
-KANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KANALYZER_TARFILE
+adminuser=$1
+adminpassword=$2
+metastore=$3
 
 #import helper module.
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
@@ -26,6 +30,18 @@ downloadAndUnzipKAP() {
     echo "Unzipping KAP"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KAP_TARFILE -C $KAP_INSTALL_BASE_FOLDER
+
+    echo "Updating KAP admin account"
+    cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/tomcat/webapps/
+    unzip kylin.war -d kylin
+    wget $KAP_SECURITY_TEMPLETE_URI kylin/WEB-INF/classes/
+    sed -i "s/KAP-ADMIN/$adminuser/g" kylin/WEB-INF/classes/kylinSecurity.xml
+    sed -i "s/KAP-PASSWD/$adminpassword/g" kylin/WEB-INF/classes/kylinSecurity.xml
+
+    echo "Updating KAP metastore to $metastore"
+    cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
+    sed -i "s/kylin_default_instance/$metastore/g" kylin.properties
+    
 
     rm -rf $KAP_TMPFOLDER
 }
@@ -59,11 +75,11 @@ downloadAndUnzipKyAnalyzer() {
     mkdir $KAP_TMPFOLDER
     
     echo "Downloading KyAnalyzer tar file"
-    wget $KANALYZER_DOWNLOAD_URI -P $KAP_TMPFOLDER
+    wget $KYANALYZER_DOWNLOAD_URI -P $KAP_TMPFOLDER
     
     echo "Unzipping KyAnalyzer"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
-    tar -zxvf $KAP_TMPFOLDER/$KANALYZER_TARFILE -C $KAP_INSTALL_BASE_FOLDER
+    tar -zxvf $KAP_TMPFOLDER/$KYANALYZER_TARFILE -C $KAP_INSTALL_BASE_FOLDER
 
     rm -rf $KAP_TMPFOLDER
 }
@@ -90,7 +106,7 @@ if [ -e $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME ]; then
     exit 0
 fi
 
-echo "Download and unzip KAP & KyAnalyzer"
+echo "Download/unzip KAP & KyAnalyzer"
 downloadAndUnzipKAP
 downloadAndUnzipKyAnalyzer
 echo "Start KAP & KyAnalyzer"

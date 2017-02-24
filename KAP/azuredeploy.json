@@ -8,6 +8,27 @@
                 "description": "The name of the existing HDInsight cluster"
             }
         },
+        "clusterLoginUserName": {
+          "type": "string",
+          "defaultValue": "admin",
+          "metadata": {
+            "description": "These account can be used to log into KAP and KyAnalyer web GUI and REST services."
+          }
+        },
+        "clusterLoginPassword": {
+          "type": "securestring",
+          "minLength": 10,
+          "metadata": {
+            "description": "The password of the account."
+          }
+        },
+        "metastoreName": {
+            "type": "string",
+            "defaultValue": "kylin_default_instance",
+            "metadata": {
+                "description": "The name of metadata store for KAP"
+            }
+        },
         "galleryPackageIdentity": {
             "type": "string",
             "metadata": {
@@ -55,6 +76,7 @@
             "installScriptActions": [{
                 "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
                 "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
+                "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'))]",
                 "roles": ["edgenode"]
             }],
             "uninstallScriptActions": [],
