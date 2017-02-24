@@ -39,9 +39,15 @@ startKAP() {
     su kylin
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
 
-    ## Test index page
+    ## Add index page to auto redirect to KAP 
     mkdir -p $KYLIN_HOME/tomcat/webapps/ROOT
-    echo "Hello" > $KYLIN_HOME/tomcat/webapps/ROOT/index.html
+    cat > $KYLIN_HOME/tomcat/webapps/ROOT/index.html <<EOL
+<html>
+  <head>
+    <meta http-equiv="refresh" content="1;url=kylin/index.html"> 
+  </head>
+</html>
+EOL
     
     $KYLIN_HOME/bin/kylin.sh start
     sleep 10
