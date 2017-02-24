@@ -1,6 +1,6 @@
 #! /bin/bash
 
-ZEPPELIN_TARFILE=zepplin-0.8.0-kylin.tar.gz
+ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
 ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
 ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
@@ -30,15 +30,14 @@ startZeppelin() {
     useradd -r zeppelin
     chown -R zeppelin:zeppelin $ZEPPELIN_INSTALL_BASE_FOLDER
 
-    echo "Starting zeppelin with zeppelin user"
-    su zeppelin
     export ZEPPELIN_HOME=$ZEPPELIN_INSTALL_BASE_FOLDER/$ZEPPELIN_FOLDER_NAME
-
     cp $ZEPPELIN_HOME/conf/zeppelin-site.xml.template $ZEPPELIN_HOME/conf/zeppelin-site.xml
     sed -i 's/8080/9090/g' $ZEPPELIN_HOME/conf/zeppelin-site.xml
-    $ZEPPELIN_HOME/bin/zeppelin-daemon.sh start
-    sleep 10
 
+    echo "Starting zeppelin with zeppelin user"
+    su - zeppelin -c "$ZEPPELIN_HOME/bin/zeppelin-daemon.sh start"    
+
+    sleep 10
 }
 
 ##############################
