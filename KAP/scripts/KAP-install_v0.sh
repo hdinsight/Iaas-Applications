@@ -148,7 +148,7 @@ installZeppelin() {
 }
 
 main() {
-    case "$4" in
+    case "$apptype" in
         KAP+KyAnalyzer+Zeppelin)
             installKAP
             installKyAnalyzer
