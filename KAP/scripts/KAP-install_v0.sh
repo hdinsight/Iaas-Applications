@@ -11,9 +11,16 @@ KYANALYZER_TARFILE=KyAnalyzer-2.1.3.tar.gz
 KYANALYZER_FOLDER_NAME=kyanalyzer-server
 KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
 
+ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
+ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
+ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
+ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
+ZEPPELIN_TMPFOLDER=/tmp/zeppelin
+
 adminuser=$1
 adminpassword=$2
 metastore=$3
+apptype=$4
 
 #import helper module.
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
@@ -67,7 +74,7 @@ startKAP() {
 </html>
 EOL
     
-    $KYLIN_HOME/bin/kylin.sh start
+    su - kylin -c "$KYLIN_HOME/bin/kylin.sh start"
     sleep 10
 
 }
@@ -95,6 +102,72 @@ startKyAnalyzer() {
 
 }
 
+downloadAndUnzipZeppelin() {
+    echo "Removing Zeppelin tmp folder"
+    rm -rf $ZEPPELIN_TMPFOLDER
+    mkdir $ZEPPELIN_TMPFOLDER
+    
+    echo "Downloading ZEPPELIN tar file"
+    wget $ZEPPELIN_DOWNLOAD_URI -P $ZEPPELIN_TMPFOLDER
+    
+    echo "Unzipping ZEPPELIN"
+    mkdir -p $ZEPPELIN_INSTALL_BASE_FOLDER
+    tar -xzvf $ZEPPELIN_TMPFOLDER/$ZEPPELIN_TARFILE -C $ZEPPELIN_INSTALL_BASE_FOLDER
+
+    rm -rf $ZEPPELIN_TMPFOLDER
+}
+
+startZeppelin() {
+    echo "Adding zeppelin user"
+    useradd -r zeppelin
+    chown -R zeppelin:zeppelin $ZEPPELIN_INSTALL_BASE_FOLDER
+
+    export ZEPPELIN_HOME=$ZEPPELIN_INSTALL_BASE_FOLDER/$ZEPPELIN_FOLDER_NAME
+    cp $ZEPPELIN_HOME/conf/zeppelin-site.xml.template $ZEPPELIN_HOME/conf/zeppelin-site.xml
+    sed -i 's/8080/9090/g' $ZEPPELIN_HOME/conf/zeppelin-site.xml
+
+    echo "Starting zeppelin with zeppelin user"
+    su - zeppelin -c "$ZEPPELIN_HOME/bin/zeppelin-daemon.sh start"    
+
+    sleep 10
+}
+
+installKAP() {
+    downloadAndUnzipKAP
+    startKAP
+}
+
+installKyAnalyzer() {
+    downloadAndUnzipKyAnalyzer
+    startKyAnalyzer
+}
+
+installZeppelin() {
+    downloadAndUnzipZeppelin
+    startZeppelin
+}
+
+main() {
+    case "$4" in
+        KAP+KyAnalyzer+Zeppelin)
+            installKAP
+            installKyAnalyzer
+            installZeppelin
+            ;;
+        KAP+KyAnalyzer)
+            installKAP
+            installKyAnalyzer
+            ;;
+        KAP)
+            installKAP
+            ;;
+        *)
+            echo "Not Supported APP Type!"
+            exit 1
+            ;;
+    esac
+}
+
 ##############################
 if [ "$(id -u)" != "0" ]; then
     echo "[ERROR] The script has to be run as root."
@@ -108,11 +181,11 @@ if [ -e $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME ]; then
     exit 0
 fi
 
-echo "Download/unzip KAP & KyAnalyzer"
-downloadAndUnzipKAP
-downloadAndUnzipKyAnalyzer
-echo "Start KAP & KyAnalyzer"
-startKAP
-startKyAnalyzer
-echo "Start KAP & KyAnalyzer Done!"
+if [ -e $ZEPPELIN_INSTALL_BASE_FOLDER/$ZEPPELIN_FOLDER_NAME ]; then
+    echo "Zeppelin is already installed. Exiting ..."
+    exit 0
+fi
+
+###############################
+main
 

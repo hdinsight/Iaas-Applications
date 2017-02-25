@@ -2,6 +2,18 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "appType": {
+            "type": "string",
+            "metadata": {
+                "description": "Which services you want to install"
+            },
+            "defaultValue": "KAP+KyAnalyzer+Zeppelin",
+            "allowedValues": [
+                "KAP+KyAnalyzer+Zeppelin",
+                "KAP+KyAnalyzer",
+                "KAP"
+            ]
+        },
         "clusterName": {
             "type": "string",
             "metadata": {
@@ -76,7 +88,7 @@
             "installScriptActions": [{
                 "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
                 "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
-                "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'))]",
+                "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'))]",
                 "roles": ["edgenode"]
             }],
             "uninstallScriptActions": [],
@@ -88,6 +100,11 @@
             {
                 "subDomainSuffix": "kya",
                 "destinationPort": 8080,
+                "accessModes": ["webpage"]
+            },
+            {
+                "subDomainSuffix": "zep",
+                "destinationPort": 9090,
                 "accessModes": ["webpage"]
             }],
             "applicationType": "CustomApplication"
