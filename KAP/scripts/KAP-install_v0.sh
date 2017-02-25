@@ -73,7 +73,9 @@ startKAP() {
   </head>
 </html>
 EOL
-    
+   
+    # create default working dir /kylin
+    su - kylin -c "hdfs dfs -mkdir -p /kylin" 
     su - kylin -c "$KYLIN_HOME/bin/kylin.sh start"
     sleep 10
 
