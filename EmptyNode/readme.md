@@ -5,4 +5,4 @@ This template helps to add a new empty edgenode to the cluster <br>
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-We use simple "dummy" script to simulate application installation and prepare a clean empty edgenode and attach it to the cluster
+We use simple "dummy" script to simulate application installation and prepare a clean empty edgenode and attach it to the cluster. For more information, see <a href="https://docs.microsoft.com/azure/hdinsight/hdinsight-apps-use-edge-node">Use empty edge nodes in HDInsight</a>
