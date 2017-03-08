@@ -98,11 +98,11 @@
             "metadata": {
                 "description": "Which services you want to install"
             },
-            "defaultValue": "KAP+KyAnalyzer+Zeppelin",
+            "defaultValue": "KAP+KyAnalyzer",
             "allowedValues": [
-                "KAP+KyAnalyzer+Zeppelin",
+                "KAP",
                 "KAP+KyAnalyzer",
-                "KAP"
+                "KAP+KyAnalyzer+Zeppelin"
             ]
     },
     "metastoreName": {
