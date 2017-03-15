@@ -96,13 +96,19 @@
     "applicationName": "titandb",
     "galleryPackageIdentity": "titandb",
     "edgeNodeSuffix": "tdb",
-    "scriptBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/",
+    "scriptBaseUri": "https://aurora7store.blob.core.windows.net/scripts/",
     "edgeNodeSignatureTag": "titandb-edgenode-signature-tag",
     "topologies": {
-      "Edge Node": 1,
-      "Load Balanced": 2
+      "Edge Node": "edge",
+      "Load Balanced": "region"
     },
-    "selectedTopology": "[variables('topologies')[parameters('titanTopology')]]"
+    "selectedTopology": "[variables('topologies')[parameters('titanTopology')]]",
+    "extraConfiguration": {
+      "titandb-site": {
+        "server.port": "[parameters('titanPortNumber')]"
+      }
+    },
+    "singleQuote": "'"
   },
   "resources": [
     {
@@ -165,8 +171,8 @@
               "scriptActions": [
                 {
                   "name": "install-titandb",
-                  "uri": "[concat(variables('scriptBaseUri'), 'TitanDB/scripts/install-titandb.sh')]",
-                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('titanPortNumber'), ' ', variables('edgeNodeSuffix'), ' 1 ', variables('edgeNodeSignatureTag'), ' ', variables('selectedTopology'))]",
+                  "uri": "[concat(variables('scriptBaseUri'), 'install_ambari_app_bootstrap.sh')]",
+                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'titandb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' -t ', variables('selectedTopology'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -e 1 -v DEBUG')]",
                   "isHeadNode": true
                 }
               ]
@@ -211,8 +217,8 @@
         "installScriptActions": [
           {
             "name": "install-titandb-edgenode",
-            "uri": "[concat(variables('scriptBaseUri'), 'Scripts/install-edgenode-placeholder.sh')]",
-            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', variables('edgeNodeSignatureTag'))]",
+            "uri": "[concat(variables('scriptBaseUri'), 'install-edgenode-placeholder.sh')]",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'))]",
             "roles": [
               "edgenode"
             ]
