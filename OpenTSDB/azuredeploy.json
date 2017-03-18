@@ -56,6 +56,17 @@
         "description": "The number of nodes in the HDInsight cluster."
       }
     },
+    "openTsdbTopology": {
+      "type": "string",
+      "defaultValue": "Load Balanced",
+      "allowedValues": [
+        "Edge Node",
+        "Load Balanced"
+      ],
+      "metadata": {
+        "description": "Select the deployment topology for OpenTSDB on the cluster. 'Edge Node' installs 1 TSD instance on the edge node. 'Load Balanced' installs a TSD instance of every region server in the cluster and a load balancer on the edge node distributes traffic."
+      }
+    },
     "edgeNodeSize": {
       "type": "string",
       "metadata": {
@@ -87,7 +98,21 @@
     "clusterStorageAccountName": "[concat(parameters('clusterName'),'store')]",
     "applicationName": "opentsdb",
     "galleryPackageIdentity": "opentsdb",
-    "scriptBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/scripts/"
+    "edgeNodeSuffix": "tdb",
+    "scriptBaseUri": "https://aurora7store.blob.core.windows.net/scripts/",
+    "templateBaseUri": "[concat(variables('scriptBaseUri'), 'Templates/')]",
+    "edgeNodeSignatureTag": "opentsdb-edgenode-signature-tag",
+    "topologies": {
+      "Edge Node": "edge",
+      "Load Balanced": "region"
+    },
+    "selectedTopology": "[variables('topologies')[parameters('openTsdbTopology')]]",
+    "extraConfiguration": {
+      "opentsdb-site": {
+        "tsd.network.port": "[parameters('tsdPortNumber')]"
+      }
+    },
+    "singleQuote": "'"
   },
   "resources": [
     {
@@ -150,8 +175,8 @@
               "scriptActions": [
                 {
                   "name": "install-opentsdb",
-                  "uri": "[concat(variables('scriptBaseUri'), 'install-opentsdb.sh')]",
-                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('tsdPortNumber'), ' tsd', ' 1')]",
+                  "uri": "[concat(variables('scriptBaseUri'), 'install_ambari_app_bootstrap.sh')]",
+                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'opentsdb/opentsdb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' -t ', variables('selectedTopology'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -z ', variables('templateBaseUri'), ' -e 1 -v DEBUG')]",
                   "isHeadNode": true
                 }
               ]
@@ -196,8 +221,8 @@
         "installScriptActions": [
           {
             "name": "install-opentsdb-proxy",
-            "uri": "[concat(variables('scriptBaseUri'), 'deploy-external-proxy.sh')]",
-            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'))]",
+            "uri": "[concat(variables('scriptBaseUri'), 'install-edgenode-placeholder.sh')]",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', variables('edgeNodeSignatureTag'))]",
             "roles": [
               "edgenode"
             ]
@@ -206,7 +231,7 @@
         "uninstallScriptActions": [],
         "httpsEndpoints": [
           {
-            "subDomainSuffix": "tsd",
+            "subDomainSuffix": "[variables('edgeNodeSuffix')]",
             "destinationPort": "[parameters('tsdPortNumber')]",
             "accessModes": [
               "webpage"

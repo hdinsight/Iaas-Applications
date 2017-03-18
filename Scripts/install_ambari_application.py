@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, os.path, sys, imp, tempfile, shutil, tarfile, stat, argparse, itertools, logging, json
+import os, os.path, sys, imp, tempfile, shutil, tarfile, stat, argparse, itertools, logging, json, shutil
 import requests, time
 import pip
 from multiprocessing import Process, current_process
@@ -19,7 +19,7 @@ else:
     sys.path.append('./external')
     import win_resource_management as rm
 
-def initial_part(service_config, cluster, selected_topologies, num_edge_nodes, extra_config, data_service, not_detached, logfile, verbosity):
+def initial_part(service_config, cluster, selected_topologies, num_edge_nodes, edge_node_tag, edge_dns_suffix, extra_config, template_base_uri, data_service, not_detached, logfile, verbosity):
     try:
         stack_service_base_path = data_service.get_stack_service_base_dir(cluster.stack.stack_name, cluster.stack.stack_version)
         log.debug('Stack installation dir: %s', stack_service_base_path)
@@ -46,14 +46,34 @@ def initial_part(service_config, cluster, selected_topologies, num_edge_nodes, e
             log.debug('Modifying ambari properties file: %s. Set agent.auto.cache.update=true', ambari_conf_file)
             rm.ModifyPropertiesFile(ambari_conf_file, 
                                     properties = {'agent.auto.cache.update': 'true'})
+            # If the service has a WebUX (exposed via edge node endpoint), then create the jar file that exposes this capability via an IFrame viewer
+            # TODO: Add support for richer, separate UX
+            if 'iframeViewer' in service_config and service_config['iframeViewer']:
+                if edge_dns_suffix and template_base_uri:
+                    try:
+                        edge_dns_name = '{0}-{1}.apps.azurehdinsight.net'.format(cluster.cluster_name, edge_dns_suffix)
+                        view_jarname = shared_lib.create_iframe_viewer(service_config['serviceName'], service_config['displayName'], edge_dns_name, template_base_uri, data_service)
+                        if view_jarname:
+                            views_dir = os.path.join(data_service.get_ambari_resources_base_dir(), 'views')
+                            if not os.access(views_dir, os.F_OK):
+                                os.makedirs(views_dir)
+                            dir, fname = os.path.split(view_jarname)
+                            view_fullname = os.path.join(views_dir, fname)
+                            log.debug('Moving dynamically constructed viewer jar file from %s to %s', view_jarname, view_fullname)
+                            shutil.copy(view_jarname, view_fullname)
+                    except:
+                        # We can tolerate failure here, just log the warning & move on
+                        log.warn('Failed to create IFrame View for service. The service UX will not be available via Ambari Views. Details: ', exc_info=True)
+                else:
+                    log.warn('Not installing IFrame view for service as required arguments --edge-dns-suffix and --template-base-uri were not specified')
 
         log.info('Starting detached installation component. Will wait for cluster installation to complete prior to rebooting Ambari')
         if not_detached:
-            detached_part(service_config, cluster, selected_topologies, num_edge_nodes, extra_config, data_service, logfile, verbosity)
+            detached_part(service_config, cluster, selected_topologies, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity)
         else:
             # Launch the detached script that must wait for all Ambari installations (including edge nodes) to complete
             # before proceeding with the complete service installation
-            detached = Process(target=detached_part, args=(service_config, cluster, selected_topologies, num_edge_nodes, extra_config, data_service, logfile, verbosity, ))
+            detached = Process(target=detached_part, args=(service_config, cluster, selected_topologies, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity, ))
             detached.daemon=True
             detached.start()
             # Completely detach the child process from this one - an exit handler terminates & waits
@@ -64,20 +84,23 @@ def initial_part(service_config, cluster, selected_topologies, num_edge_nodes, e
         log.fatal('FATAL: Failure during initial installation part. Details:', exc_info=True)
         return False
 
-def detached_part(service_config, cluster, selected_topologies, num_edge_nodes, extra_config, data_service, logfile, verbosity):
+def detached_part(service_config, cluster, selected_topologies, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity):
     try:
         shared_lib.configure_loggers(logfile, verbosity)
         service_display_name = service_config['displayName'] if service_config['displayName'] else service_config['serviceName']
         log.info('Running detached installation component for service: %s', service_display_name)
         # Determine if AMS collector is running on this node (not necessarily the active headnode)
         if service_config['metrics']:
+            log.info('Updating AMS metrics whitelist and restarting AMS collector to make effective.')
+            service_dir = os.path.join(data_service.get_stack_service_base_dir(cluster.stack.stack_name, cluster.stack.stack_version), service_config['serviceName'])
+            shared_lib.update_ams_whitelist(service_dir, data_service)
             shared_lib.restart_ams_if_necessary(cluster, data_service)
         # We only need the service registration to proceed once - do it on the active headnode
         if shared_lib.is_active_headnode(data_service):
             log.info('Performing full installation on active head node')
             # We defer the required reboot of Ambari - to make the service effective, until after the entire cluster has been setup
             if num_edge_nodes:
-                edge_node_hosts = shared_lib.wait_for_edge_node_scripts(cluster, num_edge_nodes, data_service)
+                edge_node_hosts = shared_lib.wait_for_edge_node_scripts(cluster, num_edge_nodes, edge_node_tag, data_service)
                 if not edge_node_hosts:
                     return False
             else:
@@ -230,7 +253,10 @@ if __name__ == '__main__':
                 'This must be a subset of the available_topologies config setting. '
                 'Combine multiple topologies by specifying this argument multiple times.'))
     argsparser.add_argument('-e', '--num-edge-nodes', default=0, type=int, help='The number of edge nodes to deploy components onto')
+    argsparser.add_argument('-n', '--edge-node-tag', default='edgenode-signature-tag', help='The string that will appear in the installation log file for all edge nodes.')
+    argsparser.add_argument('-s', '--edge-dns-suffix', default='', help='DNS suffix applied to edge node URL where service endpoint will be exposed. In the form; "https://{cluster_name}-{edge-dns-suffix}.apps.azurehdinsight.net"')
     argsparser.add_argument('-x', '--extra-config', default='', help='Extra configuration information that will be merged with pre-configured configuration. This value should be in the form of a JSON object.')
+    argsparser.add_argument('-z', '--template-base-uri', default='', help='Base uri pointing to a location where templates for this installation can be installed.')
     argsparser.add_argument('-a', '--ambari-host', default='http://headnodehost:8080', help='Base URI for Ambari api')
     argsparser.add_argument('--not-detached', action='store_true', help='DEBUG ONLY - do not detach second part of script')
     argsparser.add_argument('-l', '--logfile', default=None, help='Log file location')
@@ -288,5 +314,5 @@ if __name__ == '__main__':
         mock_service = shared_lib.MockableService()
 
     # Kick off the initial processing, which will in turn launch a detached script to complete the installation process
-    if not initial_part(service_config, cluster, list(itertools.chain.from_iterable(args.topology)), args.num_edge_nodes, extra_config, mock_service, args.not_detached, args.logfile, args.verbosity):
+    if not initial_part(service_config, cluster, list(itertools.chain.from_iterable(args.topology)), args.num_edge_nodes, args.edge_node_tag, args.edge_dns_suffix, extra_config, args.template_base_uri, mock_service, args.not_detached, args.logfile, args.verbosity):
         sys.exit(4)

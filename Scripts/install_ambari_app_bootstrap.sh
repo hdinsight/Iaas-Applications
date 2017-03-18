@@ -12,10 +12,19 @@ pip install python-ambariclient
 
 echo "Running python script to install Ambari service"
 mkdir /var/log/install-ambari-app
+# Check if the --logfile parameter has been specified
 logarg='-l /var/log/install-ambari-app/install.log'
 for arg in "$@"; do
     if [ "$arg" == "-l" ] || [ "$arg" == "--logfile" ] ; then
         logarg=''
     fi
 done
-python /tmp/install_ambari_application.py $logarg $@
+# Check if the --template-base-uri parameter has been specified
+templatearg="-z $SCRIPT_BASE"
+for arg in "$@"; do
+    if [ "$arg" == "-z" ] || [ "$arg" == "--template-base-uri" ] ; then
+        templatearg=''
+    fi
+done
+
+python /tmp/install_ambari_application.py $logarg $templatearg $@

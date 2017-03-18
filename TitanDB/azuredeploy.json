@@ -172,7 +172,7 @@
                 {
                   "name": "install-titandb",
                   "uri": "[concat(variables('scriptBaseUri'), 'install_ambari_app_bootstrap.sh')]",
-                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'titandb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' -t ', variables('selectedTopology'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -e 1 -v DEBUG')]",
+                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'titandb/titandb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' -t ', variables('selectedTopology'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -e 1 -v DEBUG')]",
                   "isHeadNode": true
                 }
               ]
@@ -218,7 +218,7 @@
           {
             "name": "install-titandb-edgenode",
             "uri": "[concat(variables('scriptBaseUri'), 'install-edgenode-placeholder.sh')]",
-            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'))]",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', variables('edgeNodeSignatureTag'))]",
             "roles": [
               "edgenode"
             ]
