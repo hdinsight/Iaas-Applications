@@ -77,40 +77,40 @@
       }
     },
     "edgeNodeSize": {
-            "type": "string",
-            "metadata": {
-                "description": "Size of the edge node that hosts the application"
-            },
-            "defaultValue": "Standard_D3",
-            "allowedValues": [
-                "Standard_A1",
-                "Standard_A2",
-                "Standard_A3",
-                "Standard_A4",
-                "Standard_D1",
-                "Standard_D2",
-                "Standard_D3",
-                "Standard_D4"
-            ]
+      "type": "string",
+      "metadata": {
+        "description": "Size of the edge node that hosts the application"
+      },
+      "defaultValue": "Standard_D3",
+      "allowedValues": [
+        "Standard_A1",
+        "Standard_A2",
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_D1",
+        "Standard_D2",
+        "Standard_D3",
+        "Standard_D4"
+      ]
     },
     "appType": {
-            "type": "string",
-            "metadata": {
-                "description": "Which services you want to install"
-            },
-            "defaultValue": "KAP+KyAnalyzer",
-            "allowedValues": [
-                "KAP",
-                "KAP+KyAnalyzer",
-                "KAP+KyAnalyzer+Zeppelin"
-            ]
+      "type": "string",
+      "metadata": {
+        "description": "Which services you want to install"
+      },
+      "defaultValue": "KAP+KyAnalyzer",
+      "allowedValues": [
+        "KAP",
+        "KAP+KyAnalyzer",
+        "KAP+KyAnalyzer+Zeppelin"
+      ]
     },
     "metastoreName": {
-            "type": "string",
-            "defaultValue": "kylin_default_instance",
-            "metadata": {
-                "description": "The name of metadata store for KAP"
-            }
+      "type": "string",
+      "defaultValue": "kylin_default_instance",
+      "metadata": {
+        "description": "The name of metadata store for KAP"
+      }
     }
   },
   "variables": {
@@ -126,10 +126,8 @@
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[parameters('location')]",
       "apiVersion": "[variables('defaultApiVersion')]",
-      "dependsOn": [ ],
-      "tags": {
-
-      },
+      "dependsOn": [],
+      "tags": {},
       "properties": {
         "accountType": "Standard_LRS"
       }
@@ -139,10 +137,10 @@
       "type": "Microsoft.HDInsight/clusters",
       "location": "[parameters('location')]",
       "apiVersion": "[variables('clusterApiVersion')]",
-      "dependsOn": [ "[concat('Microsoft.Storage/storageAccounts/',variables('clusterStorageAccountName'))]" ],
-      "tags": {
-
-      },
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/',variables('clusterStorageAccountName'))]"
+      ],
+      "tags": {},
       "properties": {
         "clusterVersion": "3.4",
         "osType": "Linux",
@@ -198,49 +196,63 @@
         }
       }
     },
-      {
-	    "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
-	    "type": "Microsoft.HDInsight/clusters/applications",
-	    "dependsOn": [
-			"[concat('Microsoft.HDInsight/clusters/', parameters('clusterName'))]"
-	    ],
-	    "apiVersion": "[variables('clusterApiVersion')]",
-	    "properties": {
-	        "marketPlaceIdentifier": "[variables('galleryPackageIdentity')]",
-	        "computeProfile": {
-	            "roles": [{
-	                "name": "edgenode",
-	                "targetInstanceCount": 1,
-	                "hardwareProfile": {
-	                    "vmSize": "[parameters('edgeNodeSize')]"
-	                 }
-	             }]
-	          },
-	          "installScriptActions": [{
-	                "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
-	                "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
-                  "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'))]",
-	                "roles": ["edgenode"]
-	            }],
-	            "uninstallScriptActions": [],
-	            "httpsEndpoints": [{
-                "subDomainSuffix": "kap",
-                "destinationPort": 7070,
-                "accessModes": ["webpage"]
-              },
-              {
-                "subDomainSuffix": "kya",
-                "destinationPort": 8080,
-                "accessModes": ["webpage"]
-              },
-              {
-                "subDomainSuffix": "zep",
-                "destinationPort": 9090,
-                "accessModes": ["webpage"]
-              }],
-	            "applicationType": "CustomApplication"
-	    }
+    {
+      "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
+      "type": "Microsoft.HDInsight/clusters/applications",
+      "dependsOn": [
+        "[concat('Microsoft.HDInsight/clusters/', parameters('clusterName'))]"
+      ],
+      "apiVersion": "[variables('clusterApiVersion')]",
+      "properties": {
+        "marketPlaceIdentifier": "[variables('galleryPackageIdentity')]",
+        "computeProfile": {
+          "roles": [
+            {
+              "name": "edgenode",
+              "targetInstanceCount": 1,
+              "hardwareProfile": {
+                "vmSize": "[parameters('edgeNodeSize')]"
+              }
+            }
+          ]
+        },
+        "installScriptActions": [
+          {
+            "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
+            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'))]",
+            "roles": [
+              "edgenode"
+            ]
+          }
+        ],
+        "uninstallScriptActions": [],
+        "httpsEndpoints": [
+          {
+            "subDomainSuffix": "kap",
+            "destinationPort": 7070,
+            "accessModes": [
+              "webpage"
+            ]
+          },
+          {
+            "subDomainSuffix": "kya",
+            "destinationPort": 8080,
+            "accessModes": [
+              "webpage"
+            ]
+          },
+          {
+            "subDomainSuffix": "zep",
+            "destinationPort": 9090,
+            "accessModes": [
+              "webpage"
+            ]
+          }
+        ],
+        "applicationType": "CustomApplication"
       }
+    }
   ],
   "outputs": {
     "cluster": {
