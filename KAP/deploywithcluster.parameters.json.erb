@@ -1,0 +1,39 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appType": {
+      "value": "<%= @appType %>"
+    },
+    "clusterName": {
+      "value": "<%= @clusterName %>"
+    },
+    "clusterLoginUserName": {
+      "value": "<%= @clusterLoginUserName %>"
+    },
+    "clusterLoginPassword": {
+      "value": "<%= @clusterLoginPassword %>"
+    },
+    "clusterType": {
+      "value": "<%= @clusterType %>"
+    },
+    "clusterWorkerNodeCount": {
+      "value": "<%= @clusterWorkerNodeCount %>"
+    },
+    "edgeNodeSize": {
+      "value": "<%= @edgeNodeSize %>"
+    },
+    "location": {
+      "value": "<%= @location %>"
+    },
+    "metastoreName": {
+      "value": "<%= @metastoreName %>"
+    },
+    "sshUserName": {
+      "value": "<%= @sshUserName %>"
+    },
+    "sshPassword": {
+      "value": "<%= @sshPassword %>"
+    }
+  }
+}
