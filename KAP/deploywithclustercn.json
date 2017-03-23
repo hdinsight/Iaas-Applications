@@ -1,0 +1,274 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the HDInsight cluster to create."
+      }
+    },
+    "storageAccount": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of StorageAccount."
+      }
+    },
+    "containerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Specify container name."
+      }
+    },
+    "clusterLoginUserName": {
+      "type": "string",
+      "defaultValue": "admin",
+      "metadata": {
+        "description": "These credentials can be used to submit jobs to the cluster and to log into cluster dashboards."
+      }
+    },
+    "clusterLoginPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
+      }
+    },
+    "sshUserName": {
+      "type": "string",
+      "defaultValue": "sshuser",
+      "metadata": {
+        "description": "These credentials can be used to remotely access the cluster."
+      }
+    },
+    "sshPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "East US",
+      "allowedValues": [
+        "chinaeast",
+        "chinanorth"
+      ],
+      "metadata": {
+        "description": "The location where all azure resources will be deployed."
+      }
+    },
+    "clusterType": {
+      "type": "string",
+      "defaultValue": "hadoop",
+      "allowedValues": [
+        "hadoop",
+        "hbase",
+        "storm",
+        "spark"
+      ],
+      "metadata": {
+        "description": "The type of the HDInsight cluster to create."
+      }
+    },
+    "clusterVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "The version of HDI."
+      },
+      "defaultValue": "3.5",
+      "allowedValues": [
+        "3.5"
+      ]
+    },
+    "clusterWorkerNodeCount": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "The number of nodes in the HDInsight cluster."
+      }
+    },
+    "edgeNodeSize": {
+      "type": "string",
+      "metadata": {
+        "description": "Size of the edge node that hosts the application"
+      },
+      "defaultValue": "Standard_D3_V2",
+      "allowedValues": [
+        "Standard_A1",
+        "Standard_A2",
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_D1_V2",
+        "Standard_D2_V2",
+        "Standard_D3_V2",
+        "Standard_D4_V2"
+      ]
+    },
+    "appType": {
+      "type": "string",
+      "metadata": {
+        "description": "Which services you want to install"
+      },
+      "defaultValue": "KAP+KyAnalyzer+Zeppelin",
+      "allowedValues": [
+        "KAP+KyAnalyzer+Zeppelin",
+        "KAP+KyAnalyzer",
+        "KAP"
+      ]
+    },
+    "metastoreName": {
+      "type": "string",
+      "defaultValue": "kylin_default_instance",
+      "metadata": {
+        "description": "The name of metadata store for KAP"
+      }
+    }
+  },
+  "variables": {
+    "defaultApiVersion": "2015-05-01-preview",
+    "clusterApiVersion": "2015-03-01-preview",
+    "clusterStorageAccountName": "[concat(parameters('clusterName'),'store')]",
+    "applicationName": "KAP",
+    "galleryPackageIdentity": "Kyligence"
+  },
+  "resources": [
+    {
+      "name": "[parameters('storageAccount')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[parameters('location')]",
+      "apiVersion": "[variables('defaultApiVersion')]",
+      "dependsOn": [],
+      "tags": {},
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    {
+      "name": "[parameters('clusterName')]",
+      "type": "Microsoft.HDInsight/clusters",
+      "location": "[parameters('location')]",
+      "apiVersion": "[variables('clusterApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/',parameters('storageAccount'))]"
+      ],
+      "tags": {},
+      "properties": {
+        "clusterVersion": "[parameters('clusterVersion')]",
+        "osType": "Linux",
+        "clusterDefinition": {
+          "kind": "[parameters('clusterType')]",
+          "configurations": {
+            "gateway": {
+              "restAuthCredential.isEnabled": false,
+              "restAuthCredential.username": "[parameters('clusterLoginUserName')]",
+              "restAuthCredential.password": "[parameters('clusterLoginPassword')]"
+            }
+          }
+        },
+        "storageProfile": {
+          "storageaccounts": [
+            {
+              "name": "[concat(parameters('storageAccount'),'.blob.core.chinacloudapi.cn')]",
+              "isDefault": true,
+              "container": "[parameters('containerName')]",
+              "key": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount')), variables('defaultApiVersion')).key1]"
+            }
+          ]
+        },
+        "computeProfile": {
+          "roles": [
+            {
+              "name": "headnode",
+              "targetInstanceCount": "2",
+              "hardwareProfile": {
+                "vmSize": "Standard_D3"
+              },
+              "osProfile": {
+                "linuxOperatingSystemProfile": {
+                  "username": "[parameters('sshUserName')]",
+                  "password": "[parameters('sshPassword')]"
+                }
+              }
+            },
+            {
+              "name": "workernode",
+              "targetInstanceCount": "[parameters('clusterWorkerNodeCount')]",
+              "hardwareProfile": {
+                "vmSize": "Standard_D3"
+              },
+              "osProfile": {
+                "linuxOperatingSystemProfile": {
+                  "username": "[parameters('sshUserName')]",
+                  "password": "[parameters('sshPassword')]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
+      "type": "Microsoft.HDInsight/clusters/applications",
+      "dependsOn": [
+        "[concat('Microsoft.HDInsight/clusters/', parameters('clusterName'))]"
+      ],
+      "apiVersion": "[variables('clusterApiVersion')]",
+      "properties": {
+        "marketPlaceIdentifier": "[variables('galleryPackageIdentity')]",
+        "computeProfile": {
+          "roles": [
+            {
+              "name": "edgenode",
+              "targetInstanceCount": 1,
+              "hardwareProfile": {
+                "vmSize": "[parameters('edgeNodeSize')]"
+              }
+            }
+          ]
+        },
+        "installScriptActions": [
+          {
+            "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
+            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'))]",
+            "roles": [
+              "edgenode"
+            ]
+          }
+        ],
+        "uninstallScriptActions": [],
+        "httpsEndpoints": [
+          {
+            "subDomainSuffix": "kap",
+            "destinationPort": 7070,
+            "accessModes": [
+              "webpage"
+            ]
+          },
+          {
+            "subDomainSuffix": "kya",
+            "destinationPort": 8080,
+            "accessModes": [
+              "webpage"
+            ]
+          },
+          {
+            "subDomainSuffix": "zep",
+            "destinationPort": 9090,
+            "accessModes": [
+              "webpage"
+            ]
+          }
+        ],
+        "applicationType": "CustomApplication"
+      }
+    }
+  ],
+  "outputs": {
+    "cluster": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.HDInsight/clusters',parameters('clusterName')))]"
+    }
+  }
+}
