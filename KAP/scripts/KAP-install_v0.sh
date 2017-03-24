@@ -1,26 +1,35 @@
 #! /bin/bash
-
-KAP_TARFILE=kap-2.2.2-GA-hbase1.x.tar.gz
-KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
-KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
-KAP_INSTALL_BASE_FOLDER=/usr/local/kap
-KAP_TMPFOLDER=/tmp/kap
-KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kylinSecurity.xml
-
-KYANALYZER_TARFILE=KyAnalyzer-2.1.3.tar.gz
-KYANALYZER_FOLDER_NAME=kyanalyzer-server
-KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
-
-ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
-ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
-ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
-ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
-ZEPPELIN_TMPFOLDER=/tmp/zeppelin
-
 adminuser=$1
 adminpassword=$2
 metastore=$3
 apptype=$4
+
+
+KAP_TARFILE=kap-2.2.5-GA-hbase1.x.tar.gz
+KYANALYZER_TARFILE=KyAnalyzer-2.1.3.tar.gz
+ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
+KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
+KAP_INSTALL_BASE_FOLDER=/usr/local/kap
+KAP_TMPFOLDER=/tmp/kap
+KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kylinSecurity.xml
+KYANALYZER_FOLDER_NAME=kyanalyzer-server
+ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
+ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
+ZEPPELIN_TMPFOLDER=/tmp/zeppelin
+
+host=`hostname -f`
+if [["$host" == *chinacloudapp.cn ]]; then
+    # download from cn
+    echo "Downloading from Azure CN blob"
+    KAP_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$KAP_TARFILE
+    KYANALYZER_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kyanalyzer/$KYANALYZER_TARFILE
+    ZEPPELIN_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/zeppelin/$ZEPPELIN_TARFILE
+else
+    echo "Download from Azure global blob"
+    KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
+    KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
+    ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
+fi
 
 #import helper module.
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh

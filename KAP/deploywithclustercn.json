@@ -227,7 +227,7 @@
         "installScriptActions": [
           {
             "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
-            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0_cn.sh",
+            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
             "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'))]",
             "roles": [
               "edgenode"
