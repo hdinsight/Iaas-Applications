@@ -58,12 +58,9 @@
     },
     "clusterType": {
       "type": "string",
-      "defaultValue": "hadoop",
+      "defaultValue": "hbase",
       "allowedValues": [
-        "hadoop",
-        "hbase",
-        "storm",
-        "spark"
+        "hbase"
       ],
       "metadata": {
         "description": "The type of the HDInsight cluster to create."
