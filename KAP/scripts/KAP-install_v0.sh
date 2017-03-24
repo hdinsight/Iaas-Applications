@@ -18,7 +18,7 @@ ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
 
 host=`hostname -f`
-if [["$host" == *chinacloudapp.cn ]]; then
+if [[ "$host" == *chinacloudapp.cn ]]; then
     # download from cn
     echo "Downloading from Azure CN blob"
     KAP_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$KAP_TARFILE
