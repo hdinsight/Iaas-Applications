@@ -40,7 +40,10 @@
       "type": "string",
       "defaultValue": "3.5",
       "allowedValues": [
-        "3.5"
+        "3.3",
+        "3.4",
+        "3.5",
+        "3.6"
       ],
       "metadata": {
         "description": "Select the HDInsight version that you wish to deploy."
@@ -99,8 +102,14 @@
     "scriptBaseUri": "https://aurora7store.blob.core.windows.net/scripts/",
     "edgeNodeSignatureTag": "titandb-edgenode-signature-tag",
     "topologies": {
-      "Edge Node": "edge",
-      "Load Balanced": "region"
+      "Edge Node": {
+        "TITANDB_SERVER": ["edge"],
+        "TITANDB_PROXY": []
+      },
+      "Load Balanced": {
+        "TITANDB_SERVER": ["region"],
+        "TITANDB_PROXY": ["edge"]
+      }
     },
     "selectedTopology": "[variables('topologies')[parameters('titanTopology')]]",
     "extraConfiguration": {
@@ -172,7 +181,7 @@
                 {
                   "name": "install-titandb",
                   "uri": "[concat(variables('scriptBaseUri'), 'install_ambari_app_bootstrap.sh')]",
-                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'titandb/titandb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' -t ', variables('selectedTopology'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -e 1 -v DEBUG')]",
+                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'titandb/titandb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' --component-topologies ', variables('singleQuote'), string(variables('selectedTopology')), variables('singleQuote'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -e 1 -v DEBUG')]",
                   "isHeadNode": true
                 }
               ]

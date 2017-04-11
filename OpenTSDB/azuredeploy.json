@@ -38,12 +38,12 @@
     },
     "clusterVersion": {
       "type": "string",
-      "defaultValue": "3.4",
+      "defaultValue": "3.5",
       "allowedValues": [
-        "3.2",
         "3.3",
         "3.4",
-        "3.5"
+        "3.5",
+        "3.6"
       ],
       "metadata": {
         "description": "Select the HDInsight version that you wish to deploy."
@@ -103,8 +103,14 @@
     "templateBaseUri": "[concat(variables('scriptBaseUri'), 'Templates/')]",
     "edgeNodeSignatureTag": "opentsdb-edgenode-signature-tag",
     "topologies": {
-      "Edge Node": "edge",
-      "Load Balanced": "region"
+      "Edge Node": {
+        "OPENTSDB_TSD": ["edge"],
+        "OPENTSDB_PROXY": []
+      },
+      "Load Balanced": {
+        "OPENTSDB_TSD": ["region"],
+        "OPENTSDB_PROXY": ["edge"]
+      }
     },
     "selectedTopology": "[variables('topologies')[parameters('openTsdbTopology')]]",
     "extraConfiguration": {
@@ -176,7 +182,7 @@
                 {
                   "name": "install-opentsdb",
                   "uri": "[concat(variables('scriptBaseUri'), 'install_ambari_app_bootstrap.sh')]",
-                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'opentsdb/opentsdb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' -t ', variables('selectedTopology'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -z ', variables('templateBaseUri'), ' -e 1 -v DEBUG')]",
+                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'opentsdb/opentsdb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' --component-topologies ', variables('singleQuote'), string(variables('selectedTopology')), variables('singleQuote'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -z ', variables('templateBaseUri'), ' -e 1 -v DEBUG')]",
                   "isHeadNode": true
                 }
               ]

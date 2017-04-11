@@ -11,8 +11,7 @@
             "canOverrideTopology": true
         }, 
         "OPENTSDB_PROXY": {
-            "topology": ["edge"],
-            "installIf": "not 'edge' in selected_topologies"
+            "topology": ["edge"]
         }
     },
     "configurations" : {

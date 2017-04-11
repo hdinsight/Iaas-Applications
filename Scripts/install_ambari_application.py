@@ -19,7 +19,7 @@ else:
     sys.path.append('./external')
     import win_resource_management as rm
 
-def initial_part(service_config, cluster, selected_topologies, num_edge_nodes, edge_node_tag, edge_dns_suffix, extra_config, template_base_uri, data_service, not_detached, logfile, verbosity):
+def initial_part(service_config, cluster, topology_info, num_edge_nodes, edge_node_tag, edge_dns_suffix, extra_config, template_base_uri, data_service, not_detached, logfile, verbosity):
     try:
         stack_service_base_path = data_service.get_stack_service_base_dir(cluster.stack.stack_name, cluster.stack.stack_version)
         log.debug('Stack installation dir: %s', stack_service_base_path)
@@ -69,11 +69,11 @@ def initial_part(service_config, cluster, selected_topologies, num_edge_nodes, e
 
         log.info('Starting detached installation component. Will wait for cluster installation to complete prior to rebooting Ambari')
         if not_detached:
-            detached_part(service_config, cluster, selected_topologies, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity)
+            detached_part(service_config, cluster, topology_info, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity)
         else:
             # Launch the detached script that must wait for all Ambari installations (including edge nodes) to complete
             # before proceeding with the complete service installation
-            detached = Process(target=detached_part, args=(service_config, cluster, selected_topologies, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity, ))
+            detached = Process(target=detached_part, args=(service_config, cluster, topology_info, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity, ))
             detached.daemon=True
             detached.start()
             # Completely detach the child process from this one - an exit handler terminates & waits
@@ -84,7 +84,7 @@ def initial_part(service_config, cluster, selected_topologies, num_edge_nodes, e
         log.fatal('FATAL: Failure during initial installation part. Details:', exc_info=True)
         return False
 
-def detached_part(service_config, cluster, selected_topologies, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity):
+def detached_part(service_config, cluster, topology_info, num_edge_nodes, edge_node_tag, extra_config, data_service, logfile, verbosity):
     try:
         shared_lib.configure_loggers(logfile, verbosity)
         service_display_name = service_config['displayName'] if service_config['displayName'] else service_config['serviceName']
@@ -163,6 +163,19 @@ def detached_part(service_config, cluster, selected_topologies, num_edge_nodes, 
             primary_component_host = None
             for component_name, component in service_config['components'].iteritems():
                 component_topologies = []
+                # There's multiple ways that component topologies are specified:
+                #   1. The --component-topologies argument contained this component & we use the specified topologies
+                #   2. The --topologies argument specifies topology(ies) that apply to components with "canOverrideTopology": true in configuration
+                #   3. The configuration specifies static topologies for the component via the "topology" attribute
+                if topology_info is not None and component_name in topology_info:
+                    component_topologies = topology_info[component_name]
+                elif topology_info is not None and '*' in topology_info and 'canOverrideTopology' in component:
+                    # This component can be have it's topology overridden by runtime args
+                    component_topologies = topology_info['*']
+                elif 'topology' in component:
+                    component_topologies = component['topology']
+                else:
+                    component_topologies = ()
                 # Components can be conditionally installed
                 # TODO: Make this a more structured mechanism rather than dynamically evaluating arbitrary code
                 installComponent = True
@@ -173,13 +186,6 @@ def detached_part(service_config, cluster, selected_topologies, num_edge_nodes, 
                         log.warn('Failed to evaluate installation criteria for component: %s. The component will NOT be installed. Details: ', component_name, exc_info=True)
                         installComponent = False
                 if installComponent:
-                    if len(selected_topologies) > 0 and 'canOverrideTopology' in component:
-                        # This is the component that we have overridden the topology via arguments
-                        component_topologies = selected_topologies
-                    elif 'topology' in component:
-                        component_topologies = component['topology']
-                    else:
-                        component_topologies = selected_topologies
                     component_host_names = set()
                     log.debug('For component: %s using topologies: %s', component_name, component_topologies)
                     for topology in component_topologies:
@@ -202,7 +208,7 @@ def detached_part(service_config, cluster, selected_topologies, num_edge_nodes, 
                             log.warn('Failed to retrieve list of hosts to deploy component: %s - defaulting to edge node. Details: %s', ex.details)
                             component_host_names.update(edge_node_hosts)
                     log.debug('For component: %s deploying to hosts: %s', component_name, component_host_names)
-                    if 'startPrimary' in component and component['startPrimary']:
+                    if 'startPrimary' in component and component['startPrimary'] and len(component_host_names):
                         primary_component = service.components(component_name)
                         primary_component_host = iter(component_host_names).next()
                         log.debug('Pre-starting component: %s on host: %s', component_name, primary_component_host)
@@ -248,10 +254,12 @@ if __name__ == '__main__':
     argsparser.add_argument('-c', '--config', required=True, help='URI pointing to JSON configuration file')
     argsparser.add_argument('-u', '--username', required=True, help='Ambari username')
     argsparser.add_argument('-p', '--password', required=True, help='Ambari password')
-    argsparser.add_argument('-t', '--topology', required=True, action='append', nargs='*', choices=['edge', 'region', 'worker', 'head'], 
+    topology_group = argsparser.add_mutually_exclusive_group()
+    topology_group.add_argument('-t', '--topology', action='append', nargs='*', choices=['edge', 'region', 'worker', 'head'], 
         help=('Specify the deployment topology for this application. '
-                'This must be a subset of the available_topologies config setting. '
+                'This value must be a subset of the available_topologies config setting. '
                 'Combine multiple topologies by specifying this argument multiple times.'))
+    topology_group.add_argument('--component-topologies', help='Specify component topology information as a JSON value in the form; {"component_name":["topology",...],...}')
     argsparser.add_argument('-e', '--num-edge-nodes', default=0, type=int, help='The number of edge nodes to deploy components onto')
     argsparser.add_argument('-n', '--edge-node-tag', default='edgenode-signature-tag', help='The string that will appear in the installation log file for all edge nodes.')
     argsparser.add_argument('-s', '--edge-dns-suffix', default='', help='DNS suffix applied to edge node URL where service endpoint will be exposed. In the form; "https://{cluster_name}-{edge-dns-suffix}.apps.azurehdinsight.net"')
@@ -302,6 +310,17 @@ if __name__ == '__main__':
     else:
         extra_config = {}
 
+    topology_info = None
+    if args.component_topologies is not None:
+        try:
+            topology_info = json.loads(args.component_topologies)
+        except:
+            log.warning('Failed to parse specified topology JSON value: \'%s\'', args.component_topologies, exc_info=True)
+            sys.exit(4)
+    elif args.topology is not None:
+        # ArgumentParser yields this arg as a list of lists. Need to flatten before manipulation
+        topology_info = {'*': list(itertools.chain.from_iterable(args.topology))}
+
     # Instantiate our Mock service is specified
     mock_service = None
     if args.mock_service:
@@ -314,5 +333,5 @@ if __name__ == '__main__':
         mock_service = shared_lib.MockableService()
 
     # Kick off the initial processing, which will in turn launch a detached script to complete the installation process
-    if not initial_part(service_config, cluster, list(itertools.chain.from_iterable(args.topology)), args.num_edge_nodes, args.edge_node_tag, args.edge_dns_suffix, extra_config, args.template_base_uri, mock_service, args.not_detached, args.logfile, args.verbosity):
+    if not initial_part(service_config, cluster, topology_info, args.num_edge_nodes, args.edge_node_tag, args.edge_dns_suffix, extra_config, args.template_base_uri, mock_service, args.not_detached, args.logfile, args.verbosity):
         sys.exit(4)
