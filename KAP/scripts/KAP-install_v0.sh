@@ -166,16 +166,20 @@ installZeppelin() {
 restoreKAP() {
     hdfs dfs -test -e $BACKUP_DIR/kap
     if [ $? -eq 0 ]; then
+        echo "restore kap..."
         hdfs dfs -get $BACKUP_DIR/kap/conf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
     fi
 }
 
 restoreKyAnalyzer() {
-    hdfs dfs -test -e $BACKUP_DIR/kyanalyzer/kyanalyzer-server
+    hdfs dfs -test -e $BACKUP_DIR/kyanalyzer
     if [ $? -eq 0 ]; then
-        hdfs dfs -get $BACKUP_DIR/kyanalyzer/kyanalyzer-server/data $KAP_INSTALL_BASE_FOLDER/KYANALYZER_FOLDER_NAME
-        hdfs dfs -get $BACKUP_DIR/kyanalyzer/kyanalyzer-server/repository $KAP_INSTALL_BASE_FOLDER/KYANALYZER_FOLDER_NAME
-        hdfs dfs -get $BACKUP_DIR/kyanalyzer/kyanalyzer-server/conf $KAP_INSTALL_BASE_FOLDER/KYANALYZER_FOLDER_NAME
+        echo "restore kyanalyzer..."
+        kyanalyzer_dir=$KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
+        rm -rf $kyanalyzer_dir/data $kyanalyzer_dir/repository $kyanalyzer_dir/conf
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/data $kyanalyzer_dir
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/repository $kyanalyzer_dir
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/conf $kyanalyzer_dir
     fi
 }
 
