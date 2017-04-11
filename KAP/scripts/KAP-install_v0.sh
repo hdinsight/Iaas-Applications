@@ -17,6 +17,8 @@ ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
 ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
 
+BACKUP_DIR=/kycloud/backup
+
 host=`hostname -f`
 if [[ "$host" == *chinacloudapp.cn ]]; then
     # download from cn
@@ -145,17 +147,40 @@ startZeppelin() {
 
 installKAP() {
     downloadAndUnzipKAP
+    restoreKAP
     startKAP
 }
 
 installKyAnalyzer() {
     downloadAndUnzipKyAnalyzer
+    restoreKyAnalyzer
     startKyAnalyzer
 }
 
 installZeppelin() {
     downloadAndUnzipZeppelin
+    restoreZeppelin
     startZeppelin
+}
+
+restoreKAP() {
+    hdfs dfs -test -e $BACKUP_DIR/kap
+    if [ $? -eq 0 ]; then
+        hdfs dfs -get $BACKUP_DIR/kap/conf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+    fi
+}
+
+restoreKyAnalyzer() {
+    hdfs dfs -test -e $BACKUP_DIR/kyanalyzer/kyanalyzer-server
+    if [ $? -eq 0 ]; then
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/kyanalyzer-server/data $KAP_INSTALL_BASE_FOLDER/KYANALYZER_FOLDER_NAME
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/kyanalyzer-server/repository $KAP_INSTALL_BASE_FOLDER/KYANALYZER_FOLDER_NAME
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/kyanalyzer-server/conf $KAP_INSTALL_BASE_FOLDER/KYANALYZER_FOLDER_NAME
+    fi
+}
+
+restoreZeppelin() {
+    echo "Not implement yet."
 }
 
 main() {

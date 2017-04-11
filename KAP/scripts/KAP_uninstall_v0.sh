@@ -1,24 +1,60 @@
 #! /bin/bash
 
 ######## Parameters ########
-clustername=$1
-fileblob=$2
-storageAccount=$3
-storagePassord=$4
-
+apptype=$1
 
 ######## Backup KAP & Kyanalyzer & Zeppelin ########
 kap_dir="/usr/local/kap/kap-*"
 kyanalyzer_dir="/usr/local/kap/kyanalyzer-server"
 zeppelin_dir="/usr/local/zeppelin"
 
-mkdir /remote
-mount -t cifs //$fileblob/$clustername /remote -o vers=3.0,username=$storageAccount,password=$storagePassord,dir_mode=0777,file_mode=0777
-mkdir /remote/kap
-mkdir /remote/kyanalyzer
-mkdir /remote/zeppelin
+base_backup_dir="/kycloud/backup"
+kap_backup_dir=$base_backup_dir/kap
+kyanalyzer_backup_dir=$base_backup_dir/kyanalyzer
+zeppelin_backup_dir=$base_backup_dir/zeppelin
 
-cp -r $kap_dir/conf /remote/kap
-cp -r $kyanalyzer_dir/repository /remote/kyanalyzer
-cp -r $kyanalyzer_dir/data /remote/kyanalyzer
-cp -r $zeppelin_dir /remote
+backupKAP() {
+    hdfs dfs -mkdir -p $kap_backup_dir
+    hdfs dfs -put -f $kap_dir/conf $kap_backup_dir
+}
+
+backupKyAnalyzer() {
+    hdfs dfs -mkdir -p $kyanalyzer_backup_dir
+    hdfs dfs -put -f $kyanalyzer_dir/data $kyanalyzer_backup_dir/data
+    hdfs dfs -put -f $kyanalyzer_dir/repository $kyanalyzer_backup_dir/repository
+    hdfs dfs -put -f $kyanalyzer_dir/conf $kyanalyzer_backup_dir/conf
+}
+
+backupZeppelin() {
+    hdfs dfs -mkdir -p $zeppelin_backup_dir
+    hdfs dfs -put $zeppelin_dir $zeppelin_backup_dir
+}
+
+main() {
+    case "$apptype" in
+        KAP+KyAnalyzer+Zeppelin)
+            backupKAP
+            backupKyAnalyzer
+            backupZeppelin
+            ;;
+        KAP+KyAnalyzer)
+            backupKAP
+            backupKyAnalyzer
+            ;;
+        KAP)
+            backupKAP
+            ;;
+        *)
+            echo "Not Supported APP Type!"
+            exit 1
+            ;;
+    esac
+}
+
+##############################
+if [ "$(id -u)" != "0" ]; then
+    echo "[ERROR] The script has to be run as root."
+    exit 1
+fi
+
+main
