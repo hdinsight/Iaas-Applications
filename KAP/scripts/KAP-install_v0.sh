@@ -5,8 +5,8 @@ metastore=$3
 apptype=$4
 
 
-KAP_TARFILE=kap-2.2.5-GA-hbase1.x.tar.gz
-KYANALYZER_TARFILE=KyAnalyzer-2.1.3.tar.gz
+KAP_TARFILE=kap-2.3.0-GA-hbase1.x.tar.gz
+KYANALYZER_TARFILE=KyAnalyzer-2.3.0.tar.gz
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
 KAP_INSTALL_BASE_FOLDER=/usr/local/kap
@@ -70,10 +70,13 @@ startKAP() {
     echo "Adding kylin user"
     useradd -r kylin
     chown -R kylin:kylin $KAP_INSTALL_BASE_FOLDER
-
-    echo "Starting KAP with kylin user"
-    ## su kylin
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+
+    echo "Create default working dir /kylin"
+    su kylin -c "hdfs dfs -mkdir -p /kylin" 
+
+    echo "Creating sample cube"
+    su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/sample.sh"
 
     ## Add index page to auto redirect to KAP 
     mkdir -p $KYLIN_HOME/tomcat/webapps/ROOT
@@ -85,9 +88,12 @@ startKAP() {
 </html>
 EOL
    
-    # create default working dir /kylin
-    su kylin -c "hdfs dfs -mkdir -p /kylin" 
-    su kylin -c "$KYLIN_HOME/bin/kylin.sh start"
+    echo "Starting KAP with kylin user"
+    su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
+    sleep 15
+
+    #echo "Trigger a build for sample cube"
+    nohup curl -X PUT --user $adminuser:$adminpassword -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
     sleep 10
 
 }
