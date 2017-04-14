@@ -173,6 +173,7 @@ restoreKAP() {
     hdfs dfs -test -e $BACKUP_DIR/kap
     if [ $? -eq 0 ]; then
         echo "restore kap..."
+        rm -rf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
         hdfs dfs -get $BACKUP_DIR/kap/conf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
     fi
 }
