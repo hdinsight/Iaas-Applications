@@ -2,6 +2,7 @@
 
 ######## Parameters ########
 apptype=$1
+echo "apptype = "$apptype" Running on "`date +'%Y%m%d%H%M'`
 
 ######## Backup KAP & Kyanalyzer & Zeppelin ########
 kap_dir="/usr/local/kap/kap-*"
@@ -35,7 +36,8 @@ main() {
         KAP+KyAnalyzer+Zeppelin)
             backupKAP
             backupKyAnalyzer
-            backupZeppelin
+# Not running Zeppelin backup
+#            backupZeppelin
             ;;
         KAP+KyAnalyzer)
             backupKAP
