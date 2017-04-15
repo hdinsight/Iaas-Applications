@@ -1,4 +1,5 @@
 #! /bin/bash
+echo "Starting at "`date +'%Y%m%d%H%M'`
 adminuser=$1
 adminpassword=$2
 metastore=$3
@@ -18,6 +19,8 @@ ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
 
 BACKUP_DIR=/kycloud/backup
+
+newInstall=true
 
 host=`hostname -f`
 if [[ "$host" == *chinacloudapp.cn ]]; then
@@ -75,9 +78,6 @@ startKAP() {
     echo "Create default working dir /kylin"
     su kylin -c "hdfs dfs -mkdir -p /kylin" 
 
-    echo "Creating sample cube"
-    su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/sample.sh"
-
     ## Add index page to auto redirect to KAP 
     mkdir -p $KYLIN_HOME/tomcat/webapps/ROOT
     cat > $KYLIN_HOME/tomcat/webapps/ROOT/index.html <<EOL
@@ -87,15 +87,21 @@ startKAP() {
   </head>
 </html>
 EOL
-   
+
+    if [ "$newInstall" = true ] ; then
+        echo "Creating sample cube"
+        su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/sample.sh"
+    fi
+    
     echo "Starting KAP with kylin user"
     su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
     sleep 15
 
-    #echo "Trigger a build for sample cube"
-    nohup curl -X PUT --user $adminuser:$adminpassword -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
-    sleep 10
-
+    if [ "$newInstall" = true ] ; then
+        echo "Trigger a build for sample cube"
+        nohup curl -X PUT --user $adminuser:$adminpassword -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
+        sleep 10
+    fi
 }
 
 downloadAndUnzipKyAnalyzer() {
@@ -172,6 +178,7 @@ installZeppelin() {
 restoreKAP() {
     hdfs dfs -test -e $BACKUP_DIR/kap
     if [ $? -eq 0 ]; then
+        newInstall=false
         echo "restore kap..."
         rm -rf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
         hdfs dfs -get $BACKUP_DIR/kap/conf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
@@ -235,4 +242,4 @@ fi
 
 ###############################
 main
-
+echo "End at "`date +'%Y%m%d%H%M'`
