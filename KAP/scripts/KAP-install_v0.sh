@@ -54,6 +54,8 @@ downloadAndUnzipKAP() {
 
     echo "Updating KAP admin account"
     cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/tomcat/webapps/
+    # Remove old before unzip
+    rm -rf kylin
     unzip kylin.war -d kylin
     wget $KAP_SECURITY_TEMPLETE_URI -P kylin/WEB-INF/classes/
     sed -i "s/KAP-ADMIN/$adminuser/g" kylin/WEB-INF/classes/kylinSecurity.xml
@@ -180,6 +182,7 @@ restoreKAP() {
     if [ $? -eq 0 ]; then
         newInstall=false
         echo "restore kap..."
+        cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
         rm -rf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
         hdfs dfs -get $BACKUP_DIR/kap/conf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
     fi
