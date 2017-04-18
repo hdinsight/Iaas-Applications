@@ -20,6 +20,7 @@ backupKAP() {
 }
 
 backupKyAnalyzer() {
+	hdfs dfs -rm -r -f -skipTrash $kyanalyzer_backup_dir
     hdfs dfs -mkdir -p $kyanalyzer_backup_dir
     hdfs dfs -put -f $kyanalyzer_dir/data $kyanalyzer_backup_dir/data
     hdfs dfs -put -f $kyanalyzer_dir/repository $kyanalyzer_backup_dir/repository
