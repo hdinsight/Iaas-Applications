@@ -1,7 +1,7 @@
 {
     "serviceName": "OPENTSDB",
     "displayName": "OpenTSDB",
-    "package": "https://aurora7store.blob.core.windows.net/scripts/opentsdb/OPENTSDB.tar.gz",
+    "package": "https://github.com/jamesbak/Iaas-Applications/files/945606/OPENTSDB.tar.gz",
     "metrics": true,
     "iframeViewer": true,
     "components": {
@@ -34,7 +34,7 @@
         "opentsdb-config": {
             "properties": {
                 "opentsdb.create_schema" : true,
-                "opentsdb.opentsdb_version" : "2.2.0"
+                "opentsdb.opentsdb_version" : "2.3.0"
             }
         }
     }

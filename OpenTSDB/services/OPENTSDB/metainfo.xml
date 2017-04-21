@@ -6,7 +6,7 @@
             <name>OPENTSDB</name>
             <displayName>OpenTSDB</displayName>
             <comment>The Scalable Time Series Database. Store and serve massive amounts of time series data without losing granularity</comment>
-            <version>0.1.0</version>
+            <version>0.2.0</version>
             <components>
                 <component>
                   <name>OPENTSDB_TSD</name>

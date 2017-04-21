@@ -56,6 +56,14 @@
         "description": "The number of nodes in the HDInsight cluster."
       }
     },
+    "openTsdbVersion": {
+      "type": "string",
+      "defaultValue": "2.3.0",
+      "allowedValues": [
+        "2.2.0",
+        "2.3.0"
+      ]
+    },
     "openTsdbTopology": {
       "type": "string",
       "defaultValue": "Load Balanced",
@@ -99,8 +107,9 @@
     "applicationName": "opentsdb",
     "galleryPackageIdentity": "opentsdb",
     "edgeNodeSuffix": "tdb",
-    "scriptBaseUri": "https://aurora7store.blob.core.windows.net/scripts/",
+    "scriptBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/scripts/",
     "templateBaseUri": "[concat(variables('scriptBaseUri'), 'Templates/')]",
+    "appInfoBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/",
     "edgeNodeSignatureTag": "opentsdb-edgenode-signature-tag",
     "topologies": {
       "Edge Node": {
@@ -115,7 +124,8 @@
     "selectedTopology": "[variables('topologies')[parameters('openTsdbTopology')]]",
     "extraConfiguration": {
       "opentsdb-site": {
-        "tsd.network.port": "[parameters('tsdPortNumber')]"
+        "tsd.network.port": "[parameters('tsdPortNumber')]",
+        "opentsdb.opentsdb_version": "[parameters('openTsdbVersion')]"
       }
     },
     "singleQuote": "'"
@@ -182,7 +192,7 @@
                 {
                   "name": "install-opentsdb",
                   "uri": "[concat(variables('scriptBaseUri'), 'install_ambari_app_bootstrap.sh')]",
-                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'opentsdb/opentsdb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' --component-topologies ', variables('singleQuote'), string(variables('selectedTopology')), variables('singleQuote'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -z ', variables('templateBaseUri'), ' -e 1 -v DEBUG')]",
+                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('appInfoBaseUri'), 'config/opentsdb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' --component-topologies ', variables('singleQuote'), string(variables('selectedTopology')), variables('singleQuote'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -z ', variables('templateBaseUri'), ' -e 1 -v DEBUG')]",
                   "isHeadNode": true
                 }
               ]
