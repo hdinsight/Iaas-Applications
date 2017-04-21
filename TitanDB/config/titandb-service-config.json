@@ -1,7 +1,7 @@
 {
     "serviceName": "TITANDB",
     "displayName": "TitanDB",
-    "package": "https://github.com/jamesbak/Iaas-Applications/files/945788/TITANDB.tar.gz",
+    "package": "https://github.com/hdinsight/Iaas-Applications/files/945834/TITANDB.tar.gz",
     "components": {
         "TITANDB_SERVER": {
             "topology": ["region"],

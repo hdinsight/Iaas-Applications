@@ -2,7 +2,7 @@
 
 This template creates a new HDInsight HBase cluster with TitanDB Graph Database [https://titan.thinkaurelius.com/](https://titan.thinkaurelius.com/) installed and deployed on a cluster edge node. TitanDB is configured to use the cluster's HBase deployment as its storage backend. The Titan endpoint is opened on port 8182 (by default) using the `HTTPChannelizer` (ie. REST) interface. 
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamesbak%2FIaas-Applications%2Ftitandb%2FTitanDB%2Fazuredeploy.json">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fhdinsight%2FIaas-Applications%2Fmaster%2FTitanDB%2Fazuredeploy.json">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 

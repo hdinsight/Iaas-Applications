@@ -107,9 +107,9 @@
     "applicationName": "opentsdb",
     "galleryPackageIdentity": "opentsdb",
     "edgeNodeSuffix": "tdb",
-    "scriptBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/Scripts/",
+    "scriptBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/Scripts/",
     "templateBaseUri": "[concat(variables('scriptBaseUri'), 'Templates/')]",
-    "appInfoBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/OpenTSDB/",
+    "appInfoBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/",
     "edgeNodeSignatureTag": "opentsdb-edgenode-signature-tag",
     "topologies": {
       "Edge Node": {

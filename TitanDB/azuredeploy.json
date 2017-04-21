@@ -58,7 +58,7 @@
     },
     "titanTopology": {
       "type": "string",
-      "defaultValue": "Edge Node",
+      "defaultValue": "Load Balanced",
       "allowedValues": [
         "Edge Node",
         "Load Balanced"
@@ -99,9 +99,9 @@
     "applicationName": "titandb",
     "galleryPackageIdentity": "titandb",
     "edgeNodeSuffix": "tdb",
-    "scriptBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/Scripts/",
+    "scriptBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/Scripts/",
     "templateBaseUri": "[concat(variables('scriptBaseUri'), 'Templates/')]",
-    "appInfoBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/TitanDB/",
+    "appInfoBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/TitanDB/",
     "edgeNodeSignatureTag": "titandb-edgenode-signature-tag",
     "topologies": {
       "Edge Node": {
