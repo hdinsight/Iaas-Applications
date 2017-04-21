@@ -99,7 +99,9 @@
     "applicationName": "titandb",
     "galleryPackageIdentity": "titandb",
     "edgeNodeSuffix": "tdb",
-    "scriptBaseUri": "https://aurora7store.blob.core.windows.net/scripts/",
+    "scriptBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/Scripts/",
+    "templateBaseUri": "[concat(variables('scriptBaseUri'), 'Templates/')]",
+    "appInfoBaseUri": "https://raw.githubusercontent.com/jamesbak/Iaas-Applications/titandb/TitanDB/",
     "edgeNodeSignatureTag": "titandb-edgenode-signature-tag",
     "topologies": {
       "Edge Node": {
@@ -181,7 +183,7 @@
                 {
                   "name": "install-titandb",
                   "uri": "[concat(variables('scriptBaseUri'), 'install_ambari_app_bootstrap.sh')]",
-                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('scriptBaseUri'), 'titandb/titandb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' --component-topologies ', variables('singleQuote'), string(variables('selectedTopology')), variables('singleQuote'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -e 1 -v DEBUG')]",
+                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('appInfoBaseUri'), 'config/titandb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' --component-topologies ', variables('singleQuote'), string(variables('selectedTopology')), variables('singleQuote'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -e 1 -v DEBUG')]",
                   "isHeadNode": true
                 }
               ]
