@@ -91,6 +91,7 @@ startKAP() {
 EOL
 
     if [ "$newInstall" = true ] ; then
+        echo "bypass" > $KYLIN_HOME/bin/check-env-bypass
         echo "Creating sample cube"
         su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/sample.sh"
     fi
