@@ -8,6 +8,18 @@
         "description": "The name of the HDInsight cluster to create."
       }
     },
+    "storageAccount": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of StorageAccount."
+      }
+    },
+    "containerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Specify container name."
+      }
+    },
     "clusterLoginUserName": {
       "type": "string",
       "defaultValue": "admin",
@@ -36,21 +48,10 @@
     },
     "location": {
       "type": "string",
-      "defaultValue": "East US",
+      "defaultValue": "chinaeast",
       "allowedValues": [
-        "East US",
-        "East US 2",
-        "North Central US",
-        "South Central US",
-        "West US",
-        "North Europe",
-        "West Europe",
-        "East Asia",
-        "Southeast Asia",
-        "Japan East",
-        "Japan West",
-        "Australia East",
-        "Australia Southeast"
+        "chinaeast",
+        "chinanorth"
       ],
       "metadata": {
         "description": "The location where all azure resources will be deployed."
@@ -66,6 +67,16 @@
         "description": "The type of the HDInsight cluster to create."
       }
     },
+    "clusterVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "The version of HDI."
+      },
+      "defaultValue": "3.5",
+      "allowedValues": [
+        "3.5"
+      ]
+    },
     "clusterWorkerNodeCount": {
       "type": "int",
       "defaultValue": 2,
@@ -78,7 +89,7 @@
       "metadata": {
         "description": "Size of the edge node that hosts the application"
       },
-      "defaultValue": "Standard_D3",
+      "defaultValue": "Standard_D3_V2",
       "allowedValues": [
         "Standard_A3",
         "Standard_A4",
@@ -93,11 +104,11 @@
       "metadata": {
         "description": "Which services you want to install"
       },
-      "defaultValue": "KAP+KyAnalyzer",
+      "defaultValue": "KAP+KyAnalyzer+Zeppelin",
       "allowedValues": [
-        "KAP",
+        "KAP+KyAnalyzer+Zeppelin",
         "KAP+KyAnalyzer",
-        "KAP+KyAnalyzer+Zeppelin"
+        "KAP"
       ]
     },
     "metastoreName": {
@@ -117,7 +128,7 @@
   },
   "resources": [
     {
-      "name": "[variables('clusterStorageAccountName')]",
+      "name": "[parameters('storageAccount')]",
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[parameters('location')]",
       "apiVersion": "[variables('defaultApiVersion')]",
@@ -133,17 +144,17 @@
       "location": "[parameters('location')]",
       "apiVersion": "[variables('clusterApiVersion')]",
       "dependsOn": [
-        "[concat('Microsoft.Storage/storageAccounts/',variables('clusterStorageAccountName'))]"
+        "[concat('Microsoft.Storage/storageAccounts/',parameters('storageAccount'))]"
       ],
       "tags": {},
       "properties": {
-        "clusterVersion": "3.4",
+        "clusterVersion": "[parameters('clusterVersion')]",
         "osType": "Linux",
         "clusterDefinition": {
           "kind": "[parameters('clusterType')]",
           "configurations": {
             "gateway": {
-              "restAuthCredential.isEnabled": true,
+              "restAuthCredential.isEnabled": false,
               "restAuthCredential.username": "[parameters('clusterLoginUserName')]",
               "restAuthCredential.password": "[parameters('clusterLoginPassword')]"
             }
@@ -152,10 +163,10 @@
         "storageProfile": {
           "storageaccounts": [
             {
-              "name": "[concat(variables('clusterStorageAccountName'),'.blob.core.windows.net')]",
+              "name": "[concat(parameters('storageAccount'),'.blob.core.chinacloudapi.cn')]",
               "isDefault": true,
-              "container": "[parameters('clusterName')]",
-              "key": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('clusterStorageAccountName')), variables('defaultApiVersion')).key1]"
+              "container": "[parameters('containerName')]",
+              "key": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount')), variables('defaultApiVersion')).key1]"
             }
           ]
         },

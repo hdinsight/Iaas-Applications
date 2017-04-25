@@ -1,26 +1,40 @@
 #! /bin/bash
-
-KAP_TARFILE=kap-2.2.2-GA-hbase1.x.tar.gz
-KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
-KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
-KAP_INSTALL_BASE_FOLDER=/usr/local/kap
-KAP_TMPFOLDER=/tmp/kap
-KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kylinSecurity.xml
-
-KYANALYZER_TARFILE=KyAnalyzer-2.1.3.tar.gz
-KYANALYZER_FOLDER_NAME=kyanalyzer-server
-KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
-
-ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
-ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
-ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
-ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
-ZEPPELIN_TMPFOLDER=/tmp/zeppelin
-
+echo "Starting at "`date +'%Y%m%d%H%M'`
 adminuser=$1
 adminpassword=$2
 metastore=$3
 apptype=$4
+
+
+KAP_TARFILE=kap-2.3.0-GA-hbase1.x.tar.gz
+KYANALYZER_TARFILE=KyAnalyzer-2.3.0.tar.gz
+ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
+KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
+KAP_INSTALL_BASE_FOLDER=/usr/local/kap
+KAP_TMPFOLDER=/tmp/kap
+KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kylinSecurity.xml
+KYANALYZER_FOLDER_NAME=kyanalyzer-server
+ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
+ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
+ZEPPELIN_TMPFOLDER=/tmp/zeppelin
+
+BACKUP_DIR=/kycloud/backup
+
+newInstall=true
+
+host=`hostname -f`
+if [[ "$host" == *chinacloudapp.cn ]]; then
+    # download from cn
+    echo "Downloading from Azure CN blob"
+    KAP_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$KAP_TARFILE
+    KYANALYZER_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kyanalyzer/$KYANALYZER_TARFILE
+    ZEPPELIN_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/zeppelin/$ZEPPELIN_TARFILE
+else
+    echo "Download from Azure global blob"
+    KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
+    KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
+    ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
+fi
 
 #import helper module.
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
@@ -40,6 +54,8 @@ downloadAndUnzipKAP() {
 
     echo "Updating KAP admin account"
     cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/tomcat/webapps/
+    # Remove old before unzip
+    rm -rf kylin
     unzip kylin.war -d kylin
     wget $KAP_SECURITY_TEMPLETE_URI -P kylin/WEB-INF/classes/
     sed -i "s/KAP-ADMIN/$adminuser/g" kylin/WEB-INF/classes/kylinSecurity.xml
@@ -59,10 +75,10 @@ startKAP() {
     echo "Adding kylin user"
     useradd -r kylin
     chown -R kylin:kylin $KAP_INSTALL_BASE_FOLDER
-
-    echo "Starting KAP with kylin user"
-    ## su kylin
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+
+    echo "Create default working dir /kylin"
+    su kylin -c "hdfs dfs -mkdir -p /kylin" 
 
     ## Add index page to auto redirect to KAP 
     mkdir -p $KYLIN_HOME/tomcat/webapps/ROOT
@@ -73,12 +89,22 @@ startKAP() {
   </head>
 </html>
 EOL
-   
-    # create default working dir /kylin
-    su kylin -c "hdfs dfs -mkdir -p /kylin" 
-    su kylin -c "$KYLIN_HOME/bin/kylin.sh start"
-    sleep 10
 
+    if [ "$newInstall" = true ] ; then
+        echo "bypass" > $KYLIN_HOME/bin/check-env-bypass
+        echo "Creating sample cube"
+        su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/sample.sh"
+    fi
+    
+    echo "Starting KAP with kylin user"
+    su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
+    sleep 15
+
+    if [ "$newInstall" = true ] ; then
+        echo "Trigger a build for sample cube"
+        nohup curl -X PUT --user $adminuser:$adminpassword -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
+        sleep 10
+    fi
 }
 
 downloadAndUnzipKyAnalyzer() {
@@ -136,17 +162,47 @@ startZeppelin() {
 
 installKAP() {
     downloadAndUnzipKAP
+    restoreKAP
     startKAP
 }
 
 installKyAnalyzer() {
     downloadAndUnzipKyAnalyzer
+    restoreKyAnalyzer
     startKyAnalyzer
 }
 
 installZeppelin() {
     downloadAndUnzipZeppelin
+    restoreZeppelin
     startZeppelin
+}
+
+restoreKAP() {
+    hdfs dfs -test -e $BACKUP_DIR/kap
+    if [ $? -eq 0 ]; then
+        newInstall=false
+        echo "restore kap..."
+        cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+        rm -rf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
+        hdfs dfs -get $BACKUP_DIR/kap/conf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+    fi
+}
+
+restoreKyAnalyzer() {
+    hdfs dfs -test -e $BACKUP_DIR/kyanalyzer
+    if [ $? -eq 0 ]; then
+        echo "restore kyanalyzer..."
+        kyanalyzer_dir=$KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
+        rm -rf $kyanalyzer_dir/data $kyanalyzer_dir/repository $kyanalyzer_dir/conf
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/data $kyanalyzer_dir
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/repository $kyanalyzer_dir
+        hdfs dfs -get $BACKUP_DIR/kyanalyzer/conf $kyanalyzer_dir
+    fi
+}
+
+restoreZeppelin() {
+    echo "Not implement yet."
 }
 
 main() {
@@ -190,4 +246,4 @@ fi
 
 ###############################
 main
-
+echo "End at "`date +'%Y%m%d%H%M'`
