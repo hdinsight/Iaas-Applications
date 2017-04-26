@@ -55,6 +55,15 @@ kap_backup_dir=$base_backup_dir/kap
 kyanalyzer_backup_dir=$base_backup_dir/kyanalyzer
 zeppelin_backup_dir=$base_backup_dir/zeppelin
 
+removelocal() {
+    if [ -d "$KAP_INSTALL_BASE_FOLDER" ]; then
+      rm -rf $KAP_INSTALL_BASE_FOLDER
+    fi 
+    if [ -d "$ZEPPELIN_INSTALL_BASE_FOLDER" ]; then
+      rm -rf $ZEPPELIN_INSTALL_BASE_FOLDER
+    fi 
+}
+
 backupKAP() {
     hdfs dfs -mkdir -p $kap_backup_dir
     hdfs dfs -put -f $kap_dir/conf $kap_backup_dir
@@ -243,6 +252,7 @@ main() {
         KAP+KyAnalyzer+Zeppelin)
             backupKAP
             backupKyAnalyzer
+            removelocal
             installKAP
             installKyAnalyzer
             installZeppelin
@@ -250,11 +260,13 @@ main() {
         KAP+KyAnalyzer)
             backupKAP
             backupKyAnalyzer
+            removelocal
             installKAP
             installKyAnalyzer
             ;;
         KAP)
             backupKAP
+            removelocal
             installKAP
             ;;
         *)
@@ -272,15 +284,15 @@ fi
 
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-if [ -e $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME ]; then
-    echo "KAP is already the latest version. Exiting ..."
-    exit 0
-fi
+# if [ -e $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME ]; then
+#     echo "KAP is already the latest version. Exiting ..."
+#     exit 0
+# fi
 
-if [ -e $ZEPPELIN_INSTALL_BASE_FOLDER/$ZEPPELIN_FOLDER_NAME ]; then
-    echo "Zeppelin is already the latest version. Exiting ..."
-    exit 0
-fi
+# if [ -e $ZEPPELIN_INSTALL_BASE_FOLDER/$ZEPPELIN_FOLDER_NAME ]; then
+#     echo "Zeppelin is already the latest version. Exiting ..."
+#     exit 0
+# fi
 
 ###############################
 main
