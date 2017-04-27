@@ -5,11 +5,11 @@
 
 # First stop all custom process
 # Kill kap
-export pid=`ps -ef| grep kap- | awk 'NR==1{print $1}' | cut -d' ' -f1`;kill $pid || true
+export pid=`ps -ef| grep kap- | awk 'NR==1{print $2}' | cut -d' ' -f1`;kill $pid || true
 # Kill kyanalyzer-server
-export pid=`ps -ef| grep kyanalyzer-server | awk 'NR==1{print $1}' | cut -d' ' -f1`;kill $pid || true
+export pid=`ps -ef| grep kyanalyzer-server | awk 'NR==1{print $2}' | cut -d' ' -f1`;kill $pid || true
 # Kill zeppelin
-export pid=`ps -ef| grep zeppelin | awk 'NR==1{print $1}' | cut -d' ' -f1`;kill $pid || true
+export pid=`ps -ef| grep zeppelin | awk 'NR==1{print $2}' | cut -d' ' -f1`;kill $pid || true
 
 ######## Parameters ########
 echo "Starting at "`date +'%Y%m%d%H%M'`
