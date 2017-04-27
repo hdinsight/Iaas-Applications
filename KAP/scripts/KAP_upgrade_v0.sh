@@ -139,6 +139,10 @@ EOL
         su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/sample.sh"
     fi
     
+    # Update HBase Coprocessor
+    echo "Updating HBase Coprocessor with kylin user"
+    su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh org.apache.kylin.storage.hbase.util.DeployCoprocessorCLI  default  all || true"
+
     echo "Starting KAP with kylin user"
     su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
     sleep 15
