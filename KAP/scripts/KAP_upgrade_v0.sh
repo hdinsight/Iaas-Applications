@@ -11,7 +11,8 @@ adminpassword=$3
 metastore=$4
 
 # Default upgrading everything to latest
-KAP_TARFILE=kap-2.3.0-GA-hbase1.x.tar.gz
+#KAP_TARFILE=kap-2.3.0-GA-hbase1.x.tar.gz
+KAP_TARFILE=kap-2.3.3-GA-hbase1.x.tar.gz
 KYANALYZER_TARFILE=KyAnalyzer-2.3.0.tar.gz
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
