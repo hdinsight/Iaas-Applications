@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+  <property>
+    <name>storage.backend</name>
+    <value>hbase</value>
+    <display-name>Storage Backend</display-name>
+    <description>The primary persistence provider used by Titan. This is required. It should be set one of Titan's built-in shorthand names for its standard storage backends (shorthands: berkeleyje, cassandrathrift, cassandra, astyanax, embeddedcassandra, hbase, inmemory) or to the full package and classname of a custom/third-party StoreManager implementation.</description>
+    <value-attributes>
+      <overridable>false</overridable>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>cache.db-cache</name>
+    <value>true</value>
+    <display-name>Enable Database Cache</display-name>
+    <description>Whether to enable Titan's database-level cache, which is shared across all transactions. Enabling this option speeds up traversals by holding hot graph elements in memory, but also increases the likelihood of reading stale data.  Disabling it forces each transaction to independently fetch graph elements from storage before reading/writing them.</description>
+    <value-attributes>
+      <type>value-list</type>
+      <entries>
+        <entry>
+          <value>true</value>
+          <label>Yes</label>
+        </entry>
+        <entry>
+          <value>false</value>
+          <label>No</label>
+        </entry>
+      </entries>
+      <selection-cardinality>1</selection-cardinality>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>cache.db-cache-clean-wait</name>
+    <value>20</value>
+    <display-name>Cache Delay (ms)</display-name>
+    <description>How long, in milliseconds, database-level cache will keep entries after flushing them.  This option is only useful on distributed storage backends that are capable of acknowledging writes without necessarily making them immediately visible.</description>
+    <final>true</final>
+    <value-attributes>
+      <type>int</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>cache.db-cache-time</name>
+    <value>180000</value>
+    <display-name>Cache Expiration Time (ms)</display-name>
+    <description>Default expiration time, in milliseconds, for entries in the database-level cache. Entries are evicted when they reach this age even if the cache has room to spare. Set to 0 to disable expiration (cache entries live forever or until memory pressure triggers eviction when set to 0)</description>
+    <final>true</final>
+    <value-attributes>
+      <type>int</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>cache.db-cache-size</name>
+    <value>0.5</value>
+    <display-name>Cache Size</display-name>
+    <description>Size of Titan's database level cache.  Values between 0 and 1 are interpreted as a percentage of VM heap, while larger values are interpreted as an absolute size in bytes.</description>
+    <final>true</final>
+    <value-attributes>
+      <type>float</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>index.search.backend</name>
+    <display-name>Index Backend</display-name>
+    <value>elasticsearch</value>
+    <description>The indexing backend used to extend and optimize Titan's query functionality. This setting is optional.  Titan can use multiple heterogeneous index backends.  Hence, this option can appear more than once, so long as the user-defined name between "index" and "backend" is unique among appearances. Similar to the storage backend, this should be set to one of Titan's built-in shorthand names for its standard index backends (shorthands: lucene, elasticsearch, es, solr) or to the full package and classname of a custom/third-party IndexProvider implementation.</description>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>index.search.hostname</name>
+    <value>localhost</value>
+    <display-name>Index Hostname</display-name>
+    <description>The hostname or comma-separated list of hostnames of index backend servers.  This is only applicable to some index backends, such as elasticsearch and solr.</description>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>index.search.elasticsearch.client-only</name>
+    <value>true</value>
+    <description>The Elasticsearch node.client option is set to this boolean value, and the Elasticsearch node.data option is set to the negation of this value. True creates a thin client which holds no data.  False creates a regular Elasticsearch cluster node that may store data.</description>    <final>true</final>
+    <value-attributes>
+      <type>boolean</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>storage.hbase.tablename</name>
+    <value>titan</value>
+    <display-name>Storage Table Name</display-name>
+    <description>The name of the table Titan will use. Titan will automatically create this table if it does not already exist.</description>
+    <final>true</final>
+    <value-attributes>
+      <editable-only-at-install>true</editable-only-at-install>
+      <overridable>false</overridable>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>server.port</name>
+    <value>8182</value>
+    <display-name>Server HTTP Port</display-name>
+    <description>The port number that will be listening for gremlin HTTP requests.</description>
+    <final>true</final>
+    <value-attributes>
+      <type>int</type>
+    </value-attributes>
+  </property>
+
+</configuration>

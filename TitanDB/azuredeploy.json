@@ -56,15 +56,7 @@
         "description": "The number of nodes in the HDInsight cluster."
       }
     },
-    "openTsdbVersion": {
-      "type": "string",
-      "defaultValue": "2.3.0",
-      "allowedValues": [
-        "2.2.0",
-        "2.3.0"
-      ]
-    },
-    "openTsdbTopology": {
+    "titanTopology": {
       "type": "string",
       "defaultValue": "Load Balanced",
       "allowedValues": [
@@ -72,7 +64,7 @@
         "Load Balanced"
       ],
       "metadata": {
-        "description": "Select the deployment topology for OpenTSDB on the cluster. 'Edge Node' installs 1 TSD instance on the edge node. 'Load Balanced' installs a TSD instance of every region server in the cluster and a load balancer on the edge node distributes traffic."
+        "description": "Select the deployment topology for TitanDB on the cluster. 'Edge Node' installs 1 TitanDB instance on the edge node. 'Load Balanced' installs a TitanDB instance of every region server in the cluster and a load balancer on the edge node distributes traffic."
       }
     },
     "edgeNodeSize": {
@@ -92,11 +84,11 @@
         "Standard_D4_V2"
       ]
     },
-    "tsdPortNumber": {
+    "titanPortNumber": {
       "type": "int",
-      "defaultValue": 4242,
+      "defaultValue": 8182,
       "metadata": {
-        "description": "The port number that the TSD services should listen to requests on."
+        "description": "The HTTPS port number that the TitanDB service should listen to requests on."
       }
     }
   },
@@ -104,28 +96,27 @@
     "defaultApiVersion": "2015-05-01-preview",
     "clusterApiVersion": "2015-03-01-preview",
     "clusterStorageAccountName": "[concat(parameters('clusterName'),'store')]",
-    "applicationName": "opentsdb",
-    "galleryPackageIdentity": "opentsdb",
+    "applicationName": "titandb",
+    "galleryPackageIdentity": "titandb",
     "edgeNodeSuffix": "tdb",
     "scriptBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/Scripts/",
     "templateBaseUri": "[concat(variables('scriptBaseUri'), 'Templates/')]",
-    "appInfoBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/OpenTSDB/",
-    "edgeNodeSignatureTag": "opentsdb-edgenode-signature-tag",
+    "appInfoBaseUri": "https://raw.githubusercontent.com/hdinsight/Iaas-Applications/master/TitanDB/",
+    "edgeNodeSignatureTag": "titandb-edgenode-signature-tag",
     "topologies": {
       "Edge Node": {
-        "OPENTSDB_TSD": ["edge"],
-        "OPENTSDB_PROXY": []
+        "TITANDB_SERVER": ["edge"],
+        "TITANDB_PROXY": []
       },
       "Load Balanced": {
-        "OPENTSDB_TSD": ["region"],
-        "OPENTSDB_PROXY": ["edge"]
+        "TITANDB_SERVER": ["region"],
+        "TITANDB_PROXY": ["edge"]
       }
     },
-    "selectedTopology": "[variables('topologies')[parameters('openTsdbTopology')]]",
+    "selectedTopology": "[variables('topologies')[parameters('titanTopology')]]",
     "extraConfiguration": {
-      "opentsdb-site": {
-        "tsd.network.port": "[parameters('tsdPortNumber')]",
-        "opentsdb.opentsdb_version": "[parameters('openTsdbVersion')]"
+      "titandb-site": {
+        "server.port": "[parameters('titanPortNumber')]"
       }
     },
     "singleQuote": "'"
@@ -190,9 +181,9 @@
               },
               "scriptActions": [
                 {
-                  "name": "install-opentsdb",
+                  "name": "install-titandb",
                   "uri": "[concat(variables('scriptBaseUri'), 'install_ambari_app_bootstrap.sh')]",
-                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('appInfoBaseUri'), 'config/opentsdb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' --component-topologies ', variables('singleQuote'), string(variables('selectedTopology')), variables('singleQuote'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -z ', variables('templateBaseUri'), ' -e 1 -v DEBUG')]",
+                  "parameters": "[concat(variables('scriptBaseUri'), ' -c ', variables('appInfoBaseUri'), 'config/titandb-service-config.json', ' -u ', parameters('clusterLoginUserName'), ' -p ', parameters('clusterLoginPassword'), ' --component-topologies ', variables('singleQuote'), string(variables('selectedTopology')), variables('singleQuote'), ' -x ', variables('singleQuote'), string(variables('extraConfiguration')), variables('singleQuote'), ' -s ', variables('edgeNodeSuffix'), ' -n ', variables('edgeNodeSignatureTag'), ' -e 1 -v DEBUG')]",
                   "isHeadNode": true
                 }
               ]
@@ -236,7 +227,7 @@
         },
         "installScriptActions": [
           {
-            "name": "install-opentsdb-proxy",
+            "name": "install-titandb-edgenode",
             "uri": "[concat(variables('scriptBaseUri'), 'install-edgenode-placeholder.sh')]",
             "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', variables('edgeNodeSignatureTag'))]",
             "roles": [
@@ -248,7 +239,7 @@
         "httpsEndpoints": [
           {
             "subDomainSuffix": "[variables('edgeNodeSuffix')]",
-            "destinationPort": "[parameters('tsdPortNumber')]",
+            "destinationPort": "[parameters('titanPortNumber')]",
             "accessModes": [
               "webpage"
             ]

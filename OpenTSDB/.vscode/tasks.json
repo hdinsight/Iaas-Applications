@@ -1,0 +1,33 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "0.1.0",
+    "isShellCommand": true,
+    "showOutput": "always",
+    "echoCommand": true,
+    "tasks": [
+        {
+            "taskName": "Build TitanDB",
+            "args": ["-czf", "./TitanDB/bin/TITANDB.tar.gz", "-C", "./TitanDB/services", "TITANDB" ],
+            "isBuildCommand": true,
+            "suppressTaskName": true
+        },
+        {
+            "taskName": "Build OpenTSDB",
+            "args": ["-czf", "./OpenTSDB/bin/OPENTSDB.tar.gz", "-C", "./OpenTSDB/services", "OPENTSDB" ],
+            "isBuildCommand": true,
+            "suppressTaskName": true
+        }        
+    ],
+    "windows": {
+        "command": "${env.SystemDrive}/Program Files/git/usr/bin/tar",
+        "options": {
+            "env": {
+                "PATH": "${env.PATH};${env.SystemDrive}\\Program Files\\git\\usr\\bin"
+            }
+        }
+    },
+    "linux": {
+        "command": "/bin/tar"
+    }
+}

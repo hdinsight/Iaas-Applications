@@ -4,7 +4,7 @@
 <configuration>
   <property require-input="true">
     <name>opentsdb.opentsdb_version</name>
-    <value>2.2.0</value>
+    <value>2.3.0</value>
     <description>Version of OpenTSDB to install. This value MUST correspond to a *release* version on OpenTSDB's Github site (https://github.com/OpenTSDB/opentsdb/releases)</description>
   </property>
 

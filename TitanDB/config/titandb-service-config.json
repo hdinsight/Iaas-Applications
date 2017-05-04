@@ -1,0 +1,44 @@
+{
+    "serviceName": "TITANDB",
+    "displayName": "TitanDB",
+    "package": "https://github.com/hdinsight/Iaas-Applications/files/945834/TITANDB.tar.gz",
+    "components": {
+        "TITANDB_SERVER": {
+            "topology": ["region"],
+            "startPrimary": true,
+            "canOverrideTopology": true
+        }, 
+        "TITANDB_PROXY": {
+            "topology": ["edge"]
+        }
+    },
+    "configurations" : {
+        "titandb-site": {
+            "properties" : {
+                "storage.backend" : "hbase",
+                "cache.db-cache" : "true",
+                "cache.db-cache-clean-wait" : 20,
+                "cache.db-cache-time" : 180000,
+                "cache.db-cache-size" : 0.5,
+                "index.search.backend" : "elasticsearch",
+                "index.search.hostname" : "localhost",
+                "index.search.elasticsearch.client-only" : "true",
+                "storage.hbase.tablename" : "titan",
+                "server.port" : 8192
+            },
+            "properties_attributes" : {
+                "final" : {
+                    "index.search.hostname" : "true",
+                    "index.search.elasticsearch.client-only" : "true",
+                    "server.port" : "true",
+                    "cache.db-cache-size" : "true",
+                    "cache.db-cache-clean-wait" : "true",
+                    "cache.db-cache-time" : "true",
+                    "index.search.backend" : "true",
+                    "storage.hbase.tablename" : "true"
+                }
+            }
+        }
+    },
+    "metrics": true
+}

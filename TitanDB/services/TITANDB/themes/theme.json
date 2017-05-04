@@ -1,0 +1,168 @@
+{
+  "name": "default",
+  "description": "Default theme for TitanDB service",
+  "configuration": {
+    "layouts": [
+      {
+        "name": "default",
+        "tabs": [
+          {
+            "name": "settings",
+            "display-name": "Settings",
+            "layout": {
+              "tab-columns": "2",
+              "tab-rows": "4",
+              "sections": [
+                {
+                  "name": "section-storage",
+                  "display-name": "Storage",
+                  "row-index": "0",
+                  "column-index": "0",
+                  "row-span": "2",
+                  "column-span": "1",
+                  "section-columns": "1",
+                  "section-rows": "2",
+                  "subsections": [
+                    {
+                      "name": "subsection-storage-col1",
+                      "row-index": "0",
+                      "column-index": "0",
+                      "row-span": "2",
+                      "column-span": "1"
+                    }
+                  ]
+                },
+                {
+                  "name": "section-cache",
+                  "display-name": "Cache",
+                  "row-index": "0",
+                  "column-index": "1",
+                  "row-span": "4",
+                  "column-span": "1",
+                  "section-columns": "1",
+                  "section-rows": "4",
+                  "subsections": [
+                    {
+                      "name": "subsection-cache-col1",
+                      "row-index": "0",
+                      "column-index": "0",
+                      "row-span": "4",
+                      "column-span": "1"
+                    }
+                  ]
+                },
+                {
+                  "name": "section-index",
+                  "display-name": "Index",
+                  "row-index": "2",
+                  "column-index": "0",
+                  "row-span": "2",
+                  "column-span": "1",
+                  "section-columns": "1",
+                  "section-rows": "2",
+                  "subsections": [
+                    {
+                      "name": "subsection-index-col1",
+                      "row-index": "0",
+                      "column-index": "0",
+                      "row-span": "2",
+                      "column-span": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "placement": {
+      "configuration-layout": "default",
+      "configs": [
+        {
+          "config": "titandb-site/storage.backend",
+          "subsection-name": "subsection-storage-col1"
+        },
+        {
+          "config": "titandb-site/storage.hbase.tablename",
+          "subsection-name": "subsection-storage-col1"
+        },
+        {
+          "config": "titandb-site/cache.db-cache",
+          "subsection-name": "subsection-cache-col1"
+        },
+        {
+          "config": "titandb-site/cache.db-cache-clean-wait",
+          "subsection-name": "subsection-cache-col1"
+        },
+        {
+          "config": "titandb-site/cache.db-cache-time",
+          "subsection-name": "subsection-cache-col1"
+        },
+        {
+          "config": "titandb-site/cache.db-cache-size",
+          "subsection-name": "subsection-cache-col1"
+        },
+        {
+          "config": "titandb-site/index.search.backend",
+          "subsection-name": "subsection-index-col1"
+        },
+        {
+          "config": "titandb-site/index.search.hostname",
+          "subsection-name": "subsection-index-col1"
+        }
+      ]
+    },
+    "widgets": [
+        {
+            "config": "titandb-site/storage.backend",
+            "widget": {
+                "type": "text-field"
+            }
+        },
+        {
+            "config": "titandb-site/storage.hbase.tablename",
+            "widget": {
+                "type": "text-field"
+            }
+        },
+        {
+            "config": "titandb-site/cache.db-cache",
+            "widget": {
+                "type": "toggle"
+            }
+        },
+        {
+            "config": "titandb-site/cache.db-cache-clean-wait",
+            "widget": {
+                "type": "text-field"
+            }
+        },
+        {
+            "config": "titandb-site/cache.db-cache-time",
+            "widget": {
+                "type": "text-field"
+            }
+        },
+        {
+            "config": "titandb-site/cache.db-cache-size",
+            "widget": {
+                "type": "text-field"
+            }
+        },
+        {
+            "config": "titandb-site/index.search.backend",
+            "widget": {
+                "type": "text-field"
+            }
+        },
+        {
+            "config": "titandb-site/index.search.hostname",
+            "widget": {
+                "type": "text-field"
+            }
+        }
+    ]
+  }
+}
+
