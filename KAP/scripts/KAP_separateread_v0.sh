@@ -4,7 +4,7 @@ export KYLINPROPERTIESFILE=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin.prope
 
 # Setting kylin.server.mode=query
 sed -i 's/kylin.server.mode=.*/kylin.server.mode=query/' $KYLINPROPERTIESFILE
-# Setting kylin.enable.scheduler=1
-sed -i 's/kylin.enable.scheduler=.*/kylin.job.scheduler.default=1/' $KYLINPROPERTIESFILE
+# Setting kylin.job.scheduler.default=1
+sed -i 's/kylin.job.scheduler.default=.*/kylin.job.scheduler.default=1/' $KYLINPROPERTIESFILE
 # Setting kap.job.helix.zookeeper-address
 sed -i "s/kap.job.helix.zookeeper-address=.*/kap.job.helix.zookeeper-address=$ZOOKEEPERADDRESS/" $KYLINPROPERTIESFILE
