@@ -8,3 +8,7 @@ sed -i 's/kylin.server.mode=.*/kylin.server.mode=query/' $KYLINPROPERTIESFILE
 sed -i 's/kylin.job.scheduler.default=.*/kylin.job.scheduler.default=1/' $KYLINPROPERTIESFILE
 # Setting kap.job.helix.zookeeper-address
 sed -i "s/kap.job.helix.zookeeper-address=.*/kap.job.helix.zookeeper-address=$ZOOKEEPERADDRESS/" $KYLINPROPERTIESFILE
+
+
+#  Copying hbase-site.xml to hdfs
+hadoop fs -put /etc/hbase/*/0/hbase-site.xml /kylin/hbase-site.xml 
