@@ -16,19 +16,20 @@ export STORAGESTRING=$STORAGEACCTNAME"."$BLOBSTOREADDRESS
 "/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $KYLINPROPERTIESFILE
 export ZOOKEEPERADDRESS=`awk '/hbase.zookeeper.quorum/{getline; print}' /etc/hbase/*/0/hbase-site.xml | grep -oP '<value>\K.*(?=</value>)'`
 
-export KYLIN_JOB_CONF=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin_job_conf.xml`
-sed -i '\$i <property>
-    <name>hdp.version</name>
-    <value>2.5.4.0-121</value>
-</property>
-' $KYLIN_JOB_CONF
+sed -i '$ d' $KYLIN_JOB_CONF
+sed -i '$ d' $KYLIN_JOB_CONF_INMEM
 
+export KYLIN_JOB_CON_SETTINGS='    <property>
+        <name>hdp.version</name>
+        <value>2.5.4.0-121</value>
+    </property>
+</configuration>
+'
+
+export KYLIN_JOB_CONF=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin_job_conf.xml`
+echo $KYLIN_JOB_CON_SETTINGS >> $KYLIN_JOB_CONF
 export KYLIN_JOB_CONF_INMEM=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin_job_conf_inmem.xml`
-sed -i '\$i <property>
-    <name>hdp.version</name>
-    <value>2.5.4.0-121</value>
-</property>
-' $KYLIN_JOB_CONF_INMEM
+echo $KYLIN_JOB_CON_SETTINGS >> $KYLIN_JOB_CONF_INMEM
 
 # Setting kylin.server.mode=query
 sed -i 's/kylin.server.mode=.*/kylin.server.mode=query/' $KYLINPROPERTIESFILE
