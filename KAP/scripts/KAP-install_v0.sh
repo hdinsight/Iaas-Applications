@@ -69,8 +69,7 @@ downloadAndUnzipKAP() {
     wget $KAP_SECURITY_TEMPLETE_URI -P kylin/WEB-INF/classes/
     sed -i "s/KAP-ADMIN/$adminuser/g" kylin/WEB-INF/classes/kylinSecurity.xml
     sed -i "s/KAP-PASSWD/$adminpassword/g" kylin/WEB-INF/classes/kylinSecurity.xml
-    sed -i 'N;41a\ <scrip>\n var _hmt = _hmt || []; \n (function() {\n  var hm = document.createElement("script");\n  hm.src = "https://hm.baidu.com/hm.js?03f3053bd1cc63313b9e532627250a18";\n var s = document.getElementsByTagName("script")[0];\n  s.parentNode.insertBefore(hm, s);\n })();\n </script>\n' kylin/index.html
-
+    sed -i '/<\/head>/i\ <script>\n var _hmt = _hmt || []; \n (function() {\n  var hm = document.createElement("script");\n  hm.src = "https://hm.baidu.com/hm.js?03f3053bd1cc63313b9e532627250a18";\n var s = document.getElementsByTagName("script")[0];\n  s.parentNode.insertBefore(hm, s);\n })();\n </script>\n' kylin/index.html
     echo "Updating KAP metastore to $metastore"
     cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
     sed -i "s/kylin_default_instance/$metastore/g" kylin.properties
