@@ -7,7 +7,7 @@
       "metadata": {
         "description": "Which services you want to install"
       },
-      "defaultValue": "KAP+KyAnalyzer",
+      "defaultValue": "KAP+KyAnalyzer+Zeppelin",
       "allowedValues": [
         "KAP",
         "KAP+KyAnalyzer",
@@ -41,6 +41,13 @@
         "description": "The name of metadata store for KAP"
       }
     },
+    "kyaccountToken": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Token of Kyligence Account"
+      }
+    },
     "galleryPackageIdentity": {
       "type": "string",
       "metadata": {
@@ -53,7 +60,7 @@
       "metadata": {
         "description": "Size of the edge node that hosts the application"
       },
-      "defaultValue": "Standard_D12",
+      "defaultValue": "Standard_D3",
       "allowedValues": [
         "Standard_A3",
         "Standard_A4",
@@ -94,7 +101,7 @@
           {
             "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
             "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/kap235/KAP/scripts/KAP-install_v0.sh",
-            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'))]",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'), ' ', parameters('kyaccountToken'))]", 
             "roles": [
               "edgenode"
             ]

@@ -4,16 +4,17 @@ adminuser=$1
 adminpassword=$2
 metastore=$3
 apptype=$4
+kyaccountToken=$5
 
 
 KAP_TARFILE=kap-2.3.5-GA-hbase1.x.tar.gz
 KYANALYZER_TARFILE=KyAnalyzer-2.3.2.tar.gz
+KYANALYZER_FOLDER_NAME=kyanalyzer-server-2.3.2
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
 KAP_INSTALL_BASE_FOLDER=/usr/local/kap
 KAP_TMPFOLDER=/tmp/kap
 KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/kap235/KAP/files/kylinSecurity.xml
-KYANALYZER_FOLDER_NAME=kyanalyzer-server
 ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
 ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
@@ -39,6 +40,7 @@ fi
 #import helper module.
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
 
+apt-get install bc
 
 downloadAndUnzipKAP() {
     echo "Removing KAP tmp folder"
@@ -67,6 +69,9 @@ downloadAndUnzipKAP() {
 
     echo "Updating working dir"
     sed -i "s/kylin.env.hdfs-working-dir=\/kylin/kylin.env.hdfs-working-dir=wasb:\/\/\/kylin/g" kylin.properties    
+
+    echo "Updating kap.kyaccount.token"
+    echo "kap.kyaccount.token=$kyaccountToken" >> kylin.properties
 
     rm -rf $KAP_TMPFOLDER
 }
@@ -124,6 +129,7 @@ downloadAndUnzipKyAnalyzer() {
 startKyAnalyzer() {
 
     echo "Starting KyAnalyzer with kylin user"
+    chown -R kylin $KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
     export KYANALYZER_HOME=$KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
     $KYANALYZER_HOME/start-analyzer.sh
     sleep 10
