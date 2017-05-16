@@ -45,7 +45,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Token of Kyligence Account"
+        "description": "Kyligence Account API Token"
       }
     },
     "galleryPackageIdentity": {

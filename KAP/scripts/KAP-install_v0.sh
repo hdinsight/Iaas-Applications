@@ -6,15 +6,16 @@ metastore=$3
 apptype=$4
 kyaccountToken=$5
 
-
+BRANCH_NAME=kap235
 KAP_TARFILE=kap-2.3.5-GA-hbase1.x.tar.gz
 KYANALYZER_TARFILE=KyAnalyzer-2.3.2.tar.gz
 KYANALYZER_FOLDER_NAME=kyanalyzer-server-2.3.2
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
+SAMPLE_CUBE_TARFILE=sample_cube.tar.gz
 KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
 KAP_INSTALL_BASE_FOLDER=/usr/local/kap
 KAP_TMPFOLDER=/tmp/kap
-KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/kap235/KAP/files/kylinSecurity.xml
+KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kylinSecurity.xml
 ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
 ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
@@ -22,6 +23,8 @@ ZEPPELIN_TMPFOLDER=/tmp/zeppelin
 BACKUP_DIR=/kycloud/backup
 
 newInstall=true
+
+KAP_SAMPLE_CUBE_URL=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$SAMPLE_CUBE_TARFILE
 
 host=`hostname -f`
 if [[ "$host" == *chinacloudapp.cn ]]; then
@@ -49,10 +52,14 @@ downloadAndUnzipKAP() {
     
     echo "Downloading KAP tar file"
     wget $KAP_DOWNLOAD_URI -P $KAP_TMPFOLDER
+    wget $KAP_SAMPLE_CUBE_URL -P $KAP_TMPFOLDER
     
     echo "Unzipping KAP"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KAP_TARFILE -C $KAP_INSTALL_BASE_FOLDER
+
+    echo "Updating sample cube"
+    tar -zxvf $KAP_TMPFOLDER/$SAMPLE_CUBE_TARFILE -C $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
 
     echo "Updating KAP admin account"
     cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/tomcat/webapps/
@@ -62,6 +69,7 @@ downloadAndUnzipKAP() {
     wget $KAP_SECURITY_TEMPLETE_URI -P kylin/WEB-INF/classes/
     sed -i "s/KAP-ADMIN/$adminuser/g" kylin/WEB-INF/classes/kylinSecurity.xml
     sed -i "s/KAP-PASSWD/$adminpassword/g" kylin/WEB-INF/classes/kylinSecurity.xml
+    sed -i 'N;41a\ <scrip>\n var _hmt = _hmt || []; \n (function() {\n  var hm = document.createElement("script");\n  hm.src = "https://hm.baidu.com/hm.js?03f3053bd1cc63313b9e532627250a18";\n var s = document.getElementsByTagName("script")[0];\n  s.parentNode.insertBefore(hm, s);\n })();\n </script>\n' kylin/index.html
 
     echo "Updating KAP metastore to $metastore"
     cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
@@ -70,8 +78,12 @@ downloadAndUnzipKAP() {
     echo "Updating working dir"
     sed -i "s/kylin.env.hdfs-working-dir=\/kylin/kylin.env.hdfs-working-dir=wasb:\/\/\/kylin/g" kylin.properties    
 
-    echo "Updating kap.kyaccount.token"
-    echo "kap.kyaccount.token=$kyaccountToken" >> kylin.properties
+
+    if [[ ! -z $kyaccountToken ]]
+    then
+        echo "Updating kap.kyaccount.token"
+        echo "kap.kyaccount.token=$kyaccountToken" >> kylin.properties
+    fi
 
     rm -rf $KAP_TMPFOLDER
 }
