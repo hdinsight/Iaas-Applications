@@ -7,7 +7,7 @@
       "metadata": {
         "description": "Which services you want to install"
       },
-      "defaultValue": "KAP+KyAnalyzer",
+      "defaultValue": "KAP+KyAnalyzer+Zeppelin",
       "allowedValues": [
         "KAP",
         "KAP+KyAnalyzer",
@@ -41,6 +41,13 @@
         "description": "The name of metadata store for KAP"
       }
     },
+    "kyaccountToken": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Kyligence Account API Token"
+      }
+    },
     "galleryPackageIdentity": {
       "type": "string",
       "metadata": {
@@ -59,8 +66,12 @@
         "Standard_A4",
         "Standard_D3",
         "Standard_D4",
+        "Standard_D12",
+        "Standard_D13",
         "Standard_D3_V2",
-        "Standard_D4_V2"
+        "Standard_D4_V2",
+        "Standard_D12_V2",
+        "Standard_D13_V2"
       ]
     }
   },
@@ -89,8 +100,8 @@
         "installScriptActions": [
           {
             "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
-            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
-            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'))]",
+            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/kap235/KAP/scripts/KAP-install_v0.sh",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'), ' ', parameters('kyaccountToken'))]", 
             "roles": [
               "edgenode"
             ]

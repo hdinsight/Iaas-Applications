@@ -23,7 +23,6 @@ export STORAGESTRING=$STORAGEACCTNAME'.'$BLOBSTOREADDRESS
 echo "/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $KYLINPROPERTIESFILE >> /root/allvar.txt
 
 export ZOOKEEPERADDRESS=`awk '/hbase.zookeeper.quorum/{getline; print}' /etc/hbase/*/0/hbase-site.xml | grep -oP '<value>\K.*(?=</value>)'`
-
 export KYLIN_JOB_CON_SETTINGS='    <property>
         <name>hdp.version</name>
         <value>2.5.4.0-121</value>

@@ -68,7 +68,7 @@
     },
     "clusterWorkerNodeCount": {
       "type": "int",
-      "defaultValue": 2,
+      "defaultValue": 1,
       "metadata": {
         "description": "The number of nodes in the HDInsight cluster."
       }
@@ -78,14 +78,18 @@
       "metadata": {
         "description": "Size of the edge node that hosts the application"
       },
-      "defaultValue": "Standard_D3",
+      "defaultValue": "Standard_D12",
       "allowedValues": [
         "Standard_A3",
         "Standard_A4",
         "Standard_D3",
         "Standard_D4",
+        "Standard_D12",
+        "Standard_D13",
         "Standard_D3_V2",
-        "Standard_D4_V2"
+        "Standard_D4_V2",
+        "Standard_D12_V2",
+        "Standard_D13_V2"
       ]
     },
     "appType": {
@@ -93,7 +97,7 @@
       "metadata": {
         "description": "Which services you want to install"
       },
-      "defaultValue": "KAP+KyAnalyzer",
+      "defaultValue": "KAP+KyAnalyzer+Zeppelin",
       "allowedValues": [
         "KAP",
         "KAP+KyAnalyzer",
@@ -105,6 +109,13 @@
       "defaultValue": "kylin_default_instance",
       "metadata": {
         "description": "The name of metadata store for KAP"
+      }
+    },
+    "kyaccountToken": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Kyligence Account API Token"
       }
     }
   },
@@ -137,7 +148,7 @@
       ],
       "tags": {},
       "properties": {
-        "clusterVersion": "3.4",
+        "clusterVersion": "3.5",
         "osType": "Linux",
         "clusterDefinition": {
           "kind": "[parameters('clusterType')]",
@@ -165,7 +176,7 @@
               "name": "headnode",
               "targetInstanceCount": "2",
               "hardwareProfile": {
-                "vmSize": "Standard_D3"
+                "vmSize": "Standard_D12"
               },
               "osProfile": {
                 "linuxOperatingSystemProfile": {
@@ -178,7 +189,7 @@
               "name": "workernode",
               "targetInstanceCount": "[parameters('clusterWorkerNodeCount')]",
               "hardwareProfile": {
-                "vmSize": "Standard_D3"
+                "vmSize": "Standard_D12"
               },
               "osProfile": {
                 "linuxOperatingSystemProfile": {
@@ -214,8 +225,8 @@
         "installScriptActions": [
           {
             "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
-            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
-            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'))]",
+            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/kap235/KAP/scripts/KAP-install_v0.sh",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'), ' ', parameters('kyaccountToken'))]",
             "roles": [
               "edgenode"
             ]
