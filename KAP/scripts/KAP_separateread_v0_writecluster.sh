@@ -7,11 +7,11 @@ echo "$@" >> /root/allvar.txt
 
 export KYLINPROPERTIESFILE=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin.properties`
 
-$BLOBSTOREADDRESS='blob.core.chinacloudapi.cn'
-if [ "$ACCOUNTREGION" = "china" ]; then
-  $BLOBSTOREADDRESS='blob.core.chinacloudapi.cn'
+BLOBSTOREADDRESS='blob.core.chinacloudapi.cn'
+if [ "$ACCOUNTREGION" == "china" ]; then
+  export BLOBSTOREADDRESS='blob.core.chinacloudapi.cn'
 else
-  $BLOBSTOREADDRESS='blob.core.windows.net'
+  export BLOBSTOREADDRESS='blob.core.windows.net'
 fi
 
 export STORAGESTRING=$STORAGEACCTNAME'.'$BLOBSTOREADDRESS
