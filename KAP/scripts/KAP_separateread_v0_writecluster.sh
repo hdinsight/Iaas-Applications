@@ -5,6 +5,12 @@ export ACCOUNTREGION=$3
 
 # echo "$@" >> /root/allvar.txt
 
+# Providing variables for kylin to restart
+export KAP_INSTALL_BASE_FOLDER=/usr/local/kap
+export KAP_FOLDER_NAME='kap-2.3.5-GA-hbase1'
+export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+
+# Setting for local file path
 export KYLINPROPERTIESFILE=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin.properties`
 export HBASEFILE=`ls /etc/hbase/*/0/hbase-site.xml`
 
@@ -50,3 +56,6 @@ sed -i "s/kap.job.helix.zookeeper-address=.*/kap.job.helix.zookeeper-address=$ZO
 sed -i "s/.*kylin.storage.hbase.cluster-fs=.*/kylin.storage.hbase.cluster-fs=wasb:\/\/$CONTAINERNAME@$STORAGESTRING/" $KYLINPROPERTIESFILE
 
 # echo "kylin.storage.hbase.cluster-fs=wasb:\/\/$CONTAINERNAME@$STORAGESTRING" >> /root/allvar.txt
+
+# Restart of KAP
+su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh stop && $KYLIN_HOME/bin/kylin.sh start"
