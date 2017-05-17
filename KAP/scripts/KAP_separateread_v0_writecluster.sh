@@ -6,6 +6,7 @@ export ACCOUNTREGION=$3
 echo "$@" >> /root/allvar.txt
 
 export KYLINPROPERTIESFILE=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin.properties`
+export HBASEFILE=`ls /etc/hbase/*/0/hbase-site.xml`
 
 BLOBSTOREADDRESS='blob.core.chinacloudapi.cn'
 if [ "$ACCOUNTREGION" == "china" ]; then
@@ -17,14 +18,11 @@ fi
 export STORAGESTRING=$STORAGEACCTNAME'.'$BLOBSTOREADDRESS
 
 # Copy hbase config file
-"/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $KYLINPROPERTIESFILE
+"/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $HBASEFILE
 
 echo "/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $KYLINPROPERTIESFILE >> /root/allvar.txt
 
 export ZOOKEEPERADDRESS=`awk '/hbase.zookeeper.quorum/{getline; print}' /etc/hbase/*/0/hbase-site.xml | grep -oP '<value>\K.*(?=</value>)'`
-
-sed -i '$ d' $KYLIN_JOB_CONF
-sed -i '$ d' $KYLIN_JOB_CONF_INMEM
 
 export KYLIN_JOB_CON_SETTINGS='    <property>
         <name>hdp.version</name>
@@ -34,8 +32,12 @@ export KYLIN_JOB_CON_SETTINGS='    <property>
 '
 
 export KYLIN_JOB_CONF=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin_job_conf.xml`
-echo $KYLIN_JOB_CON_SETTINGS >> $KYLIN_JOB_CONF
 export KYLIN_JOB_CONF_INMEM=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin_job_conf_inmem.xml`
+
+sed -i '$ d' $KYLIN_JOB_CONF
+sed -i '$ d' $KYLIN_JOB_CONF_INMEM
+
+echo $KYLIN_JOB_CON_SETTINGS >> $KYLIN_JOB_CONF
 echo $KYLIN_JOB_CON_SETTINGS >> $KYLIN_JOB_CONF_INMEM
 
 # Setting kylin.server.mode=query
