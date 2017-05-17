@@ -18,11 +18,12 @@ fi
 export STORAGESTRING=$STORAGEACCTNAME'.'$BLOBSTOREADDRESS
 
 # Copy hbase config file
-"/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $HBASEFILE
+mv $HBASEFILE $HBASEFILE.origin
+/usr/bin/hadoop fs -get "wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $HBASEFILE
 
-echo "/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $KYLINPROPERTIESFILE >> /root/allvar.txt
+echo "/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $HBASEFILE >> /root/allvar.txt
 
-export ZOOKEEPERADDRESS=`awk '/hbase.zookeeper.quorum/{getline; print}' /etc/hbase/*/0/hbase-site.xml | grep -oP '<value>\K.*(?=</value>)'`
+export ZOOKEEPERADDRESS=`awk '/hbase.zookeeper.quorum/{getline; print}' $HBASEFILE | grep -oP '<value>\K.*(?=</value>)'`
 export KYLIN_JOB_CON_SETTINGS='    <property>
         <name>hdp.version</name>
         <value>2.5.4.0-121</value>
