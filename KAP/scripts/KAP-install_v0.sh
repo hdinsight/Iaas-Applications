@@ -6,7 +6,7 @@ metastore=$3
 apptype=$4
 kyaccountToken=$5
 
-BRANCH_NAME=kap235
+BRANCH_NAME=master
 KAP_TARFILE=kap-2.3.5-GA-hbase1.x.tar.gz
 KYANALYZER_TARFILE=KyAnalyzer-2.3.2.tar.gz
 KYANALYZER_FOLDER_NAME=kyanalyzer-server-2.3.2
