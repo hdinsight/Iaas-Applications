@@ -84,6 +84,8 @@ downloadAndUnzipKAP() {
         echo "kap.kyaccount.token=$kyaccountToken" >> kylin.properties
     fi
 
+    echo "kylin.query.max-scan-bytes=20971520000" >> kylin.properties
+
     rm -rf $KAP_TMPFOLDER
 }
 
