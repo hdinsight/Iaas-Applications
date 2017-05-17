@@ -3,7 +3,7 @@ export CONTAINERNAME=$1
 export STORAGEACCTNAME=$2
 export ACCOUNTREGION=$3
 
-echo "$@" >> /root/allvar.txt
+# echo "$@" >> /root/allvar.txt
 
 export KYLINPROPERTIESFILE=`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin.properties`
 export HBASEFILE=`ls /etc/hbase/*/0/hbase-site.xml`
@@ -21,7 +21,7 @@ export STORAGESTRING=$STORAGEACCTNAME'.'$BLOBSTOREADDRESS
 mv $HBASEFILE $HBASEFILE.origin
 /usr/bin/hadoop fs -get "wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $HBASEFILE
 
-echo "/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $HBASEFILE >> /root/allvar.txt
+# echo "/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $HBASEFILE >> /root/allvar.txt
 
 export ZOOKEEPERADDRESS=`awk '/hbase.zookeeper.quorum/{getline; print}' $HBASEFILE | grep -oP '<value>\K.*(?=</value>)'`
 export KYLIN_JOB_CON_SETTINGS='    <property>
@@ -49,4 +49,4 @@ sed -i "s/kap.job.helix.zookeeper-address=.*/kap.job.helix.zookeeper-address=$ZO
 # Setting of cluster-fs
 sed -i "s/.*kylin.storage.hbase.cluster-fs=.*/kylin.storage.hbase.cluster-fs=wasb:\/\/$CONTAINERNAME@$STORAGESTRING/" $KYLINPROPERTIESFILE
 
-echo "kylin.storage.hbase.cluster-fs=wasb:\/\/$CONTAINERNAME@$STORAGESTRING" >> /root/allvar.txt
+# echo "kylin.storage.hbase.cluster-fs=wasb:\/\/$CONTAINERNAME@$STORAGESTRING" >> /root/allvar.txt
