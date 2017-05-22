@@ -24,7 +24,7 @@ else
   export BLOBSTOREADDRESS='blob.core.windows.net'
 fi
 
-export STORAGESTRING="$STORAGEACCTNAME'.'$BLOBSTOREADDRESS"
+export STORAGESTRING=$STORAGEACCTNAME'.'$BLOBSTOREADDRESS
 
 # Copy hbase config file
 mv $HBASEFILE $HBASEFILE.origin

@@ -9,7 +9,7 @@ cd -
 export KYLIN_HOME="$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME"
 
 export ZOOKEEPERADDRESS=`awk '/hbase.zookeeper.quorum/{getline; print}' /etc/hbase/*/0/hbase-site.xml | grep -oP '<value>\K.*(?=</value>)'`
-export KYLINPROPERTIESFILE=`ls /usr/local/kap/kap-*-GA-hbase*/conf/kylin.properties`
+export KYLINPROPERTIESFILE="`ls /usr/local/kap/kap-*-GA-hbase*/conf/kylin.properties`"
 
 # Setting kylin.server.mode=query
 sed -i 's/kylin.server.mode=.*/kylin.server.mode=query/' $KYLINPROPERTIESFILE
