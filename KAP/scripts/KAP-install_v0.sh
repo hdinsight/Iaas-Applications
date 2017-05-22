@@ -4,10 +4,11 @@ adminuser=$1
 adminpassword=$2
 metastore=$3
 apptype=$4
-kyaccountToken=$5
+clusterName=$5
+kyaccountToken=$6
 
 BRANCH_NAME=master
-KAP_TARFILE=kap-2.3.5-GA-hbase1.x.tar.gz
+KAP_TARFILE=kap-2.3.7-GA-hbase1.x.tar.gz
 KYANALYZER_TARFILE=KyAnalyzer-2.3.2.tar.gz
 KYANALYZER_FOLDER_NAME=kyanalyzer-server-2.3.2
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
@@ -26,18 +27,21 @@ newInstall=true
 
 KAP_SAMPLE_CUBE_URL=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$SAMPLE_CUBE_TARFILE
 
+YARNUI_URL=''
 host=`hostname -f`
 if [[ "$host" == *chinacloudapp.cn ]]; then
     # download from cn
-    echo "Downloading from Azure CN blob"
+    echo "On Azure CN"
     KAP_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$KAP_TARFILE
     KYANALYZER_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kyanalyzer/$KYANALYZER_TARFILE
     ZEPPELIN_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/zeppelin/$ZEPPELIN_TARFILE
+    YARNUI_URL=https://${clusterName}.azurehdinsight.cn/yarnui/hn/cluster/app/%s
 else
-    echo "Download from Azure global blob"
+    echo "On Azure global"
     KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
     KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
     ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
+    YARNUI_URL=https://${clusterName}.azurehdinsight.net/yarnui/hn/cluster/app/%s
 fi
 
 #import helper module.
@@ -83,7 +87,8 @@ downloadAndUnzipKAP() {
         echo "Updating kap.kyaccount.token"
         echo "kap.kyaccount.token=$kyaccountToken" >> kylin.properties
     fi
-
+    # update YRAN job tracking URL
+    echo "kylin.job.tracking-url-pattern=$YARNUI_URL" >> kylin.properties
     echo "kylin.query.max-scan-bytes=20971520000" >> kylin.properties
 
     rm -rf $KAP_TMPFOLDER
