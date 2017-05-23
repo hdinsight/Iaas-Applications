@@ -33,9 +33,10 @@ mv $HBASEFILE $HBASEFILE.origin
 # echo "/usr/bin/hadoop fs -get wasb://"$CONTAINERNAME"@"$STORAGESTRING"/kylin/hbase-site.xml" $HBASEFILE >> /root/allvar.txt
 
 export ZOOKEEPERADDRESS=`awk '/hbase.zookeeper.quorum/{getline; print}' $HBASEFILE | grep -oP '<value>\K.*(?=</value>)'`
+export HADOOPVERSION="`hadoop fs -ls /hdp/apps | grep -v Found| awk '{print $NF}'|rev | cut -d '/' -f1 | rev`"
 export KYLIN_JOB_CON_SETTINGS='    <property>
         <name>hdp.version</name>
-        <value>2.5.4.0-121</value>
+        <value>'$HADOOPVERSION'</value>
     </property>
 </configuration>
 '
