@@ -67,10 +67,10 @@ zeppelin_backup_dir=$base_backup_dir/zeppelin
 removelocal() {
     if [ -d "$KAP_INSTALL_BASE_FOLDER" ]; then
       rm -rf $KAP_INSTALL_BASE_FOLDER
-    fi 
+    fi
     if [ -d "$ZEPPELIN_INSTALL_BASE_FOLDER" ]; then
       rm -rf $ZEPPELIN_INSTALL_BASE_FOLDER
-    fi 
+    fi
 }
 
 backupKAP() {
@@ -95,10 +95,10 @@ downloadAndUnzipKAP() {
     echo "Removing KAP tmp folder"
     rm -rf $KAP_TMPFOLDER
     mkdir $KAP_TMPFOLDER
-    
+
     echo "Downloading KAP tar file"
     wget $KAP_DOWNLOAD_URI -P $KAP_TMPFOLDER
-    
+
     echo "Unzipping KAP"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KAP_TARFILE -C $KAP_INSTALL_BASE_FOLDER
@@ -117,7 +117,7 @@ downloadAndUnzipKAP() {
     sed -i "s/kylin_default_instance/$metastore/g" kylin.properties
 
     echo "Updating working dir"
-    sed -i "s/kylin.env.hdfs-working-dir=\/kylin/kylin.env.hdfs-working-dir=wasb:\/\/\/kylin/g" kylin.properties    
+    sed -i "s/kylin.env.hdfs-working-dir=\/kylin/kylin.env.hdfs-working-dir=wasb:\/\/\/kylin/g" kylin.properties
 
     rm -rf $KAP_TMPFOLDER
 }
@@ -129,14 +129,14 @@ startKAP() {
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
 
     echo "Create default working dir /kylin"
-    su kylin -c "hdfs dfs -mkdir -p /kylin" 
+    su kylin -c "hdfs dfs -mkdir -p /kylin"
 
-    ## Add index page to auto redirect to KAP 
+    ## Add index page to auto redirect to KAP
     mkdir -p $KYLIN_HOME/tomcat/webapps/ROOT
     cat > $KYLIN_HOME/tomcat/webapps/ROOT/index.html <<EOL
 <html>
   <head>
-    <meta http-equiv="refresh" content="1;url=kylin"> 
+    <meta http-equiv="refresh" content="1;url=kylin">
   </head>
 </html>
 EOL
@@ -146,14 +146,18 @@ EOL
         echo "Creating sample cube"
         su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/sample.sh"
     fi
-    
+
     # Update HBase Coprocessor
     echo "Updating HBase Coprocessor with kylin user"
     su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh org.apache.kylin.storage.hbase.util.DeployCoprocessorCLI  default  all || true"
 
     echo "Starting KAP with kylin user"
-    su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
-    sleep 15
+    # su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
+    # sleep 15
+    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kap.service -O /etc/systemd/system/kap.service
+    systemctl daemon-reload
+    systemctl enable kap
+    systemctl start kap
 
     if [ "$newInstall" = true ] ; then
         echo "Trigger a build for sample cube"
@@ -165,10 +169,10 @@ EOL
 downloadAndUnzipKyAnalyzer() {
     rm -rf $KAP_TMPFOLDER
     mkdir $KAP_TMPFOLDER
-    
+
     echo "Downloading KyAnalyzer tar file"
     wget $KYANALYZER_DOWNLOAD_URI -P $KAP_TMPFOLDER
-    
+
     echo "Unzipping KyAnalyzer"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KYANALYZER_TARFILE -C $KAP_INSTALL_BASE_FOLDER
@@ -189,10 +193,10 @@ downloadAndUnzipZeppelin() {
     echo "Removing Zeppelin tmp folder"
     rm -rf $ZEPPELIN_TMPFOLDER
     mkdir $ZEPPELIN_TMPFOLDER
-    
+
     echo "Downloading ZEPPELIN tar file"
     wget $ZEPPELIN_DOWNLOAD_URI -P $ZEPPELIN_TMPFOLDER
-    
+
     echo "Unzipping ZEPPELIN"
     mkdir -p $ZEPPELIN_INSTALL_BASE_FOLDER
     tar -xzvf $ZEPPELIN_TMPFOLDER/$ZEPPELIN_TARFILE -C $ZEPPELIN_INSTALL_BASE_FOLDER
@@ -210,7 +214,7 @@ startZeppelin() {
     sed -i 's/8080/9090/g' $ZEPPELIN_HOME/conf/zeppelin-site.xml
 
     echo "Starting zeppelin with zeppelin user"
-    su - zeppelin -c "$ZEPPELIN_HOME/bin/zeppelin-daemon.sh start"    
+    su - zeppelin -c "$ZEPPELIN_HOME/bin/zeppelin-daemon.sh start"
 
     sleep 10
 }

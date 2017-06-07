@@ -23,4 +23,10 @@ sed -i "s/kap.job.helix.zookeeper-address=.*/kap.job.helix.zookeeper-address=$ZO
 hadoop fs -put /etc/hbase/*/0/hbase-site.xml /kylin/hbase-site.xml
 
 # Restart of KAP
-su kylin -c "export KYLIN_HOME=\"`ls -d /usr/local/kap/kap-*-GA-hbase*`\";export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh stop && $KYLIN_HOME/bin/kylin.sh start"
+# su kylin -c "export KYLIN_HOME=\"`ls -d /usr/local/kap/kap-*-GA-hbase*`\";export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh stop && $KYLIN_HOME/bin/kylin.sh start"
+# su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
+# sleep 15
+wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kap.service -O /etc/systemd/system/kap.service
+systemctl daemon-reload
+systemctl enable kap
+systemctl restart kap
