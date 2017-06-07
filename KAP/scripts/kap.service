@@ -1,0 +1,14 @@
+[Unit]
+Description=kap
+
+[Service]
+Type=forking
+Restart=on-failure
+RestartSec=60s
+User=kylin
+
+ExecStart=/bin/bash -c "export KYLIN_HOME=`ls -d /usr/local/kap/kap*`;export SPARK_HOME=$KYLIN_HOME/spark;$KYLIN_HOME/bin/kylin.sh start"
+ExecStop=/bin/bash -c "export KYLIN_HOME=`ls -d /usr/local/kap/kap*`;export SPARK_HOME=$KYLIN_HOME/spark;$KYLIN_HOME/bin/kylin.sh stop"
+
+[Install]
+WantedBy=multi-user.target
