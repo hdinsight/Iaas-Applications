@@ -152,8 +152,10 @@ startKyAnalyzer() {
 
     echo "Starting KyAnalyzer with kylin user"
     chown -R kylin $KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
-    export KYANALYZER_HOME=$KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
-    $KYANALYZER_HOME/start-analyzer.sh
+    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
+    systemctl daemon-reload
+    systemctl enable kyanalyzer
+    systemctl start kyanalyzer
     sleep 10
 
 }

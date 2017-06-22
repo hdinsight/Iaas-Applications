@@ -1,0 +1,14 @@
+[Unit]
+Description=kyanalyzer
+
+[Service]
+Type=forking
+Restart=on-failure
+RestartSec=60s
+User=kylin
+
+ExecStart=/bin/bash -c "export KYANALYZER_HOME=`ls -d /usr/local/kap/kyanalyzer*`;$KYANALYZER_HOME/start-analyzer.sh"
+ExecStop=/bin/bash -c "export KYANALYZER_HOME=`ls -d /usr/local/kap/kyanalyzer*`;$KYANALYZER_HOME/stop-analyzer.sh"
+
+[Install]
+WantedBy=multi-user.target
