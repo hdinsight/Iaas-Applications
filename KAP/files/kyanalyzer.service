@@ -2,13 +2,23 @@
 Description=kyanalyzer
 
 [Service]
+Environment=SPARK_HOME=/usr/hdp/current/spark-client
+Environment=SPARK_MAJOR_VERSION=1
+Environment=JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+Environment=HADOOP_CONF_DIR=/etc/hadoop/conf
+Environment=SHLVL=2
+Environment=AZURE_SPARK=1
+Environment=PYTHONPATH=/usr/hdp/current/spark-client/python:/usr/hdp/current/spark-client/python/lib/py5j-0.9-src.zip
+
 Type=forking
 Restart=on-failure
 RestartSec=60s
 User=kylin
+TimeoutSec=20s
 
-ExecStart=/bin/bash -c "export KYANALYZER_HOME=`ls -d /usr/local/kap/kyanalyzer*`;$KYANALYZER_HOME/start-analyzer.sh"
-ExecStop=/bin/bash -c "export KYANALYZER_HOME=`ls -d /usr/local/kap/kyanalyzer*`;$KYANALYZER_HOME/stop-analyzer.sh"
+ExecStartPre=/usr/local/kap/kyanalyzer-server-*/set-java.sh
+ExecStart=/usr/local/kap/kyanalyzer-server-*/start-analyzer.sh
+ExecStop=/usr/local/kap/kyanalyzer-server-*/stop-analyzer.sh
 
 [Install]
 WantedBy=multi-user.target
