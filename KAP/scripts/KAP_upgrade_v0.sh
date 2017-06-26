@@ -23,13 +23,13 @@ metastore=$4
 KAP_TARFILE=kap-2.3.3-GA-hbase1.x.tar.gz
 KYANALYZER_TARFILE=KyAnalyzer-2.3.0.tar.gz
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
-KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
-KAP_INSTALL_BASE_FOLDER=/usr/local/kap
+KAP_FOLDER_NAME=kap
+KAP_INSTALL_BASE_FOLDER=/usr/local
 KAP_TMPFOLDER=/tmp/kap
 KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kylinSecurity.xml
 KYANALYZER_FOLDER_NAME=kyanalyzer-server
-ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
-ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
+ZEPPELIN_FOLDER_NAME=zeppelin
+ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
 
 BACKUP_DIR=/kycloud/backup
@@ -55,8 +55,8 @@ fi
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
 
 ######## Backup KAP & Kyanalyzer & Zeppelin ########
-kap_dir="/usr/local/kap/kap-*"
-kyanalyzer_dir="/usr/local/kap/kyanalyzer-server"
+kap_dir="/usr/local/kap"
+kyanalyzer_dir="/usr/local/kyanalyzer"
 zeppelin_dir="/usr/local/zeppelin"
 
 base_backup_dir="/kycloud/backup"
@@ -65,11 +65,16 @@ kyanalyzer_backup_dir=$base_backup_dir/kyanalyzer
 zeppelin_backup_dir=$base_backup_dir/zeppelin
 
 removelocal() {
-    if [ -d "$KAP_INSTALL_BASE_FOLDER" ]; then
-      rm -rf $KAP_INSTALL_BASE_FOLDER
+    if [ -d "$kap_dir" ]; then
+      rm -rf $kap_dir
     fi
-    if [ -d "$ZEPPELIN_INSTALL_BASE_FOLDER" ]; then
-      rm -rf $ZEPPELIN_INSTALL_BASE_FOLDER
+
+    if [ -d "$kyanalyzer_dir" ]; then
+      rm -rf $kyanalyzer_dir
+    fi
+
+    if [ -d "$zeppelin_dir" ]; then
+      rm -rf $zeppelin_dir
     fi
 }
 
@@ -102,16 +107,12 @@ downloadAndUnzipKAP() {
     echo "Unzipping KAP"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KAP_TARFILE -C $KAP_INSTALL_BASE_FOLDER
-
-    echo "Updating KAP admin account"
-    cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/tomcat/webapps/
+    mv $KAP_INSTALL_BASE_FOLDER/${KAP_TARFILE%.tar.gz*} $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+    
     # Remove old before unzip
     rm -rf kylin
     unzip kylin.war -d kylin
-    wget $KAP_SECURITY_TEMPLETE_URI -P kylin/WEB-INF/classes/
-    sed -i "s/KAP-ADMIN/$adminuser/g" kylin/WEB-INF/classes/kylinSecurity.xml
-    sed -i "s/KAP-PASSWD/$adminpassword/g" kylin/WEB-INF/classes/kylinSecurity.xml
-
+    
     echo "Updating KAP metastore to $metastore"
     cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
     sed -i "s/kylin_default_instance/$metastore/g" kylin.properties
@@ -125,7 +126,7 @@ downloadAndUnzipKAP() {
 startKAP() {
     echo "Adding kylin user"
     useradd -r kylin
-    chown -R kylin:kylin $KAP_INSTALL_BASE_FOLDER
+    chown -R kylin:kylin $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
 
     echo "Create default working dir /kylin"
@@ -158,6 +159,7 @@ EOL
     systemctl daemon-reload
     systemctl enable kap
     systemctl start kap
+    sleep 15
 
     if [ "$newInstall" = true ] ; then
         echo "Trigger a build for sample cube"
@@ -176,6 +178,7 @@ downloadAndUnzipKyAnalyzer() {
     echo "Unzipping KyAnalyzer"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KYANALYZER_TARFILE -C $KAP_INSTALL_BASE_FOLDER
+    mv $KAP_INSTALL_BASE_FOLDER/kyanalyzer-server* $KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
 
     rm -rf $KAP_TMPFOLDER
 }
@@ -184,7 +187,10 @@ startKyAnalyzer() {
 
     echo "Starting KyAnalyzer with kylin user"
     export KYANALYZER_HOME=$KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
-    $KYANALYZER_HOME/start-analyzer.sh
+    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
+    systemctl daemon-reload
+    systemctl enable kyanalyzer
+    systemctl start kyanalyzer
     sleep 10
 
 }

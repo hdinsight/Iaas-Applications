@@ -10,14 +10,13 @@ kyaccountToken=$6
 BRANCH_NAME=master
 KAP_TARFILE=kap-2.3.7-GA-hbase1.x.tar.gz
 KYANALYZER_TARFILE=KyAnalyzer-2.3.2.tar.gz
-KYANALYZER_FOLDER_NAME=kyanalyzer-server-2.3.2
+KYANALYZER_FOLDER_NAME=kyanalyzer
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 SAMPLE_CUBE_TARFILE=sample_cube.tar.gz
-KAP_FOLDER_NAME="${KAP_TARFILE%.tar.gz*}"
-KAP_INSTALL_BASE_FOLDER=/usr/local/kap
+KAP_FOLDER_NAME=kap
+KAP_INSTALL_BASE_FOLDER=/usr/local/
 KAP_TMPFOLDER=/tmp/kap
-KAP_SECURITY_TEMPLETE_URI=https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kylinSecurity.xml
-ZEPPELIN_FOLDER_NAME="${ZEPPELIN_TARFILE%.tar.gz*}"
+ZEPPELIN_FOLDER_NAME=zeppelin
 ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
 
@@ -61,7 +60,8 @@ downloadAndUnzipKAP() {
     echo "Unzipping KAP"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KAP_TARFILE -C $KAP_INSTALL_BASE_FOLDER
-
+    mv $KAP_INSTALL_BASE_FOLDER/${KAP_TARFILE%.tar.gz*} $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+    
     echo "Updating sample cube"
     tar -zxvf $KAP_TMPFOLDER/$SAMPLE_CUBE_TARFILE -C $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
 
@@ -70,9 +70,6 @@ downloadAndUnzipKAP() {
     # Remove old before unzip
     rm -rf kylin
     unzip kylin.war -d kylin
-    wget $KAP_SECURITY_TEMPLETE_URI -P kylin/WEB-INF/classes/
-    sed -i "s/KAP-ADMIN/$adminuser/g" kylin/WEB-INF/classes/kylinSecurity.xml
-    sed -i "s/KAP-PASSWD/$adminpassword/g" kylin/WEB-INF/classes/kylinSecurity.xml
     sed -i '/<\/head>/i\ <script>\n var _hmt = _hmt || []; \n (function() {\n  var hm = document.createElement("script");\n  hm.src = "https://hm.baidu.com/hm.js?03f3053bd1cc63313b9e532627250a18";\n var s = document.getElementsByTagName("script")[0];\n  s.parentNode.insertBefore(hm, s);\n })();\n </script>\n' kylin/index.html
     echo "Updating KAP metastore to $metastore"
     cd $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME/conf
@@ -97,7 +94,7 @@ downloadAndUnzipKAP() {
 startKAP() {
     echo "Adding kylin user"
     useradd -r kylin
-    chown -R kylin:kylin $KAP_INSTALL_BASE_FOLDER
+    chown -R kylin:kylin $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
     export KYLIN_HOME=$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
 
     echo "Create default working dir /kylin"
@@ -122,14 +119,15 @@ EOL
     echo "Starting KAP with kylin user"
     # su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
     # sleep 15
-    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kap.service -O /etc/systemd/system/kap.service
+    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kap.service -O /etc/systemd/system/kap.service
     systemctl daemon-reload
     systemctl enable kap
     systemctl start kap
+    sleep 15
 
     if [ "$newInstall" = true ] ; then
         echo "Trigger a build for sample cube"
-        nohup curl -X PUT --user $adminuser:$adminpassword -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
+        nohup curl -X PUT --user ADMIN:KYLIN -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
         sleep 10
     fi
 }
@@ -144,6 +142,7 @@ downloadAndUnzipKyAnalyzer() {
     echo "Unzipping KyAnalyzer"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KYANALYZER_TARFILE -C $KAP_INSTALL_BASE_FOLDER
+    mv $KAP_INSTALL_BASE_FOLDER/kyanalyzer-server* $KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
 
     rm -rf $KAP_TMPFOLDER
 }
@@ -152,7 +151,7 @@ startKyAnalyzer() {
 
     echo "Starting KyAnalyzer with kylin user"
     chown -R kylin $KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
-    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
+    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
     systemctl daemon-reload
     systemctl enable kyanalyzer
     systemctl start kyanalyzer
@@ -171,6 +170,7 @@ downloadAndUnzipZeppelin() {
     echo "Unzipping ZEPPELIN"
     mkdir -p $ZEPPELIN_INSTALL_BASE_FOLDER
     tar -xzvf $ZEPPELIN_TMPFOLDER/$ZEPPELIN_TARFILE -C $ZEPPELIN_INSTALL_BASE_FOLDER
+    mv $ZEPPELIN_INSTALL_BASE_FOLDER/zeppelin* $ZEPPELIN_INSTALL_BASE_FOLDER/$ZEPPELIN_FOLDER_NAME
 
     rm -rf $ZEPPELIN_TMPFOLDER
 }
@@ -178,7 +178,7 @@ downloadAndUnzipZeppelin() {
 startZeppelin() {
     echo "Adding zeppelin user"
     useradd -r zeppelin
-    chown -R zeppelin:zeppelin $ZEPPELIN_INSTALL_BASE_FOLDER
+    chown -R zeppelin:zeppelin $ZEPPELIN_INSTALL_BASE_FOLDER/$ZEPPELIN_FOLDER_NAME
 
     export ZEPPELIN_HOME=$ZEPPELIN_INSTALL_BASE_FOLDER/$ZEPPELIN_FOLDER_NAME
     cp $ZEPPELIN_HOME/conf/zeppelin-site.xml.template $ZEPPELIN_HOME/conf/zeppelin-site.xml

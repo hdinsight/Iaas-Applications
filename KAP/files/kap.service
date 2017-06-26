@@ -2,13 +2,22 @@
 Description=kap
 
 [Service]
+Environment=SPARK_HOME=/usr/hdp/current/spark-client
+Environment=SPARK_MAJOR_VERSION=1
+Environment=JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+Environment=HADOOP_CONF_DIR=/etc/hadoop/conf
+Environment=SHLVL=2
+Environment=AZURE_SPARK=1
+Environment=PYTHONPATH=/usr/hdp/current/spark-client/python:/usr/hdp/current/spark-client/python/lib/py5j-0.9-src.zip
+
 Type=forking
 Restart=on-failure
 RestartSec=60s
 User=kylin
 
-ExecStart=/bin/bash -c "export KYLIN_HOME=`ls -d /usr/local/kap/kap*`;export SPARK_HOME=$KYLIN_HOME/spark;$KYLIN_HOME/bin/kylin.sh start"
-ExecStop=/bin/bash -c "export KYLIN_HOME=`ls -d /usr/local/kap/kap*`;export SPARK_HOME=$KYLIN_HOME/spark;$KYLIN_HOME/bin/kylin.sh stop"
+
+ExecStart=/bin/bash -c "export KYLIN_HOME=/usr/local/kap;export SPARK_HOME=$KYLIN_HOME/spark;$KYLIN_HOME/bin/kylin.sh start"
+ExecStop=/bin/bash -c "export KYLIN_HOME=/usr/local/kap;export SPARK_HOME=$KYLIN_HOME/spark;$KYLIN_HOME/bin/kylin.sh stop"
 
 [Install]
 WantedBy=multi-user.target

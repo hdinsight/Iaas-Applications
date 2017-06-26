@@ -5,8 +5,8 @@ apptype=$1
 echo "apptype = "$apptype" Running on "`date +'%Y%m%d%H%M'`
 
 ######## Backup KAP & Kyanalyzer & Zeppelin ########
-kap_dir="/usr/local/kap/kap-*"
-kyanalyzer_dir="/usr/local/kap/kyanalyzer-server"
+kap_dir="/usr/local/kap"
+kyanalyzer_dir="/usr/local/kyanalyzer"
 zeppelin_dir="/usr/local/zeppelin"
 
 base_backup_dir="/kycloud/backup"

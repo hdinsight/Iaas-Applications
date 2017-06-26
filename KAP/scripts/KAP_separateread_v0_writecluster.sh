@@ -6,15 +6,15 @@ export ACCOUNTREGION=$3
 # echo "$@" >> /root/allvar.txt
 
 # Providing variables for kylin to restart
-export KAP_INSTALL_BASE_FOLDER=/usr/local/kap
+export KAP_INSTALL_BASE_FOLDER=/usr/local
 cd $KAP_INSTALL_BASE_FOLDER
-export KAP_FOLDER_NAME="`ls -d kap-*-GA-hbase*`"
+export KAP_FOLDER_NAME=kap
 cd -
 #export KAP_FOLDER_NAME='kap-2.3.5-GA-hbase1'
 export KYLIN_HOME="$KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME"
 
 # Setting for local file path
-export KYLINPROPERTIESFILE="`ls /usr/local/kap/kap-*-GA-hbase1.x/conf/kylin.properties`"
+export KYLINPROPERTIESFILE="`ls /usr/local/kap/conf/kylin.properties`"
 export HBASEFILE="`ls /etc/hbase/*/0/hbase-site.xml`"
 
 BLOBSTOREADDRESS='blob.core.chinacloudapi.cn'
@@ -41,8 +41,8 @@ export KYLIN_JOB_CON_SETTINGS='    <property>
 </configuration>
 '
 
-export KYLIN_JOB_CONF="`ls /usr/local/kap/kap-*-GA-hbase*/conf/kylin_job_conf.xml`"
-export KYLIN_JOB_CONF_INMEM="`ls /usr/local/kap/kap-*-GA-hbase*/conf/kylin_job_conf_inmem.xml`"
+export KYLIN_JOB_CONF=/usr/local/kap/conf/kylin_job_conf.xml
+export KYLIN_JOB_CONF_INMEM=/usr/local/kap/conf/kylin_job_conf_inmem.xml
 
 sed -i '$ d' $KYLIN_JOB_CONF
 sed -i '$ d' $KYLIN_JOB_CONF_INMEM

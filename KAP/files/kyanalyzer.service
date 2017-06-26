@@ -14,11 +14,11 @@ Type=forking
 Restart=on-failure
 RestartSec=60s
 User=kylin
-TimeoutSec=20s
+TimeoutSec=180s
 
-ExecStartPre=/usr/local/kap/kyanalyzer-server-*/set-java.sh
-ExecStart=/usr/local/kap/kyanalyzer-server-*/start-analyzer.sh
-ExecStop=/usr/local/kap/kyanalyzer-server-*/stop-analyzer.sh
+ExecStartPre=/usr/local/kyanalyzer/set-java.sh
+ExecStart=/usr/local/kyanalyzer/start-analyzer.sh
+ExecStop=/usr/local/kyanalyzer/stop-analyzer.sh
 
 [Install]
 WantedBy=multi-user.target
