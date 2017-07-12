@@ -237,6 +237,7 @@
           {
             "subDomainSuffix": "kap",
             "destinationPort": 7070,
+            "disableGatewayAuth":true,
             "accessModes": [
               "webpage"
             ]
@@ -244,6 +245,7 @@
           {
             "subDomainSuffix": "kya",
             "destinationPort": 8080,
+            "disableGatewayAuth":true,
             "accessModes": [
               "webpage"
             ]
@@ -251,6 +253,7 @@
           {
             "subDomainSuffix": "zep",
             "destinationPort": 9090,
+            "disableGatewayAuth":true,
             "accessModes": [
               "webpage"
             ]
