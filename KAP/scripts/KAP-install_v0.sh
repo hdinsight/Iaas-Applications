@@ -6,6 +6,7 @@ metastore=$3
 apptype=$4
 clusterName=$5
 kyaccountToken=$6
+agentId=$7
 
 BRANCH_NAME=master
 KAP_TARFILE=kap-2.3.7-GA-hbase1.x.tar.gz
@@ -35,6 +36,7 @@ if [[ "$host" == *chinacloudapp.cn ]]; then
     KYANALYZER_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kyanalyzer/$KYANALYZER_TARFILE
     ZEPPELIN_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/zeppelin/$ZEPPELIN_TARFILE
     YARNUI_URL=https://${clusterName}.azurehdinsight.cn/yarnui/hn/cluster/app/%s
+    KAPAGENT_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/kap-agent.jar
 else
     echo "On Azure global"
     KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
@@ -91,6 +93,19 @@ downloadAndUnzipKAP() {
     rm -rf $KAP_TMPFOLDER
 }
 
+downloadAndStartAgent() {
+    echo "Downloading kap agent..."
+    wget KAPAGENT_DOWNLOAD_URI -P $KYLIN_HOME
+    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kapagent.service -O /etc/systemd/system/kapagent.service
+
+    sed -i -e "s/replaceAgentId/$agentId/g" /etc/systemd/system/kapagent.service
+
+    systemctl daemon-reload
+    systemctl enable kapagent
+    systemctl start kapagent
+    sleep 15
+}
+
 startKAP() {
     echo "Adding kylin user"
     useradd -r kylin
@@ -129,6 +144,8 @@ EOL
         nohup curl -X PUT --user ADMIN:KYLIN -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
         sleep 10
     fi
+
+    downloadAndStartAgent
 }
 
 downloadAndUnzipKyAnalyzer() {

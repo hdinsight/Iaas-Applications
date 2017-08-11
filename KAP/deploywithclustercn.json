@@ -128,6 +128,13 @@
       "metadata": {
         "description": "Kyligence Account API Token"
       }
+    },
+    "agentId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "KAP agent Id"
+      }
     }
   },
   "variables": {
@@ -237,7 +244,7 @@
           {
             "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
             "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
-            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'), ' ', parameters('clusterName'), ' ', parameters('kyaccountToken'))]",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'), ' ', parameters('clusterName'), ' ', parameters('kyaccountToken'), ' ', parameters('agentId'))]",
             "roles": [
               "edgenode"
             ]
