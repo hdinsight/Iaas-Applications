@@ -95,7 +95,7 @@ downloadAndUnzipKAP() {
 
 downloadAndStartAgent() {
     echo "Downloading kap agent..."
-    wget KAPAGENT_DOWNLOAD_URI -P $KYLIN_HOME
+    wget $KAPAGENT_DOWNLOAD_URI -P $KYLIN_HOME
     wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kapagent.service -O /etc/systemd/system/kapagent.service
 
     sed -i -e "s/replaceAgentId/$agentId/g" /etc/systemd/system/kapagent.service
