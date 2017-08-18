@@ -6,6 +6,7 @@ adminpassword=$2
 apptype=$3
 # clusterName=$5
 kyaccountToken=$4
+agentId=$5
 
 BRANCH_NAME=master
 KAP_TARFILE=kap-2.3.7-GA-hbase1.x.tar.gz
@@ -30,13 +31,14 @@ KAP_SAMPLE_CUBE_URL=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$SAMPL
 host=`/home/ec2-user/tools/ec2-metadata -p`
 if [[ "$host" == *cn-* ]]; then
     # download from cn
-    echo "On Azure CN"
+    # echo "On Azure CN"
     KAP_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$KAP_TARFILE
     KYANALYZER_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kyanalyzer/$KYANALYZER_TARFILE
     ZEPPELIN_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/zeppelin/$ZEPPELIN_TARFILE
     # YARNUI_URL=https://${clusterName}.azurehdinsight.cn/yarnui/hn/cluster/app/%s
+    KAPAGENT_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/kap-agent.jar
 else
-    echo "On Azure global"
+    # echo "On Azure global"
     KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
     KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
     ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
@@ -47,6 +49,19 @@ fi
 # wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
 
 # apt-get install bc
+
+downloadAndStartAgent() {
+     echo "Downloading kap agent..."
+     wget KAPAGENT_DOWNLOAD_URI -P $KYLIN_HOME
+     wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kapagent.service -O /etc/systemd/system/kapagent.service
+
+     sed -i -e "s/replaceAgentId/$agentId/g" /etc/systemd/system/kapagent.service
+
+     systemctl daemon-reload
+     systemctl enable kapagent
+     systemctl start kapagent
+     sleep 15
+ }
 
 downloadAndUnzipKAP() {
     echo "Removing KAP tmp folder"
@@ -130,6 +145,7 @@ EOL
         nohup curl -X PUT --user ADMIN:KYLIN -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
         sleep 10
     fi
+    downloadAndStartAgent
 }
 
 downloadAndUnzipKyAnalyzer() {
