@@ -53,8 +53,8 @@ export HADOOP_COMMON_HOME="/usr/hdp/current/hadoop-client";
 export HADOOP_HDFS_HOME="/usr/hdp/current/hadoop-hdfs-client";
 export HADOOP_MAPRED_HOME="/usr/hdp/current/hadoop-mapreduce-client";
 
-IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin";
-IGNITE_BINARY_URI="https://www.apache.org/dist/ignite/1.7.0/$IGNITE_BINARY.zip";
+IGNITE_BINARY="apache-ignite-fabric-2.1.0-bin";
+IGNITE_BINARY_URI="http://apache.mindstudios.com//ignite/2.1.0/$IGNITE_BINARY.zip";
 IGNITE_TMPFOLDER=/tmp/ignite
 export IGNITE_HOME_DIR="/hadoop/ignite";
 export IGNITE_HOME="$IGNITE_HOME_DIR/$IGNITE_BINARY";
