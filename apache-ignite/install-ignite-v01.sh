@@ -199,8 +199,7 @@ updateApacheIgniteConfig(){
 
 	# extract default file system from core-site.xml
 	FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/"//g'`
-    	FS_DEFAULT_DFS+="/"
-	echo "fs.defaultFS=$FS_DEFAULT_DFS"
+    	echo "fs.defaultFS=$FS_DEFAULT_DFS"
 	
 	# extract worker nodes from ambari hosts
 	WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"[hw]n.*"' | sed 's/"//g'`)
@@ -217,7 +216,7 @@ updateApacheIgniteConfig(){
 	
 	#replace hdfs path
 	echo "change default dfs to wasb"
-	xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -u "//x:property[@value='hdfs://your_hdfs_host:9000']/@value" -v "$FS_DEFAULT_DFS" sdfs-dspi-default-config.xml > ignite-default-config-wasb.xml;
+	xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -u "//x:property[@value='hdfs://your_hdfs_host:9000']/@value" -v "$FS_DEFAULT_DFS/" sdfs-dspi-default-config.xml > ignite-default-config-wasb.xml;
 	
 	#add new property element
 	echo "adding new empty property element"
