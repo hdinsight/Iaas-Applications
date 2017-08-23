@@ -216,7 +216,7 @@ updateApacheIgniteConfig(){
 	
 	#replace hdfs path
 	echo "change default dfs to wasb"
-	xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -u "//x:property[@value='hdfs://your_hdfs_host:9000']/@value" -v "$FS_DEFAULT_DFS/" sdfs-dspi-default-config.xml > ignite-default-config-wasb.xml;
+	xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -u "//x:property[@value='hdfs://your_hdfs_host:9000']/@value" -v "$FS_DEFAULT_DFS" sdfs-dspi-default-config.xml > ignite-default-config-wasb.xml;
 	
 	#add new property element
 	echo "adding new empty property element"
@@ -224,7 +224,7 @@ updateApacheIgniteConfig(){
 	
 	#add configPaths attribute to the empty property element
 	echo "adding configPaths attribute name to the empty property element"
-	xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -a "//x:bean[@class='org.apache.ignite.hadoop.fs.CachingHadoopFileSystemFactory']/x:property[not(@value='$FS_DEFAULT_DFS/')]" -t attr -n name -v "configPaths" ignite-default-config-emptyprop.xml > ignite-default-config-prop.xml;
+	xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -a "//x:bean[@class='org.apache.ignite.hadoop.fs.CachingHadoopFileSystemFactory']/x:property[not(@value='$FS_DEFAULT_DFS')]" -t attr -n name -v "configPaths" ignite-default-config-emptyprop.xml > ignite-default-config-prop.xml;
 	
 	#add list to configPaths property
 	echo "adding empty list element to the configPaths prop"
