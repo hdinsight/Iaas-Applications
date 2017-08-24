@@ -266,9 +266,9 @@ setupApacheIgniteService(){
 	
 	echo "Creating Ignite Symlinks into Hadoop Libs"
 	cd $HADOOP_HOME/lib;
-	ln -sf $IGNITE_HOME/libs/ignite-core-1.7.0.jar;
+	ln -sf $IGNITE_HOME/libs/ignite-core-2.1.0.jar;
 	ln -sf $IGNITE_HOME/libs/ignite-shmem-1.0.0.jar;
-	ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-1.7.0.jar;
+	ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-2.1.0.jar;
 	
 	echo "Creating Hadoop Azure Symlinks into Ignite Libs"
 	cd $IGNITE_HOME/libs;
