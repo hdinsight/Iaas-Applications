@@ -198,7 +198,7 @@ updateApacheSparkConfig(){
 updateApacheIgniteConfig(){
 
 	# extract default file system from core-site.xml
-	FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/^"//g' | sed 's/"$/\//g'`
+	FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/^"//g' | sed 's/"$///g'`
     	echo "fs.defaultFS=$FS_DEFAULT_DFS"
 	
 	# extract worker nodes from ambari hosts
