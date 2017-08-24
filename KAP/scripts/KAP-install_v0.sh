@@ -9,8 +9,8 @@ kyaccountToken=$6
 agentId=$7
 
 BRANCH_NAME=master
-KAP_TARFILE=kap-2.3.7-GA-hbase1.x.tar.gz
-KYANALYZER_TARFILE=KyAnalyzer-2.3.2.tar.gz
+KAP_TARFILE=kap-2.4.4-GA-hbase1.x.tar.gz
+KYANALYZER_TARFILE=KyAnalyzer-2.4.0.tar.gz
 KYANALYZER_FOLDER_NAME=kyanalyzer
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 SAMPLE_CUBE_TARFILE=sample_cube.tar.gz
@@ -63,7 +63,7 @@ downloadAndUnzipKAP() {
     mkdir -p $KAP_INSTALL_BASE_FOLDER
     tar -zxvf $KAP_TMPFOLDER/$KAP_TARFILE -C $KAP_INSTALL_BASE_FOLDER
     mv $KAP_INSTALL_BASE_FOLDER/${KAP_TARFILE%.tar.gz*} $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
-    
+
     echo "Updating sample cube"
     tar -zxvf $KAP_TMPFOLDER/$SAMPLE_CUBE_TARFILE -C $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
 
@@ -167,7 +167,30 @@ startKyAnalyzer() {
 
     echo "Starting KyAnalyzer with kylin user"
     chown -R kylin $KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
-    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
+    # wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
+    cat > /etc/systemd/system/kyanalyzer.service <<EOL
+[Unit]
+Description=kyanalyzer
+[Service]
+Environment=SPARK_HOME=/usr/local/kap/spark
+Environment=SPARK_MAJOR_VERSION=2
+Environment=JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+Environment=HADOOP_CONF_DIR=/etc/hadoop/conf
+Environment=SHLVL=2
+Environment=AZURE_SPARK=2
+Environment=PYTHONPATH=/usr/hdp/current/spark-client/python:/usr/hdp/current/spark-client/python/lib/py5j-0.9-src.zip
+Type=forking
+Restart=on-failure
+RestartSec=60s
+User=kylin
+TimeoutSec=180s
+ExecStartPre=/usr/local/kyanalyzer/set-java.sh
+ExecStart=/usr/local/kyanalyzer/start-analyzer.sh
+ExecStop=/usr/local/kyanalyzer/stop-analyzer.sh
+[Install]
+WantedBy=multi-user.target
+EOL
+
     systemctl daemon-reload
     systemctl enable kyanalyzer
     systemctl start kyanalyzer
