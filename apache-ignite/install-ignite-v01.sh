@@ -216,7 +216,7 @@ updateApacheIgniteConfig(){
 	
 	#replace hdfs path
 	echo "change default dfs to wasb"
-	#xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -u "//x:property[@value='hdfs://your_hdfs_host:9000']/@value" -v "$FS_DEFAULT_DFS" sdfs-dspi-default-config.xml > ignite-default-config-wasb.xml;
+	xmlstarlet ed -N x="http://www.springframework.org/schema/beans" -u "//x:property[@value='hdfs://your_hdfs_host:9000']/@value" -v "$FS_DEFAULT_DFS" sdfs-dspi-default-config.xml > ignite-default-config-wasb.xml;
 	
 	#add new property element
 	echo "adding new empty property element"
@@ -272,9 +272,9 @@ setupApacheIgniteService(){
 	
 	echo "Creating Hadoop Azure Symlinks into Ignite Libs"
 	cd $IGNITE_HOME/libs;
-	ln -sf /usr/hdp/current/hadoop-client/hadoop-azure.jar;
-	ln -sf /usr/hdp/current/hadoop-client/lib/azure-storage-4.2.0.jar;
-	ln -sf /usr/hdp/current/hadoop-client/lib/azure-keyvault-core-0.8.0.jar;
+	cp /usr/hdp/current/hadoop-client/hadoop-azure.jar .;
+	cp /usr/hdp/current/hadoop-client/lib/azure-storage-4.2.0.jar .;
+	cp /usr/hdp/current/hadoop-client/lib/azure-keyvault-core-0.8.0.jar .;
 	
 	echo "create a symlink for HADOOP_COMMON needed by Ignite"
 	mkdir -p $HADOOP_HOME/share/hadoop/common/;
