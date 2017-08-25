@@ -102,6 +102,17 @@ updateAmbariConfigs() {
     
     echo "Updated core-site.xml with fs.igfs.impl = org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem"
     
+    updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.wasb.impl" "org.apache.hadoop.fs.azure.NativeAzureFileSystem")
+    
+    if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
+        echo "[ERROR] Failed to update core-site for property: 'fs.wasb.impl', Exiting!"
+        echo $updateResult
+        exit 135
+    fi
+    
+    echo "Updated core-site.xml with fs.wasb.impl = org.apache.hadoop.fs.azure.NativeAzureFileSystem"
+    
+    
     updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.AbstractFileSystem.igfs.impl" "org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem")
     
     if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
