@@ -10,7 +10,7 @@ agentId=$7
 
 BRANCH_NAME=master
 KAP_TARFILE=kap-2.4.4-GA-hbase1.x.tar.gz
-KYANALYZER_TARFILE=KyAnalyzer-2.4.0.tar.gz
+KYANALYZER_TARFILE=KyAnalyzer-2.3.2.tar.gz
 KYANALYZER_FOLDER_NAME=kyanalyzer
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 SAMPLE_CUBE_TARFILE=sample_cube.tar.gz
