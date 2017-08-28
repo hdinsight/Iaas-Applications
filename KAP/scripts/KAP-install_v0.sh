@@ -15,7 +15,7 @@ KYANALYZER_FOLDER_NAME=kyanalyzer
 ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 SAMPLE_CUBE_TARFILE=sample_cube.tar.gz
 KAP_FOLDER_NAME=kap
-KAP_INSTALL_BASE_FOLDER=/usr/local/
+KAP_INSTALL_BASE_FOLDER=/usr/local
 KAP_TMPFOLDER=/tmp/kap
 ZEPPELIN_FOLDER_NAME=zeppelin
 ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
@@ -167,6 +167,7 @@ startKyAnalyzer() {
 
     echo "Starting KyAnalyzer with kylin user"
     chown -R kylin $KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
+    wget https://kyligencekeys.blob.core.windows.net/kap24hdi/kyAnalyzer.lic -P $KYANALYZER_HOME/conf/
     # wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
     cat > /etc/systemd/system/kyanalyzer.service <<EOL
 [Unit]
