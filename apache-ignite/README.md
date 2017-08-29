@@ -41,7 +41,7 @@ The script retrieves the following information:
     ```
   2. Browse your blob storage using Ignite's _igfs_ prefix:
     ```
-    hdfs dfs -ls igfs:///HdiNotebooks/
+    hdfs dfs -ls igfs://igfs@/HdiNotebooks/
     ```
   The bove commands should return the same results
 4. Check the contents of ```/hadoop/ignite/apache-ignite-xxx/config/default-config.xml```
@@ -55,7 +55,7 @@ The script retrieves the following information:
   val dataWithoutHeader = textdata.filter(line => line != first)
   val datacount = dataWithoutHeader.count
   
-  val igtextdata = sc.textFile("igfs:///Folder/textFile.ext")
+  val igtextdata = sc.textFile("igfs://igfs@/Folder/textFile.ext")
   val igcount = igtextdata.count
   val igfirst = igtextdata.first
   val igdataWithoutHeader = igtextdata.filter(line => line != first)
