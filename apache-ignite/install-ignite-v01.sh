@@ -319,6 +319,20 @@ startApacheIgnite(){
 		echo "Apache Ignite instance started successfully: $ignitepid"
 	fi
 }
+
+mergeAzureJar(){
+	# porcaround for azure : if not hadoop-azure not found
+	# merge hadoop-azure with hadoop-common
+	cd $HADOOP_HOME/
+	mkdir tmpjar
+	cd tmpjar/
+	jar -xf ../hadoop-azure.jar
+	cpfile=`find */ -type f`
+	jar -uf ../hadoop-common.jar  $cpfile
+	cd $HADOOP_HOME/
+	rm -r tmpjar/
+
+}
 ####################################################################
 
 ## begin script main ##
@@ -368,6 +382,7 @@ updateApacheSparkConfig;
 
 
 #echo "begin startApacheIgnite"
+mergeAzureJar
 startApacheIgnite
 #echo "end startApacheIgnite"
 
