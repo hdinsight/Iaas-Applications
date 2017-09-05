@@ -328,7 +328,7 @@ mergeAzureJar(){
 	cd tmpjar/
 	jar -xf ../hadoop-azure.jar
 	cpfile=`find */ -type f`
-	jar -uf ../hadoop-common.jar  $cpfile
+	jar -uf ../hadoop-common-2.7.3.2.6.1.10-4.jar  $cpfile
 	cd $HADOOP_HOME/
 	rm -r tmpjar/
 
