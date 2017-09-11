@@ -7,12 +7,15 @@ apptype=$3
 # clusterName=$5
 kyaccountToken=$4
 agentId=$5
+kapPackageUrl=$6
+kyAnalyzerPackageUrl=$7
+zeppelinPackageUrl=$8
 
 BRANCH_NAME=master
-KAP_TARFILE=kap-2.4.4-GA-hbase1.x.tar.gz
-KYANALYZER_TARFILE=KyAnalyzer-2.4.0.tar.gz
+KAP_TARFILE=${var##*/kapPackageUrl}
+KYANALYZER_TARFILE=${var##*/kyAnalyzerPackageUrl}
+ZEPPELIN_TARFILE=${var##*/zeppelinPackageUrl}
 KYANALYZER_FOLDER_NAME=kyanalyzer
-ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
 SAMPLE_CUBE_TARFILE=sample_cube.tar.gz
 KAP_FOLDER_NAME=kap
 KAP_INSTALL_BASE_FOLDER=/usr/local
@@ -32,16 +35,10 @@ host=`/home/ec2-user/tools/ec2-metadata -p`
 if [[ "$host" == *cn-* ]]; then
     # download from cn
     # echo "On Azure CN"
-    KAP_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$KAP_TARFILE
-    KYANALYZER_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kyanalyzer/$KYANALYZER_TARFILE
-    ZEPPELIN_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/zeppelin/$ZEPPELIN_TARFILE
     # YARNUI_URL=https://${clusterName}.azurehdinsight.cn/yarnui/hn/cluster/app/%s
     KAPAGENT_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/kap-agent.jar
-else
+#else
     # echo "On Azure global"
-    KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
-    KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
-    ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
     # YARNUI_URL=https://${clusterName}.azurehdinsight.net/yarnui/hn/cluster/app/%s
 fi
 
@@ -69,7 +66,7 @@ downloadAndUnzipKAP() {
     mkdir $KAP_TMPFOLDER
 
     echo "Downloading KAP tar file"
-    wget $KAP_DOWNLOAD_URI -P $KAP_TMPFOLDER
+    wget $kapPackageUrl -P $KAP_TMPFOLDER
     wget $KAP_SAMPLE_CUBE_URL -P $KAP_TMPFOLDER
 
     echo "Unzipping KAP"
@@ -153,7 +150,7 @@ downloadAndUnzipKyAnalyzer() {
     mkdir $KAP_TMPFOLDER
 
     echo "Downloading KyAnalyzer tar file"
-    wget $KYANALYZER_DOWNLOAD_URI -P $KAP_TMPFOLDER
+    wget $kyAnalyzerPackageUrl -P $KAP_TMPFOLDER
 
     echo "Unzipping KyAnalyzer"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
@@ -182,7 +179,7 @@ downloadAndUnzipZeppelin() {
     mkdir $ZEPPELIN_TMPFOLDER
 
     echo "Downloading ZEPPELIN tar file"
-    wget $ZEPPELIN_DOWNLOAD_URI -P $ZEPPELIN_TMPFOLDER
+    wget $zeppelinPackageUrl -P $ZEPPELIN_TMPFOLDER
 
     echo "Unzipping ZEPPELIN"
     mkdir -p $ZEPPELIN_INSTALL_BASE_FOLDER
