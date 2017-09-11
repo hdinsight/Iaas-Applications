@@ -1,5 +1,12 @@
 #! /bin/bash
-
+#validate user input
+if [ -n "$1" ] && [ -n "$2" ] && [ -n "$3" ]
+    then
+          STORAGEACCOUNTNAME=$1
+	  CONTAINER=$2
+          STORAGEACCOUNTKEY=$3
+	  
+fi
 
 ## BASIC FUNCTIONS ##
 function package_exists() {
@@ -122,6 +129,17 @@ updateAmbariConfigs() {
     fi
     
     echo "Updated core-site.xml with fs.AbstractFileSystem.igfs.impl = org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem"
+    if [ -n "$STORAGEACCOUNTNAME" ] && [ -n "$STORAGEACCOUNTKEY" ]; then
+	   updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.azure.account.key.$STORAGEACCOUNTNAME" "$STORAGEACCOUNTKEY")
+    	 if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
+		echo "[ERROR] Failed to update core-site for property: 'fs.azure.account.key.$STORAGEACCOUNTNAME', Exiting!"
+		echo $updateResult
+		exit 135
+   	 fi
+	  echo "Updated core-site.xml with fs.azure.account.key.$STORAGEACCOUNTNAME = key"
+    
+    fi
+
 }
 
 stopServiceViaRest() {
@@ -210,8 +228,12 @@ updateApacheIgniteConfig(){
 
 	# extract default file system from core-site.xml
 	FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/^"//g' | sed 's/"$/\//g'`
-    	echo "fs.defaultFS=$FS_DEFAULT_DFS"
-	
+    	
+	if [ -n "$STORAGEACCOUNTNAME" ] && [ -n "$CONTAINER" ]
+	  then
+	   FS_DEFAULT_DFS="wasb://$CONTAINER@$STORAGEACCOUNTNAME/"
+	  fi
+	echo "fs.defaultFS=$FS_DEFAULT_DFS"
 	# extract worker nodes from ambari hosts
 	WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"[hw]n.*"' | sed 's/"//g'`)
 	echo "worker nodes = ${WORKER_NODES}"
