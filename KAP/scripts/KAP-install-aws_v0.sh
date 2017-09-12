@@ -6,10 +6,10 @@ adminpassword=$2
 apptype=$3
 # clusterName=$5
 kyaccountToken=$4
-agentId=$5
-kapPackageUrl=$6
-kyAnalyzerPackageUrl=$7
-zeppelinPackageUrl=$8
+kapPackageUrl=$5
+kyAnalyzerPackageUrl=$6
+zeppelinPackageUrl=$7
+agentId=$8
 
 BRANCH_NAME=master
 KAP_TARFILE=${var##*/kapPackageUrl}
