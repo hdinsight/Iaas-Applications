@@ -12,9 +12,9 @@ kyAnalyzerPackageUrl=$9
 zeppelinPackageUrl=${10}
 
 BRANCH_NAME=master
-KAP_TARFILE=${var##*/kapPackageUrl}
-KYANALYZER_TARFILE=${var##*/kyAnalyzerPackageUrl}
-ZEPPELIN_TARFILE=${var##*/zeppelinPackageUrl}
+KAP_TARFILE=`basename $kapPackageUrl`
+KYANALYZER_TARFILE=`basename $kyAnalyzerPackageUrl`
+ZEPPELIN_TARFILE=`basename $zeppelinPackageUrl`
 KYANALYZER_FOLDER_NAME=kyanalyzer
 SAMPLE_CUBE_TARFILE=sample_cube.tar.gz
 KAP_FOLDER_NAME=kap
