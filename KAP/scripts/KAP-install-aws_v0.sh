@@ -128,20 +128,20 @@ EOL
         su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/sample.sh"
     fi
 
-    echo "Starting KAP with kylin user"
-    # su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
+    # echo "Starting KAP with kylin user"
+    # # su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
+    # # sleep 15
+    # wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kap.service -O /etc/systemd/system/kap.service
+    # systemctl daemon-reload
+    # systemctl enable kap
+    # systemctl start kap
     # sleep 15
-    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kap.service -O /etc/systemd/system/kap.service
-    systemctl daemon-reload
-    systemctl enable kap
-    systemctl start kap
-    sleep 15
-
-    if [ "$newInstall" = true ] ; then
-        echo "Trigger a build for sample cube"
-        nohup curl -X PUT --user ADMIN:KYLIN -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
-        sleep 10
-    fi
+    #
+    # if [ "$newInstall" = true ] ; then
+    #     echo "Trigger a build for sample cube"
+    #     nohup curl -X PUT --user ADMIN:KYLIN -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
+    #     sleep 10
+    # fi
     downloadAndStartAgent
 }
 
@@ -165,11 +165,11 @@ startKyAnalyzer() {
     echo "Starting KyAnalyzer with kylin user"
     chown -R kylin $KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
     wget https://kyligencekeys.blob.core.windows.net/kap24hdi/kyAnalyzer.lic -P $KYANALYZER_HOME/conf/
-    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
-    systemctl daemon-reload
-    systemctl enable kyanalyzer
-    systemctl start kyanalyzer
-    sleep 10
+    # wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/$BRANCH_NAME/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
+    # systemctl daemon-reload
+    # systemctl enable kyanalyzer
+    # systemctl start kyanalyzer
+    # sleep 10
 
 }
 
