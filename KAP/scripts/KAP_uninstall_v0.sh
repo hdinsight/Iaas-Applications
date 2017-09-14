@@ -41,19 +41,16 @@ backupZeppelin() {
 main() {
     case "$apptype" in
         KAP+KyAnalyzer+Zeppelin)
-            backupKAP
             backupKAPALL
             backupKyAnalyzer
 # Not running Zeppelin backup
 #            backupZeppelin
             ;;
         KAP+KyAnalyzer)
-            backupKAP
             backupKAPALL
             backupKyAnalyzer
             ;;
         KAP)
-            backupKAP
             backupKAPALL
             ;;
         *)

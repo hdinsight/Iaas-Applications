@@ -20,6 +20,8 @@ SAMPLE_CUBE_TARFILE=sample_cube.tar.gz
 KAP_FOLDER_NAME=kap
 KAP_INSTALL_BASE_FOLDER=/usr/local
 KAP_TMPFOLDER=/tmp/kap
+BASE_BACKUP_DIR="/kycloud/backup"
+KAP_BACKUP_DIR=$BASE_BACKUP_DIR/kapall
 ZEPPELIN_FOLDER_NAME=zeppelin
 ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
@@ -228,8 +230,15 @@ startZeppelin() {
 }
 
 installKAP() {
-    downloadAndUnzipKAP
-    restoreKAP
+    hdfs dfs -test -e $BACKUP_DIR/$KAP_FOLDER_NAME
+    if [ $? -eq 0 ]; then
+        echo "restore kap..."
+        # just cp whole kap folder from hdfs and do not need to download & unzip anymore
+        restoreWholeKAP
+    else
+        echo "download and unzip kap..."
+        downloadAndUnzipKAP
+    fi
     startKAP
 }
 
@@ -243,6 +252,13 @@ installZeppelin() {
     downloadAndUnzipZeppelin
     restoreZeppelin
     startZeppelin
+}
+
+restoreWholeKAP() {
+    newInstall=false
+    echo "downloading files from hdfs..."
+    #rm -rf $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME
+    hdfs dfs -get $KAP_BACKUP_DIR/$KAP_FOLDER_NAME $KAP_INSTALL_BASE_FOLDER/
 }
 
 restoreKAP() {
