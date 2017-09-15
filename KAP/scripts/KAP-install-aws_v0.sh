@@ -9,7 +9,9 @@ kyaccountToken=$4
 kapPackageUrl=$5
 kyAnalyzerPackageUrl=$6
 zeppelinPackageUrl=$7
-agentId=$8
+s3privatebucket=$8
+
+agentId=$9
 
 BRANCH_NAME=master
 KAP_TARFILE=`basename $kapPackageUrl`
@@ -25,6 +27,8 @@ ZEPPELIN_INSTALL_BASE_FOLDER=/usr/local/zeppelin
 ZEPPELIN_TMPFOLDER=/tmp/zeppelin
 
 BACKUP_DIR=/kycloud/backup
+
+S3_BACKUP_DIR=s3://$s3privatebucket/$KAP_FOLDER_NAME
 
 newInstall=true
 
@@ -205,8 +209,15 @@ startZeppelin() {
 }
 
 installKAP() {
-    downloadAndUnzipKAP
-    restoreKAP
+    aws s3 ls $S3_BACKUP_DIR
+    if [ $? -eq 0 ]; then
+        echo "restore kap..."
+        # just cp whole kap folder from hdfs and do not need to download & unzip anymore
+        restoreWholeKAP
+    else
+        echo "download and unzip kap..."
+        downloadAndUnzipKAP
+    fi
     startKAP
 }
 
@@ -220,6 +231,12 @@ installZeppelin() {
     downloadAndUnzipZeppelin
     restoreZeppelin
     startZeppelin
+}
+
+restoreWholeKAP() {
+    newInstall=false
+    echo "restore kap..."
+    aws s3 cp $S3_BACKUP_DIR $KAP_INSTALL_BASE_FOLDER/$KAP_FOLDER_NAME --recursive
 }
 
 restoreKAP() {
