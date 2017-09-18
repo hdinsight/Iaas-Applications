@@ -59,7 +59,7 @@ sed -i '/kylin.server.mode/a\kylin.server.mode=all' $KYLINPROPERTIESFILE
 #sed -i 's/kylin.job.scheduler.default=.*/kylin.job.scheduler.default=1/' $KYLINPROPERTIESFILE
 sed -i '/kylin.job.scheduler.default/a\kylin.job.scheduler.default=1' $KYLINPROPERTIESFILE
 # Setting kap.job.helix.zookeeper-address
-sed -i "s/kap.job.helix.zookeeper-address=.*/kap.job.helix.zookeeper-address=$ZOOKEEPERADDRESS/" $KYLINPROPERTIESFILE
+#sed -i "s/kap.job.helix.zookeeper-address=.*/kap.job.helix.zookeeper-address=$ZOOKEEPERADDRESS/" $KYLINPROPERTIESFILE
 # Setting of cluster-fs
 sed -i "s/.*kylin.storage.hbase.cluster-fs=.*/kylin.storage.hbase.cluster-fs=wasb:\/\/$CONTAINERNAME@$STORAGESTRING/" $KYLINPROPERTIESFILE
 
