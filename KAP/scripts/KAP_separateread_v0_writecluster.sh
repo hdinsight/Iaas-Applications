@@ -2,6 +2,7 @@
 export CONTAINERNAME=$1
 export STORAGEACCTNAME=$2
 export ACCOUNTREGION=$3
+export STORAGEACCTNAMEWR=$4
 
 # echo "$@" >> /root/allvar.txt
 
@@ -25,6 +26,7 @@ else
 fi
 
 export STORAGESTRING=$STORAGEACCTNAME'.'$BLOBSTOREADDRESS
+export HDFSSTORAGESTRING=$STORAGEACCTNAMEWR'.'$BLOBSTOREADDRESS
 
 # Copy hbase config file
 mv $HBASEFILE $HBASEFILE.origin
@@ -51,14 +53,18 @@ echo $KYLIN_JOB_CON_SETTINGS >> $KYLIN_JOB_CONF
 echo $KYLIN_JOB_CON_SETTINGS >> $KYLIN_JOB_CONF_INMEM
 
 # Setting kylin.server.mode=query
-sed -i 's/kylin.server.mode=.*/kylin.server.mode=all/' $KYLINPROPERTIESFILE
+#sed -i 's/kylin.server.mode=.*/kylin.server.mode=all/' $KYLINPROPERTIESFILE
+sed -i '/kylin.server.mode/a\kylin.server.mode=all' $KYLINPROPERTIESFILE
 # Setting kylin.job.scheduler.default=1
-sed -i 's/kylin.job.scheduler.default=.*/kylin.job.scheduler.default=1/' $KYLINPROPERTIESFILE
+#sed -i 's/kylin.job.scheduler.default=.*/kylin.job.scheduler.default=1/' $KYLINPROPERTIESFILE
+sed -i '/kylin.job.scheduler.default/a\kylin.job.scheduler.default=1' $KYLINPROPERTIESFILE
 # Setting kap.job.helix.zookeeper-address
 sed -i "s/kap.job.helix.zookeeper-address=.*/kap.job.helix.zookeeper-address=$ZOOKEEPERADDRESS/" $KYLINPROPERTIESFILE
 # Setting of cluster-fs
 sed -i "s/.*kylin.storage.hbase.cluster-fs=.*/kylin.storage.hbase.cluster-fs=wasb:\/\/$CONTAINERNAME@$STORAGESTRING/" $KYLINPROPERTIESFILE
 
+# Setting of hdfs working-dir
+sed -i "/kylin.env.hdfs-working-dir/a\kylin.env.hdfs-working-dir=wasb://$CONTAINERNAME@$HDFSSTORAGESTRING/kylin" $KYLINPROPERTIESFILE
 # echo "kylin.storage.hbase.cluster-fs=wasb:\/\/$CONTAINERNAME@$STORAGESTRING" >> /root/allvar.txt
 
 # Restart of KAP
