@@ -1,28 +1,20 @@
 #! /bin/bash
 
 # In upgrade process, first we run uninstall, then we reinstall it.
-# but before upgrade, we check if the current version is latest
-
-# First stop all custom process
-# Kill kap
-export pid=`ps -ef| grep kap- | awk 'NR==1{print $2}' | cut -d' ' -f1`;kill $pid || true
-# Kill kyanalyzer-server
-export pid=`ps -ef| grep kyanalyzer-server | awk 'NR==1{print $2}' | cut -d' ' -f1`;kill $pid || true
-# Kill zeppelin
-export pid=`ps -ef| grep zeppelin | awk 'NR==1{print $2}' | cut -d' ' -f1`;kill $pid || true
 
 ######## Parameters ########
 echo "Starting at "`date +'%Y%m%d%H%M'`
-apptype=$1
-adminuser=$2
-adminpassword=$3
-metastore=$4
 
-# Default upgrading everything to latest
-#KAP_TARFILE=kap-2.3.0-GA-hbase1.x.tar.gz
-KAP_TARFILE=kap-2.3.3-GA-hbase1.x.tar.gz
-KYANALYZER_TARFILE=KyAnalyzer-2.3.0.tar.gz
-ZEPPELIN_TARFILE=zeppelin-0.8.0-kylin.tar.gz
+env="$1"
+kapPackageUrl="$2"
+kyAnalyzerPackageUrl="$3"
+zeppelinPackageUrl="$4"
+metastore="$5"
+
+
+KAP_TARFILE=`basename "$kapPackageUrl"`
+KYANALYZER_TARFILE=`basename "$kyAnalyzerPackageUrl"`
+ZEPPELIN_TARFILE=`basename "$zeppelinPackageUrl"`
 KAP_FOLDER_NAME=kap
 KAP_INSTALL_BASE_FOLDER=/usr/local
 KAP_TMPFOLDER=/tmp/kap
@@ -35,21 +27,6 @@ ZEPPELIN_TMPFOLDER=/tmp/zeppelin
 BACKUP_DIR=/kycloud/backup
 
 newInstall=false
-
-host=`hostname -f`
-
-if [[ "$host" == *chinacloudapp.cn ]]; then
-    # download from cn
-    echo "Downloading from Azure CN blob"
-    KAP_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kap/$KAP_TARFILE
-    KYANALYZER_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/kyanalyzer/$KYANALYZER_TARFILE
-    ZEPPELIN_DOWNLOAD_URI=https://kyhub.blob.core.chinacloudapi.cn/packages/zeppelin/$ZEPPELIN_TARFILE
-else
-    echo "Download from Azure global blob"
-    KAP_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KAP_TARFILE
-    KYANALYZER_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$KYANALYZER_TARFILE
-    ZEPPELIN_DOWNLOAD_URI=https://kyligencekeys.blob.core.windows.net/kap-binaries/$ZEPPELIN_TARFILE
-fi
 
 #import helper module.
 wget -O /tmp/HDInsightUtilities-v01.sh -q https://hdiconfigactions.blob.core.windows.net/linuxconfigactionmodulev01/HDInsightUtilities-v01.sh && source /tmp/HDInsightUtilities-v01.sh && rm -f /tmp/HDInsightUtilities-v01.sh
@@ -64,15 +41,20 @@ kap_backup_dir=$base_backup_dir/kap
 kyanalyzer_backup_dir=$base_backup_dir/kyanalyzer
 zeppelin_backup_dir=$base_backup_dir/zeppelin
 
-removelocal() {
+
+removeKAP() {
     if [ -d "$kap_dir" ]; then
       rm -rf $kap_dir
     fi
+}
 
+removeKyAnalyzer() {
     if [ -d "$kyanalyzer_dir" ]; then
       rm -rf $kyanalyzer_dir
     fi
+}
 
+removeZeppelin() {
     if [ -d "$zeppelin_dir" ]; then
       rm -rf $zeppelin_dir
     fi
@@ -102,7 +84,7 @@ downloadAndUnzipKAP() {
     mkdir $KAP_TMPFOLDER
 
     echo "Downloading KAP tar file"
-    wget $KAP_DOWNLOAD_URI -P $KAP_TMPFOLDER
+    wget $kapPackageUrl -P $KAP_TMPFOLDER
 
     echo "Unzipping KAP"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
@@ -121,6 +103,29 @@ downloadAndUnzipKAP() {
     sed -i "s/kylin.env.hdfs-working-dir=\/kylin/kylin.env.hdfs-working-dir=wasb:\/\/\/kylin/g" kylin.properties
 
     rm -rf $KAP_TMPFOLDER
+}
+
+startKapService() {
+    # su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
+    # sleep 15
+    if [ "$env" = "HDINSIGHT" ]; then
+        wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kap.service -O /etc/systemd/system/kap.service
+        systemctl daemon-reload
+        systemctl enable kap
+        systemctl start kap
+    else
+        service kap start;
+    fi
+    sleep 15
+}
+
+stopKapService() {
+    if [ "$env" = "HDINSIGHT" ]; then
+        systemctl stop kap
+    else
+        service kap stop;
+    fi
+    sleep 15
 }
 
 startKAP() {
@@ -153,19 +158,7 @@ EOL
     su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh org.apache.kylin.storage.hbase.util.DeployCoprocessorCLI  default  all || true"
 
     echo "Starting KAP with kylin user"
-    # su kylin -c "export SPARK_HOME=$KYLIN_HOME/spark && $KYLIN_HOME/bin/kylin.sh start"
-    # sleep 15
-    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kap.service -O /etc/systemd/system/kap.service
-    systemctl daemon-reload
-    systemctl enable kap
-    systemctl start kap
-    sleep 15
-
-    if [ "$newInstall" = true ] ; then
-        echo "Trigger a build for sample cube"
-        nohup curl -X PUT --user $adminuser:$adminpassword -H "Content-Type: application/json;charset=utf-8" -d '{ "startTime": 1325376000000, "endTime": 1456790400000, "buildType": "BUILD"}' http://localhost:7070/kylin/api/cubes/kylin_sales_cube/rebuild &
-        sleep 10
-    fi
+    startKapService
 }
 
 downloadAndUnzipKyAnalyzer() {
@@ -173,7 +166,7 @@ downloadAndUnzipKyAnalyzer() {
     mkdir $KAP_TMPFOLDER
 
     echo "Downloading KyAnalyzer tar file"
-    wget $KYANALYZER_DOWNLOAD_URI -P $KAP_TMPFOLDER
+    wget $kyAnalyzerPackageUrl -P $KAP_TMPFOLDER
 
     echo "Unzipping KyAnalyzer"
     mkdir -p $KAP_INSTALL_BASE_FOLDER
@@ -187,12 +180,26 @@ startKyAnalyzer() {
 
     echo "Starting KyAnalyzer with kylin user"
     export KYANALYZER_HOME=$KAP_INSTALL_BASE_FOLDER/$KYANALYZER_FOLDER_NAME
-    wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
-    systemctl daemon-reload
-    systemctl enable kyanalyzer
-    systemctl start kyanalyzer
+
+    if [ "$env" = "HDINSIGHT" ]; then
+        wget https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/files/kyanalyzer.service -O /etc/systemd/system/kyanalyzer.service
+        systemctl daemon-reload
+        systemctl enable kyanalyzer
+        systemctl start kyanalyzer
+    else
+        service kyanalyzer start;
+    fi
     sleep 10
 
+}
+
+stopKyAnalyzerService() {
+    if [ "$env" = "HDINSIGHT" ]; then
+        systemctl stop kyanalyzer
+    else
+        service kyanalyzer stop;
+    fi
+    sleep 10
 }
 
 downloadAndUnzipZeppelin() {
@@ -201,7 +208,7 @@ downloadAndUnzipZeppelin() {
     mkdir $ZEPPELIN_TMPFOLDER
 
     echo "Downloading ZEPPELIN tar file"
-    wget $ZEPPELIN_DOWNLOAD_URI -P $ZEPPELIN_TMPFOLDER
+    wget $zeppelinPackageUrl -P $ZEPPELIN_TMPFOLDER
 
     echo "Unzipping ZEPPELIN"
     mkdir -p $ZEPPELIN_INSTALL_BASE_FOLDER
@@ -271,32 +278,24 @@ restoreZeppelin() {
 }
 
 main() {
-    case "$apptype" in
-        KAP+KyAnalyzer+Zeppelin)
-            backupKAP
-            backupKyAnalyzer
-            removelocal
-            installKAP
-            installKyAnalyzer
-            installZeppelin
-            ;;
-        KAP+KyAnalyzer)
-            backupKAP
-            backupKyAnalyzer
-            removelocal
-            installKAP
-            installKyAnalyzer
-            ;;
-        KAP)
-            backupKAP
-            removelocal
-            installKAP
-            ;;
-        *)
-            echo "Not Supported APP Type!"
-            exit 1
-            ;;
-    esac
+    if [ "$kapPackageUrl" != "" ]; then
+        stopKapService
+        backupKAP
+        removeKAP
+        installKAP
+    fi
+    if [ "$kyAnalyzerPackageUrl" != "" ]; then
+        stopKyAnalyzerService
+        backupKyAnalyzer
+        removeKyAnalyzer
+        installKyAnalyzer
+    fi
+    if [ "$zeppelinPackageUrl" != "" ]; then
+        # Kill zeppelin
+        export pid=`ps -ef| grep zeppelin | awk 'NR==1{print $2}' | cut -d' ' -f1`;kill $pid || true
+        removeZeppelin
+        installZeppelin;
+    fi
 }
 
 ##############################
