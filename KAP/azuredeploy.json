@@ -1,0 +1,147 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appType": {
+      "type": "string",
+      "metadata": {
+        "description": "Which services you want to install"
+      },
+      "defaultValue": "KAP+KyAnalyzer+Zeppelin",
+      "allowedValues": [
+        "KAP",
+        "KAP+KyAnalyzer",
+        "KAP+KyAnalyzer+Zeppelin"
+      ]
+    },
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the existing HDInsight cluster"
+      }
+    },
+    "clusterLoginUserName": {
+      "type": "string",
+      "defaultValue": "admin",
+      "metadata": {
+        "description": "These account can be used to log into KAP and KyAnalyer web GUI and REST services."
+      }
+    },
+    "clusterLoginPassword": {
+      "type": "securestring",
+      "minLength": 10,
+      "metadata": {
+        "description": "The password of the account."
+      }
+    },
+    "metastoreName": {
+      "type": "string",
+      "defaultValue": "kylin_default_instance",
+      "metadata": {
+        "description": "The name of metadata store for KAP"
+      }
+    },
+    "kyaccountToken": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Kyligence Account API Token"
+      }
+    },
+    "galleryPackageIdentity": {
+      "type": "string",
+      "metadata": {
+        "description": "Any non-empty value is accepted. After the package is published, this parameter will be used to link the application install to the details about the application in the marketplace."
+      },
+      "defaultValue": "Kyligence"
+    },
+    "edgeNodeSize": {
+      "type": "string",
+      "metadata": {
+        "description": "Size of the edge node that hosts the application"
+      },
+      "defaultValue": "Standard_D3",
+      "allowedValues": [
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_D3",
+        "Standard_D4",
+        "Standard_D12",
+        "Standard_D13",
+        "Standard_D3_V2",
+        "Standard_D4_V2",
+        "Standard_D12_V2",
+        "Standard_D13_V2"
+      ]
+    }
+  },
+  "variables": {
+    "clusterApiVersion": "2015-03-01-preview",
+    "applicationName": "KAP"
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
+      "type": "Microsoft.HDInsight/clusters/applications",
+      "apiVersion": "[variables('clusterApiVersion')]",
+      "properties": {
+        "marketPlaceIdentifier": "[parameters('galleryPackageIdentity')]",
+        "computeProfile": {
+          "roles": [
+            {
+              "name": "edgenode",
+              "targetInstanceCount": 1,
+              "hardwareProfile": {
+                "vmSize": "[parameters('edgeNodeSize')]"
+              }
+            }
+          ]
+        },
+        "installScriptActions": [
+          {
+            "name": "[concat('KAP-install-v0','-' ,uniquestring(variables('applicationName')))]",
+            "uri": "https://raw.githubusercontent.com/Kyligence/Iaas-Applications/master/KAP/scripts/KAP-install_v0.sh",
+            "parameters": "[concat(parameters('clusterLoginUserName'), ' ', parameters('clusterLoginPassword'), ' ', parameters('metastoreName'), ' ', parameters('appType'), ' ', parameters('clusterName'), ' ', parameters('kyaccountToken'))]", 
+            "roles": [
+              "edgenode"
+            ]
+          }
+        ],
+        "uninstallScriptActions": [],
+        "httpsEndpoints": [
+          {
+            "subDomainSuffix": "kap",
+            "destinationPort": 7070,
+            "disableGatewayAuth":true,
+            "accessModes": [
+              "webpage"
+            ]
+          },
+          {
+            "subDomainSuffix": "kya",
+            "destinationPort": 8080,
+            "disableGatewayAuth":true,
+            "accessModes": [
+              "webpage"
+            ]
+          },
+          {
+            "subDomainSuffix": "zep",
+            "destinationPort": 9090,
+            "disableGatewayAuth":true,
+            "accessModes": [
+              "webpage"
+            ]
+          }
+        ],
+        "applicationType": "CustomApplication"
+      }
+    }
+  ],
+  "outputs": {
+    "application": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.HDInsight/clusters/applications/',parameters('clusterName'), variables('applicationName')))]"
+    }
+  }
+}

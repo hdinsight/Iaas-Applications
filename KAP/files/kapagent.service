@@ -1,0 +1,16 @@
+[Unit]
+Description=kapagent
+
+[Service]
+Environment=JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+Type=forking
+Restart=on-failure
+RestartSec=30s
+User=root
+
+
+ExecStart=/bin/bash -c "export KYLIN_HOME=/usr/local/kap;java -jar $KYLIN_HOME/kap-agent.jar --agentId=replaceAgentId 2>&1 >> /var/log/kapagent.log &"
+
+[Install]
+WantedBy=multi-user.target
