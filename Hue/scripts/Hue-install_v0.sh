@@ -1,4 +1,6 @@
 #! /bin/bash
+COPIEDKEYTABPATH=/usr/share/hue/desktop/conf/tempapps.service.keytab
+HUEPRINCIPAL=tempapps/ed20-aaneja.contoso.com@CONTOSO.COM
 CORESITEPATH=/etc/hadoop/conf/core-site.xml
 YARNSITEPATH=/etc/hadoop/conf/yarn-site.xml
 AMBARICONFIGS_SH=/var/lib/ambari-server/resources/scripts/configs.sh
@@ -229,6 +231,13 @@ setupHueService() {
     sed -i "s|## proxy_api_url=http://localhost:8088|proxy_api_url=http://$PRIMARYHEADNODE:8088|g" $HUE_INIPATH
     sed -i "s|## history_server_api_url=http://localhost:19888|history_server_api_url=http://$PRIMARYHEADNODE:19888|g" $HUE_INIPATH
     sed -i "s|## jobtracker_host=localhost|jobtracker_host=$PRIMARYHEADNODE|g" $HUE_INIPATH
+
+    #Secure Cluster changes
+    #[[kerberos]] section changes
+    sed -i "s|## kinit_path=/path/to/kinit|kinit_path=/usr/bin/kinit|g" $HUE_INIPATH
+    sed -i "s|## hue_keytab=|hue_keytab=$COPIEDKEYTABPATH|g" $HUE_INIPATH
+    sed -i "s|## hue_principal=hue/hostname.foo.com|hue_principal=$HUEPRINCIPAL|g" $HUE_INIPATH
+    sed -i "s|## security_enabled=false|security_enabled=true|g" $HUE_INIPATH
 
     echo "Adding hue user"
     useradd -r hue
