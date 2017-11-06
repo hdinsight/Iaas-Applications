@@ -1,5 +1,12 @@
 #! /bin/bash
-
+#validate user input
+if [ -n "$1" ] && [ -n "$2" ] && [ -n "$3" ]
+    then
+          STORAGEACCOUNTNAME=$1
+	  CONTAINER=$2
+          STORAGEACCOUNTKEY=$3
+	  
+fi
 
 ## BASIC FUNCTIONS ##
 function package_exists() {
@@ -53,8 +60,8 @@ export HADOOP_COMMON_HOME="/usr/hdp/current/hadoop-client";
 export HADOOP_HDFS_HOME="/usr/hdp/current/hadoop-hdfs-client";
 export HADOOP_MAPRED_HOME="/usr/hdp/current/hadoop-mapreduce-client";
 
-IGNITE_BINARY="apache-ignite-hadoop-1.7.0-bin";
-IGNITE_BINARY_URI="https://www.apache.org/dist/ignite/1.7.0/$IGNITE_BINARY.zip";
+IGNITE_BINARY="apache-ignite-hadoop-2.1.0-bin";
+IGNITE_BINARY_URI="https://archive.apache.org/dist/ignite/2.1.0/$IGNITE_BINARY.zip";
 IGNITE_TMPFOLDER=/tmp/ignite
 export IGNITE_HOME_DIR="/hadoop/ignite";
 export IGNITE_HOME="$IGNITE_HOME_DIR/$IGNITE_BINARY";
@@ -102,6 +109,26 @@ updateAmbariConfigs() {
     
     echo "Updated core-site.xml with fs.igfs.impl = org.apache.ignite.hadoop.fs.v1.IgniteHadoopFileSystem"
     
+    updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.wasb.impl" "org.apache.hadoop.fs.azure.NativeAzureFileSystem")
+    
+    if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
+        echo "[ERROR] Failed to update core-site for property: 'fs.wasb.impl', Exiting!"
+        echo $updateResult
+        exit 135
+    fi
+    
+    echo "Updated core-site.xml with fs.wasb.impl = org.apache.hadoop.fs.azure.NativeAzureFileSystem"
+    
+    updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.file.impl" "org.apache.hadoop.fs.LocalFileSystem")
+    
+    if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
+        echo "[ERROR] Failed to update core-site for property: 'fs.file.impl', Exiting!"
+        echo $updateResult
+        exit 135
+    fi
+    
+    echo "Updated core-site.xml with fs.file.impl = org.apache.hadoop.fs.LocalFileSystem"
+    
     updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.AbstractFileSystem.igfs.impl" "org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem")
     
     if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
@@ -111,6 +138,17 @@ updateAmbariConfigs() {
     fi
     
     echo "Updated core-site.xml with fs.AbstractFileSystem.igfs.impl = org.apache.ignite.hadoop.fs.v2.IgniteHadoopFileSystem"
+    if [ -n "$STORAGEACCOUNTNAME" ] && [ -n "$STORAGEACCOUNTKEY" ]; then
+	   updateResult=$(bash $AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT set $ACTIVEAMBARIHOST $CLUSTERNAME core-site "fs.azure.account.key.$STORAGEACCOUNTNAME" "$STORAGEACCOUNTKEY")
+    	 if [[ $updateResult != *"Tag:version"* ]] && [[ $updateResult == *"[ERROR]"* ]]; then
+		echo "[ERROR] Failed to update core-site for property: 'fs.azure.account.key.$STORAGEACCOUNTNAME', Exiting!"
+		echo $updateResult
+		exit 135
+   	 fi
+	  echo "Updated core-site.xml with fs.azure.account.key.$STORAGEACCOUNTNAME = key"
+    
+    fi
+
 }
 
 stopServiceViaRest() {
@@ -198,9 +236,13 @@ updateApacheSparkConfig(){
 updateApacheIgniteConfig(){
 
 	# extract default file system from core-site.xml
-	FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/"//g'`
-    	echo "fs.defaultFS=$FS_DEFAULT_DFS"
-	
+	FS_DEFAULT_DFS=`$AMBARICONFIGS_SH -u $USERID -p $PASSWD -port $PORT get $ACTIVEAMBARIHOST $CLUSTERNAME core-site | grep -o '"wasb:.*"' | sed 's/^"//g' | sed 's/"$/\//g'`
+    	
+	if [ -n "$STORAGEACCOUNTNAME" ] && [ -n "$CONTAINER" ]
+	  then2.1.0
+	   FS_DEFAULT_DFS="wasb://$CONTAINER@$STORAGEACCOUNTNAME/"
+	  fi
+	echo "fs.defaultFS=$FS_DEFAULT_DFS"
 	# extract worker nodes from ambari hosts
 	WORKER_NODES=(`curl -k -s -u $USERID:$PASSWD "http://$ACTIVEAMBARIHOST:$PORT/api/v1/clusters/$CLUSTERNAME/hosts" | grep -o '"[hw]n.*"' | sed 's/"//g'`)
 	echo "worker nodes = ${WORKER_NODES}"
@@ -266,15 +308,18 @@ setupApacheIgniteService(){
 	
 	echo "Creating Ignite Symlinks into Hadoop Libs"
 	cd $HADOOP_HOME/lib;
-	ln -sf $IGNITE_HOME/libs/ignite-core-1.7.0.jar;
+	ln -sf $IGNITE_HOME/libs/ignite-core-2.1.0.jar;
 	ln -sf $IGNITE_HOME/libs/ignite-shmem-1.0.0.jar;
-	ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-1.7.0.jar;
+	ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-2.1.0.jar;
 	
 	echo "Creating Hadoop Azure Symlinks into Ignite Libs"
 	cd $IGNITE_HOME/libs;
-	ln -sf /usr/hdp/current/hadoop-client/hadoop-azure.jar;
+	#ln -sf /usr/hdp/current/hadoop-client/hadoop-azure.jar;
 	ln -sf /usr/hdp/current/hadoop-client/lib/azure-storage-4.2.0.jar;
 	ln -sf /usr/hdp/current/hadoop-client/lib/azure-keyvault-core-0.8.0.jar;
+	ln -sf /usr/hdp/current/hadoop-client/lib/jackson-core-2.2.3.jar 
+ 	ln -sf /usr/hdp/current/hadoop-client/lib/jackson-annotations-2.2.3.jar 
+
 	
 	echo "create a symlink for HADOOP_COMMON needed by Ignite"
 	mkdir -p $HADOOP_HOME/share/hadoop/common/;
@@ -304,6 +349,20 @@ startApacheIgnite(){
 	if [ ! -z "$ignitepid" ]; then
 		echo "Apache Ignite instance started successfully: $ignitepid"
 	fi
+}
+
+mergeAzureJar(){
+	# porcaround for azure : if not hadoop-azure not found
+	# merge hadoop-azure with hadoop-common
+	cd $HADOOP_HOME/
+	mkdir tmpjar
+	cd tmpjar/
+	jar -xf ../hadoop-azure.jar
+	cpfile=`find */ -type f`
+	jar -uf ../hadoop-common-2.7.3.2.6.1.10-4.jar  $cpfile
+	cd $HADOOP_HOME/
+	rm -r tmpjar/
+
 }
 ####################################################################
 
@@ -354,6 +413,7 @@ updateApacheSparkConfig;
 
 
 #echo "begin startApacheIgnite"
+mergeAzureJar
 startApacheIgnite
 #echo "end startApacheIgnite"
 
