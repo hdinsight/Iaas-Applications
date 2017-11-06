@@ -60,8 +60,8 @@ export HADOOP_COMMON_HOME="/usr/hdp/current/hadoop-client";
 export HADOOP_HDFS_HOME="/usr/hdp/current/hadoop-hdfs-client";
 export HADOOP_MAPRED_HOME="/usr/hdp/current/hadoop-mapreduce-client";
 
-IGNITE_BINARY="apache-ignite-hadoop-2.3.0-bin";
-IGNITE_BINARY_URI="http://apache.mindstudios.com//ignite/2.3.0/$IGNITE_BINARY.zip";
+IGNITE_BINARY="apache-ignite-hadoop-2.1.0-bin";
+IGNITE_BINARY_URI="https://archive.apache.org/dist/ignite/2.1.0/$IGNITE_BINARY.zip";
 IGNITE_TMPFOLDER=/tmp/ignite
 export IGNITE_HOME_DIR="/hadoop/ignite";
 export IGNITE_HOME="$IGNITE_HOME_DIR/$IGNITE_BINARY";
@@ -308,9 +308,9 @@ setupApacheIgniteService(){
 	
 	echo "Creating Ignite Symlinks into Hadoop Libs"
 	cd $HADOOP_HOME/lib;
-	ln -sf $IGNITE_HOME/libs/ignite-core-2.3.0.jar;
+	ln -sf $IGNITE_HOME/libs/ignite-core-2.1.0.jar;
 	ln -sf $IGNITE_HOME/libs/ignite-shmem-1.0.0.jar;
-	ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-2.3.0.jar;
+	ln -sf $IGNITE_HOME/libs/ignite-hadoop/ignite-hadoop-2.1.0.jar;
 	
 	echo "Creating Hadoop Azure Symlinks into Ignite Libs"
 	cd $IGNITE_HOME/libs;
