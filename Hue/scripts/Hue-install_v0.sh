@@ -1,6 +1,6 @@
 #! /bin/bash
 COPIEDKEYTABPATH=/usr/share/hue/desktop/conf/tempapps.service.keytab
-HUEPRINCIPAL=tempapps/ed20-aaneja.contoso.com@CONTOSO.COM
+HUEPRINCIPALSHORTNAME = hue
 CORESITEPATH=/etc/hadoop/conf/core-site.xml
 YARNSITEPATH=/etc/hadoop/conf/yarn-site.xml
 AMBARICONFIGS_SH=/var/lib/ambari-server/resources/scripts/configs.sh
@@ -232,12 +232,29 @@ setupHueService() {
     sed -i "s|## history_server_api_url=http://localhost:19888|history_server_api_url=http://$PRIMARYHEADNODE:19888|g" $HUE_INIPATH
     sed -i "s|## jobtracker_host=localhost|jobtracker_host=$PRIMARYHEADNODE|g" $HUE_INIPATH
 
-    #Secure Cluster changes
+    #Secure Cluster related setup
+
+    echo "Calling ISVAPPS service for kerb principal setup"
+    sudo python2 /var/lib/ambari-agent/cache/stacks/HDP/2.6/services/ISVAPPS/package/scripts/ISVApps_Setup_Helper.py $HUEPRINCIPALSHORTNAME
+    #Check out statuscode for determining success or failure
+    #Use klist on the keytab path to determine principal full name
+
+
     #[[kerberos]] section changes
     sed -i "s|## kinit_path=/path/to/kinit|kinit_path=/usr/bin/kinit|g" $HUE_INIPATH
     sed -i "s|## hue_keytab=|hue_keytab=$COPIEDKEYTABPATH|g" $HUE_INIPATH
-    sed -i "s|## hue_principal=hue/hostname.foo.com|hue_principal=$HUEPRINCIPAL|g" $HUE_INIPATH
+        sed -i "s|## hue_principal=hue/hostname.foo.com|hue_principal=$HUEPRINCIPAL|g" $HUE_INIPATH
     sed -i "s|## security_enabled=false|security_enabled=true|g" $HUE_INIPATH
+
+    # [[ldap]] section changes. 
+    # Some of these settings are going to be dependent on the features available on the LDAP server in use
+    # This needs to be manually changed to the ldap server specified at time of cluster create
+    sed -i "s|## ldap_url=ldap://auth.mycompany.com|ldap_url=ldaps://$PRIMARYHEADNODE|g" $HUE_INIPATH
+    sed -i "s|## search_bind_authentication=true|search_bind_authentication=false|g" $HUE_INIPATH
+    ## [[users]]
+    sed -i "s|## user_filter=\"objectclass=*\"|user_filter=\"objectclass=*\"|g" $HUE_INIPATH
+    sed -i "s|## user_name_attr=sAMAccountName|user_name_attr=sAMAccountName|g" $HUE_INIPATH
+
 
     echo "Adding hue user"
     useradd -r hue
