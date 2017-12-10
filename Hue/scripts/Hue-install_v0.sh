@@ -1,5 +1,4 @@
 #! /bin/bash
-COPIEDKEYTABPATH=/usr/share/hue/desktop/conf/tempapps.service.keytab
 HUEPRINCIPALSHORTNAME = hue
 CORESITEPATH=/etc/hadoop/conf/core-site.xml
 YARNSITEPATH=/etc/hadoop/conf/yarn-site.xml
@@ -233,28 +232,36 @@ setupHueService() {
     sed -i "s|## jobtracker_host=localhost|jobtracker_host=$PRIMARYHEADNODE|g" $HUE_INIPATH
 
     #Secure Cluster related setup
+    ISSECURECLUSTER=$(echo -e "import hdinsight_common.Constants as Constants\nimport hdinsight_common.ClusterManifestParser as ClusterManifestParser\nprint ClusterManifestParser.parse_local_manifest().settings[Constants.ENABLE_SECURITY]" | python2)
+    if [ $ISSECURECLUSTER == "true" ]; then
+       echo "Calling ISVAPPS service for kerb principal setup"    
+        if ! python2 /var/lib/ambari-agent/cache/stacks/HDP/2.6/services/ISVAPPS/package/scripts/ISVApps_Setup_Helper.py $HUEPRINCIPALSHORTNAME; then
+            # Exit code was non zero, we have an error
+            echo "ISVAPPS Setup Helper failed to install correctly"
+            exit 1
+        fi
+        #Set the HUEPRINCIPAL to the full kerb name
+        keytabfilename="isvapps_${HUEPRINCIPALSHORTNAME}.service.keytab"
+        cp /etc/security/keytabs/$keytabfilename $HUE_INSTALLFOLDER/desktop/conf
+        COPIEDKEYTABPATH=$HUE_INSTALLFOLDER/desktop/conf/$keytabfilename
+        HUEPRINCIPAL=$(klist -k $COPIEDKEYTABPATH | awk '{if(NR==4) print substr($0,6)}')
 
-    echo "Calling ISVAPPS service for kerb principal setup"
-    sudo python2 /var/lib/ambari-agent/cache/stacks/HDP/2.6/services/ISVAPPS/package/scripts/ISVApps_Setup_Helper.py $HUEPRINCIPALSHORTNAME
-    #Check out statuscode for determining success or failure
-    #Use klist on the keytab path to determine principal full name
+        #[[kerberos]] section changes
+        sed -i "s|## kinit_path=/path/to/kinit|kinit_path=/usr/bin/kinit|g" $HUE_INIPATH
+        sed -i "s|## hue_keytab=|hue_keytab=$COPIEDKEYTABPATH|g" $HUE_INIPATH
+            sed -i "s|## hue_principal=hue/hostname.foo.com|hue_principal=$HUEPRINCIPAL|g" $HUE_INIPATH
+        sed -i "s|## security_enabled=false|security_enabled=true|g" $HUE_INIPATH
 
-
-    #[[kerberos]] section changes
-    sed -i "s|## kinit_path=/path/to/kinit|kinit_path=/usr/bin/kinit|g" $HUE_INIPATH
-    sed -i "s|## hue_keytab=|hue_keytab=$COPIEDKEYTABPATH|g" $HUE_INIPATH
-        sed -i "s|## hue_principal=hue/hostname.foo.com|hue_principal=$HUEPRINCIPAL|g" $HUE_INIPATH
-    sed -i "s|## security_enabled=false|security_enabled=true|g" $HUE_INIPATH
-
-    # [[ldap]] section changes. 
-    # Some of these settings are going to be dependent on the features available on the LDAP server in use
-    # This needs to be manually changed to the ldap server specified at time of cluster create
-    sed -i "s|## ldap_url=ldap://auth.mycompany.com|ldap_url=ldaps://$PRIMARYHEADNODE|g" $HUE_INIPATH
-    sed -i "s|## search_bind_authentication=true|search_bind_authentication=false|g" $HUE_INIPATH
-    ## [[users]]
-    sed -i "s|## user_filter=\"objectclass=*\"|user_filter=\"objectclass=*\"|g" $HUE_INIPATH
-    sed -i "s|## user_name_attr=sAMAccountName|user_name_attr=sAMAccountName|g" $HUE_INIPATH
-
+        # [[ldap]] section changes. 
+        # Some of these settings are going to be dependent on the features available on the LDAP server in use
+        # Assuming first LDAP server from cluster config is OK to use
+        LDAPURL=$(echo -e "import json\nimport  hdinsight_common.Constants as Constants\nimport hdinsight_common.ClusterManifestParser as ClusterManifestParser\nprint json.loads(ClusterManifestParser.parse_local_manifest().settings[Constants.LDAP_URLS])[0]" | python2)
+        sed -i "s|## ldap_url=ldap://auth.mycompany.com|ldap_url=$LDAPURL|g" $HUE_INIPATH
+        sed -i "s|## search_bind_authentication=true|search_bind_authentication=false|g" $HUE_INIPATH
+        ## [[users]]
+        sed -i "s|## user_filter=\"objectclass=*\"|user_filter=\"objectclass=*\"|g" $HUE_INIPATH
+        sed -i "s|## user_name_attr=sAMAccountName|user_name_attr=sAMAccountName|g" $HUE_INIPATH 
+    fi   
 
     echo "Adding hue user"
     useradd -r hue
