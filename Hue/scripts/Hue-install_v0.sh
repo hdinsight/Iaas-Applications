@@ -244,6 +244,8 @@ setupHueService() {
         keytabfilename="isvapps_${HUEPRINCIPALSHORTNAME}.service.keytab"
         cp /etc/security/keytabs/$keytabfilename $HUE_INSTALLFOLDER/desktop/conf
         COPIEDKEYTABPATH=$HUE_INSTALLFOLDER/desktop/conf/$keytabfilename
+        #Set this as per security requirments. Can also setup hue user first and skip the keytab copy
+        chmod a+r $COPIEDKEYTABPATH
         HUEPRINCIPAL=$(klist -k $COPIEDKEYTABPATH | awk '{if(NR==4) print substr($0,6)}')
 
         #[[kerberos]] section changes
