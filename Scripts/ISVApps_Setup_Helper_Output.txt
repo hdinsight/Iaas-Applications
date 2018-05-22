@@ -1,0 +1,20 @@
+sshuser@wn0-aa0515:~$ sudo python2 /var/lib/ambari-agent/cache/stacks/HDP/2.6/services/ISVAPPS/package/scripts/ISVApps_Setup_Helper.py isvprincipal
+2018-05-22 22:29:48,226 - ISVAPPS_helper - INFO - Using command line provided KERBNAME : isvprincipal
+Verification successful
+2018-05-22 22:29:48,296 - ISVAPPS_helper - INFO - Installing ISVAPPS service
+2018-05-22 22:29:48,530 - hdinsight_common.AmbariHelper - WARNING - No JSON response returned for the POST request to http://headnodehost:8080/api/v1/clusters/aa0515sec/services/ISVAPPS
+2018-05-22 22:29:48,530 - ISVAPPS_helper - INFO - Installing ISVAPPS_CLIENT component
+2018-05-22 22:29:48,644 - hdinsight_common.AmbariHelper - WARNING - No JSON response returned for the POST request to http://headnodehost:8080/api/v1/clusters/aa0515sec/services/ISVAPPS/components/ISVAPPS_CLIENT
+2018-05-22 22:29:48,644 - ISVAPPS_helper - INFO - ISVAPPS service and component installation successful
+2018-05-22 22:29:48,752 - ISVAPPS_helper - INFO - Registering ISVAPPS_CLIENT on local host : wn0-aa0515.contoso.com
+2018-05-22 22:29:48,925 - hdinsight_common.AmbariHelper - WARNING - No JSON response returned for the POST request to http://headnodehost:8080/api/v1/clusters/aa0515sec/hosts/wn0-aa0515.contoso.com/host_components/ISVAPPS_CLIENT
+2018-05-22 22:29:48,925 - ISVAPPS_helper - INFO - ISVAPPS_CLIENT registered on local host
+2018-05-22 22:29:48,925 - ISVAPPS_helper - INFO - Fetching the site config isvapps-site for the ISVAPPS service
+2018-05-22 22:29:48,978 - ISVAPPS_helper - INFO - Updating the site config with key "suffix_value_wn0-aa0515.contoso.com", value: "isvprincipal"
+2018-05-22 22:29:48,978 - ISVAPPS_helper - INFO - Setting updated site config with tag : version_1527028188
+2018-05-22 22:29:53,261 - ISVAPPS_helper - INFO - Requested state change on ISVAPPS_CLIENT to INSTALLED on local host
+2018-05-22 22:29:53,401 - ISVAPPS_helper - INFO - Waiting for the request 20 to fail or complete. Current state is: PENDING
+2018-05-22 22:30:08,472 - ISVAPPS_helper - INFO - Waiting for the request 20 to fail or complete. Current state is: COMPLETED
+2018-05-22 22:30:08,472 - ISVAPPS_helper - INFO - Success! Request 20 has reached the state: COMPLETED
+sshuser@wn0-aa0515:~$ ls -o /etc/security/keytabs/isvprincipal.service.keytab
+-r-------- 1 root 448 May 22 22:30 /etc/security/keytabs/isvprincipal.service.keytab
