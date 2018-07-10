@@ -7,6 +7,13 @@ import pip
 from ambariclient.client import Ambari
 from sys import platform as _platform
 
+class MaxLevelFilter(logging.Filter):
+    def __init__(self, level):
+        self.level = level
+
+    def filter(self, record):
+        return record.levelno < self.level
+
 log = logging.getLogger(__name__)
 
 if _platform == 'linux' or _platform == 'linux2':
@@ -27,7 +34,7 @@ def configure_loggers(logfile, verbosity):
     logging._defaultFormatter = logging.Formatter('%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s')
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setLevel(verbosity)
-    stdout_handler.addFilter(pip.utils.logging.MaxLevelFilter(logging.WARNING))
+    stdout_handler.addFilter(MaxLevelFilter(logging.WARNING))
     stderr_handler = logging.StreamHandler(sys.stderr)
     stderr_handler.setLevel(logging.WARNING)
     rootLogger.addHandler(stdout_handler)
