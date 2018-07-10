@@ -1,4 +1,5 @@
 #! /bin/bash
+HUEPRINCIPALSHORTNAME = hue
 CORESITEPATH=/etc/hadoop/conf/core-site.xml
 YARNSITEPATH=/etc/hadoop/conf/yarn-site.xml
 AMBARICONFIGS_SH=/var/lib/ambari-server/resources/scripts/configs.sh
@@ -229,6 +230,40 @@ setupHueService() {
     sed -i "s|## proxy_api_url=http://localhost:8088|proxy_api_url=http://$PRIMARYHEADNODE:8088|g" $HUE_INIPATH
     sed -i "s|## history_server_api_url=http://localhost:19888|history_server_api_url=http://$PRIMARYHEADNODE:19888|g" $HUE_INIPATH
     sed -i "s|## jobtracker_host=localhost|jobtracker_host=$PRIMARYHEADNODE|g" $HUE_INIPATH
+
+    #Secure Cluster related setup
+    ISSECURECLUSTER=$(echo -e "import hdinsight_common.Constants as Constants\nimport hdinsight_common.ClusterManifestParser as ClusterManifestParser\nprint ClusterManifestParser.parse_local_manifest().settings[Constants.ENABLE_SECURITY]" | python2)
+    if [ $ISSECURECLUSTER == "true" ]; then
+       echo "Calling ISVAPPS service for kerb principal setup"    
+        if ! python2 /var/lib/ambari-agent/cache/stacks/HDP/2.6/services/ISVAPPS/package/scripts/ISVApps_Setup_Helper.py $HUEPRINCIPALSHORTNAME; then
+            # Exit code was non zero, we have an error
+            echo "ISVAPPS Setup Helper failed to install correctly"
+            exit 1
+        fi
+        #Set the HUEPRINCIPAL to the full kerb name
+        keytabfilename="isvapps_${HUEPRINCIPALSHORTNAME}.service.keytab"
+        cp /etc/security/keytabs/$keytabfilename $HUE_INSTALLFOLDER/desktop/conf
+        COPIEDKEYTABPATH=$HUE_INSTALLFOLDER/desktop/conf/$keytabfilename
+        #Set this as per security requirments. Can also setup hue user first and skip the keytab copy
+        chmod a+r $COPIEDKEYTABPATH
+        HUEPRINCIPAL=$(klist -k $COPIEDKEYTABPATH | awk '{if(NR==4) print substr($0,6)}')
+
+        #[[kerberos]] section changes
+        sed -i "s|## kinit_path=/path/to/kinit|kinit_path=/usr/bin/kinit|g" $HUE_INIPATH
+        sed -i "s|## hue_keytab=|hue_keytab=$COPIEDKEYTABPATH|g" $HUE_INIPATH
+            sed -i "s|## hue_principal=hue/hostname.foo.com|hue_principal=$HUEPRINCIPAL|g" $HUE_INIPATH
+        sed -i "s|## security_enabled=false|security_enabled=true|g" $HUE_INIPATH
+
+        # [[ldap]] section changes. 
+        # Some of these settings are going to be dependent on the features available on the LDAP server in use
+        # Assuming first LDAP server from cluster config is OK to use
+        LDAPURL=$(echo -e "import json\nimport  hdinsight_common.Constants as Constants\nimport hdinsight_common.ClusterManifestParser as ClusterManifestParser\nprint json.loads(ClusterManifestParser.parse_local_manifest().settings[Constants.LDAP_URLS])[0]" | python2)
+        sed -i "s|## ldap_url=ldap://auth.mycompany.com|ldap_url=$LDAPURL|g" $HUE_INIPATH
+        sed -i "s|## search_bind_authentication=true|search_bind_authentication=false|g" $HUE_INIPATH
+        ## [[users]]
+        sed -i "s|## user_filter=\"objectclass=*\"|user_filter=\"objectclass=*\"|g" $HUE_INIPATH
+        sed -i "s|## user_name_attr=sAMAccountName|user_name_attr=sAMAccountName|g" $HUE_INIPATH 
+    fi   
 
     echo "Adding hue user"
     useradd -r hue
